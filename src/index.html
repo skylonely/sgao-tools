@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f5f3ee">
+  <title>JSON 格式化 · SGAO 工具箱</title>
+  <meta name="description" content="简单、顺手的在线开发工具箱：JSON 格式化、时间戳转换、URL 编解码、文本对比。无需登录，输入内容仅在浏览器本地处理。">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5m8-10 5 5-5 5m-3-13-2 16"/></symbol>
+    <symbol id="i-braces" viewBox="0 0 24 24"><path d="M9 3H7a2 2 0 0 0-2 2v4a3 3 0 0 1-2 3 3 3 0 0 1 2 3v4a2 2 0 0 0 2 2h2m6-18h2a2 2 0 0 1 2 2v4a3 3 0 0 0 2 3 3 3 0 0 0-2 3v4a2 2 0 0 1-2 2h-2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="m10 13 4-4m-5 6-2 2a4.2 4.2 0 0 1-6-6l4-4a4.2 4.2 0 0 1 6 0m2 2 2-2a4.2 4.2 0 0 1 6 6l-4 4a4.2 4.2 0 0 1-6 0" transform="translate(1 0)"/></symbol>
+    <symbol id="i-diff" viewBox="0 0 24 24"><path d="M4 3h6v18H4zM14 3h6v18h-6zM6 8h2m8 7h2m-1-1v2"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M13 5h6v6m0-6L9 15m0-10H5v14h14v-4"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V4H4v12h4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6zM8 12l3 3 5-5"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 15A9 9 0 0 1 9 4a9 9 0 1 0 11 11Z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1 1m12 12 1 1M5 19l1-1M18 6l1-1"/></symbol>
+    <symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 7h15m-4-4 4 4-4 4M20 17H5m4-4-4 4 4 4"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8z"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H5v20h14V7zM14 2v5h5M8 12h8m-8 4h5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></symbol>
+  </svg>
+  <a class="skip-link" href="#main">跳到工具内容</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="工具导航">
+      <a class="brand" href="#json" aria-label="SGAO 工具箱首页">
+        <span class="brand-mark"><svg class="icon"><use href="#i-code"/></svg></span>
+        <span class="brand-word">SGAO<span>工具箱 <span class="brand-slash">/</span> TOOLS</span></span>
+      </a>
+      <div class="nav-heading">日常开发，顺手一点 <span>04</span></div>
+      <nav class="tool-nav">
+        <a href="#json" data-tool="json" class="nav-item active" aria-current="page"><svg class="icon"><use href="#i-braces"/></svg><span>JSON 格式化<small>整理结构，读懂数据</small></span><span class="nav-index">01</span></a>
+        <a href="#timestamp" data-tool="timestamp" class="nav-item"><svg class="icon"><use href="#i-clock"/></svg><span>时间戳转换<small>时间与数字，自由转换</small></span><span class="nav-index">02</span></a>
+        <a href="#url" data-tool="url" class="nav-item"><svg class="icon"><use href="#i-link"/></svg><span>URL 编解码<small>让每个字符准确传达</small></span><span class="nav-index">03</span></a>
+        <a href="#diff" data-tool="diff" class="nav-item"><svg class="icon"><use href="#i-diff"/></svg><span>文本对比<small>细微变化，一眼看见</small></span><span class="nav-index">04</span></a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="privacy-card"><svg class="icon"><use href="#i-shield"/></svg><strong>你的数据，留在你的浏览器</strong><p>无需登录，输入内容不上传。<br>关掉页面，就放下这次工作。</p></div>
+        <div class="sidebar-footer"><span><span class="status-dot"></span>简单 · 专注 · 好用</span><span>v1.0</span></div>
+      </div>
+    </aside>
+    <div class="main-shell">
+      <header class="topbar">
+        <div class="breadcrumb"><span>工具箱</span><span class="breadcrumb-separator">/</span><span id="breadcrumb-current">JSON 格式化</span></div>
+        <div class="topbar-actions"><a href="https://sgao.cc" target="_blank" rel="noopener noreferrer">返回主站<svg class="icon"><use href="#i-external"/></svg></a><span class="topbar-divider"></span><button id="theme-toggle" class="icon-button" aria-label="切换到深色模式" title="切换颜色模式"><svg class="icon"><use href="#i-moon"/></svg></button></div>
+      </header>
+      <main id="main" tabindex="-1">
+        <div class="page-heading"><div><div class="eyebrow"><span></span> YOUR EVERYDAY TOOLKIT <span id="tool-number">/ 01</span></div><h1 id="page-title">JSON 格式化<span class="title-dot">.</span></h1><p id="page-description">把复杂的数据，整理成清晰的结构。</p></div><span class="local-badge"><svg class="icon"><use href="#i-shield"/></svg>浏览器本地处理</span></div>
+
+        <section id="view-json" class="tool-view" aria-label="JSON 格式化">
+          <div class="workspace-toolbar"><div class="toolbar-options"><label>缩进<select id="json-indent"><option value="2">2 个空格</option><option value="4">4 个空格</option><option value="tab">Tab</option></select></label><label class="checkbox-label"><input id="json-sort" type="checkbox">按键名排序</label></div><div class="toolbar-actions"><button id="json-sample" class="text-button"><svg class="icon"><use href="#i-file"/></svg>试试示例</button><button id="json-clear" class="text-button muted"><svg class="icon"><use href="#i-trash"/></svg>清空</button></div></div>
+          <div class="editor-grid">
+            <div class="editor-panel"><div class="panel-heading"><label for="json-input"><span class="panel-dot"></span>输入 JSON</label><span class="panel-meta" id="json-input-count">0 字符</span></div><div class="code-editor"><pre class="line-numbers" id="json-input-lines" aria-hidden="true">1</pre><textarea id="json-input" class="code-input" placeholder="在这里粘贴 JSON 内容…" spellcheck="false" autocomplete="off" autocapitalize="off" maxlength="2000000" wrap="off"></textarea></div><div class="panel-footer"><span>支持对象、数组及基础类型</span><span>JSON</span></div></div>
+            <div class="editor-panel output-panel"><div class="panel-heading"><span><span class="panel-dot accent"></span>处理结果</span><div class="panel-buttons"><button id="json-download" class="icon-button" title="下载 JSON" aria-label="下载处理结果" disabled><svg class="icon"><use href="#i-download"/></svg></button><button id="json-copy" class="copy-button" disabled><svg class="icon"><use href="#i-copy"/></svg>复制</button></div></div><div class="code-editor output-editor" id="json-output-scroll" tabindex="0" role="region" aria-label="JSON 处理结果"><pre class="line-numbers" id="json-output-lines" aria-hidden="true">1</pre><pre id="json-output" class="code-output placeholder">整理后的 JSON 会出现在这里</pre></div><div class="panel-footer"><span id="json-output-status">等待输入</span><span id="json-output-count">0 字符</span></div></div>
+          </div>
+          <div id="json-error" class="error-message" role="alert" hidden></div>
+          <div class="action-bar"><div class="action-buttons"><button id="json-format" class="button primary"><svg class="icon"><use href="#i-code"/></svg>格式化<svg class="icon action-arrow"><use href="#i-arrow"/></svg></button><button id="json-minify" class="button secondary">压缩 JSON</button></div><span class="keyboard-hint"><kbd id="shortcut-key">⌘</kbd><kbd>Enter</kbd> 快速格式化</span></div>
+          <div class="feature-row"><div><span class="feature-number">01</span><span><strong>结构更清晰</strong><small>灵活缩进，语法高亮</small></span></div><div><span class="feature-number">02</span><span><strong>数据不走样</strong><small>保留大整数与原始数值</small></span></div><div><span class="feature-number">03</span><span><strong>结果随手带走</strong><small>一键复制，或下载文件</small></span></div></div>
+        </section>
+
+        <section id="view-timestamp" class="tool-view" aria-label="时间戳转换" hidden>
+          <div class="live-clock"><div><div class="eyebrow"><span class="status-dot"></span>此刻，正在发生</div><div class="clock-value" id="live-time">—</div><span class="small-note">北京时间 · UTC+08:00</span></div><div class="clock-timestamps"><button id="copy-live-seconds" class="clock-copy" title="复制当前秒级时间戳"><span>秒级时间戳</span><strong id="live-seconds">—</strong><svg class="icon"><use href="#i-copy"/></svg></button><button id="copy-live-ms" class="clock-copy" title="复制当前毫秒级时间戳"><span>毫秒级时间戳</span><strong id="live-ms">—</strong><svg class="icon"><use href="#i-copy"/></svg></button></div></div>
+          <div class="workspace-toolbar"><label class="timezone-label">转换时区<select id="time-zone"><option value="beijing">北京时间（UTC+08:00）</option><option value="utc">协调世界时（UTC）</option><option value="local">本机时区</option></select></label><button id="time-now" class="text-button"><svg class="icon"><use href="#i-clock"/></svg>填入当前时间</button></div>
+          <div class="conversion-grid"><div class="form-panel"><div class="form-heading"><span class="step-marker">01</span><h2>时间戳 → 日期时间</h2></div><label class="field-label" for="timestamp-input">Unix 时间戳</label><div class="input-with-select"><input id="timestamp-input" type="text" inputmode="decimal" placeholder="例如 1792627200" autocomplete="off"><select id="timestamp-unit" aria-label="时间戳单位"><option value="auto">自动识别</option><option value="seconds">秒（s）</option><option value="milliseconds">毫秒（ms）</option></select></div><p class="field-hint">自动模式：绝对值小于 10¹¹ 按秒处理，其余按毫秒。</p><button id="timestamp-convert" class="button primary">转换为日期<svg class="icon"><use href="#i-arrow"/></svg></button><div id="timestamp-error" class="error-message" role="alert" hidden></div><div class="result-list" id="timestamp-results"><p class="empty-result">时间戳里的某一刻，等你解开。</p></div></div>
+          <div class="form-panel"><div class="form-heading"><span class="step-marker">02</span><h2>日期时间 → 时间戳</h2></div><label class="field-label" for="date-input">日期与时间</label><input id="date-input" type="datetime-local" step="1" min="1000-01-01T00:00" max="9999-12-31T23:59:59"><p class="field-hint">按上方选择的时区解析，精确到秒。</p><button id="date-convert" class="button primary">转换为时间戳<svg class="icon"><use href="#i-arrow"/></svg></button><div id="date-error" class="error-message" role="alert" hidden></div><div class="result-list" id="date-results"><p class="empty-result">选一个时间，看看它的数字模样。</p></div></div></div>
+          <div class="info-note"><svg class="icon"><use href="#i-info"/></svg><p>Unix 时间戳从 1970 年 1 月 1 日 00:00:00 UTC 开始计时。时间戳本身不含时区，时区影响的是日期的显示与解析。</p></div>
+        </section>
+
+        <section id="view-url" class="tool-view" aria-label="URL 编解码" hidden>
+          <div class="workspace-toolbar"><label>编码方式<select id="url-mode"><option value="component">URL 参数 · encodeURIComponent</option><option value="uri">完整 URL · encodeURI</option><option value="form">表单参数 · 空格转 +</option></select></label><div class="toolbar-actions"><button id="url-sample" class="text-button"><svg class="icon"><use href="#i-file"/></svg>试试示例</button><button id="url-clear" class="text-button muted"><svg class="icon"><use href="#i-trash"/></svg>清空</button></div></div>
+          <div class="editor-grid"><div class="editor-panel"><div class="panel-heading"><label for="url-input"><span class="panel-dot"></span>原始内容</label><span id="url-input-count" class="panel-meta">0 字符</span></div><textarea id="url-input" class="plain-editor" placeholder="粘贴 URL、参数，或需要编码的文字…" spellcheck="false" maxlength="2000000"></textarea><div class="panel-footer"><span>支持中文及 Unicode 字符</span><span>TEXT</span></div></div><div class="editor-panel output-panel"><div class="panel-heading"><label for="url-output"><span class="panel-dot accent"></span>处理结果</label><button id="url-copy" class="copy-button" disabled><svg class="icon"><use href="#i-copy"/></svg>复制</button></div><textarea id="url-output" class="plain-editor" placeholder="编码或解码后的内容会出现在这里" readonly spellcheck="false"></textarea><div class="panel-footer"><span id="url-status">等待处理</span><span id="url-output-count">0 字符</span></div></div></div>
+          <div id="url-error" class="error-message" role="alert" hidden></div><div class="action-bar"><div class="action-buttons"><button id="url-encode" class="button primary">编码<svg class="icon"><use href="#i-arrow"/></svg></button><button id="url-decode" class="button secondary">解码</button></div><button id="url-swap" class="text-button" disabled><svg class="icon"><use href="#i-swap"/></svg>结果作为输入</button></div><div class="info-note"><svg class="icon"><use href="#i-info"/></svg><p id="url-mode-note">URL 参数模式会编码 : / ? & = 等保留字符，适合单独处理查询参数的值。</p></div>
+        </section>
+
+        <section id="view-diff" class="tool-view" aria-label="文本对比" hidden>
+          <div class="workspace-toolbar"><div class="toolbar-options"><label class="checkbox-label"><input id="diff-whitespace" type="checkbox">忽略空白字符</label><label class="checkbox-label"><input id="diff-case" type="checkbox">忽略大小写</label></div><div class="toolbar-actions"><button id="diff-sample" class="text-button"><svg class="icon"><use href="#i-file"/></svg>试试示例</button><button id="diff-clear" class="text-button muted"><svg class="icon"><use href="#i-trash"/></svg>清空</button></div></div>
+          <div class="editor-grid"><div class="editor-panel"><div class="panel-heading"><label for="diff-before"><span class="panel-dot"></span>原始文本</label><span id="diff-before-count" class="panel-meta">0 行</span></div><textarea id="diff-before" class="plain-editor diff-input" placeholder="把原始版本放在这里…" spellcheck="false" maxlength="1000000" wrap="off"></textarea></div><div class="editor-panel"><div class="panel-heading"><label for="diff-after"><span class="panel-dot accent"></span>修改后文本</label><span id="diff-after-count" class="panel-meta">0 行</span></div><textarea id="diff-after" class="plain-editor diff-input" placeholder="把新版本放在这里，看看有什么不同…" spellcheck="false" maxlength="1000000" wrap="off"></textarea></div></div>
+          <div id="diff-error" class="error-message" role="alert" hidden></div><div class="action-bar"><div class="action-buttons"><button id="diff-compare" class="button primary"><svg class="icon"><use href="#i-diff"/></svg>开始对比<svg class="icon"><use href="#i-arrow"/></svg></button><button id="diff-swap" class="button secondary"><svg class="icon"><use href="#i-swap"/></svg>交换文本</button></div><span class="small-note">逐行对比 · 换行符统一为 LF</span></div>
+          <div class="diff-result-panel"><div class="panel-heading"><span>差异结果 <span id="diff-summary" class="diff-summary"></span></span><label class="checkbox-label"><input id="diff-only-changes" type="checkbox">仅看差异</label></div><div id="diff-results" class="diff-results"><div class="diff-empty"><svg class="icon"><use href="#i-diff"/></svg><strong>每一处变化，都有迹可循</strong><span>在上方放入两个版本，点击「开始对比」。</span></div></div></div>
+        </section>
+        <footer class="page-footer"><span>SGAO TOOLS <span class="footer-dot">·</span> 为日常的每一小步</span><span><span class="status-dot"></span>无需安装，即开即用</span></footer>
+      </main>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <noscript><p class="noscript-note">请开启 JavaScript 以使用工具。所有计算均在你的浏览器内完成。</p></noscript>
+</body>
+</html>

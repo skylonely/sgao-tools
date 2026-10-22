@@ -1,0 +1,16 @@
+{
+  "name": "sgao-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SGAO 工具箱：在浏览器本地处理的日常开发工具",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "node scripts/serve.mjs --source",
+    "start": "node scripts/serve.mjs --source",
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/serve.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "deploy": "npm run build && npx --yes wrangler@4.92.0 deploy"
+  }
+}
