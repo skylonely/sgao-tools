@@ -1,6 +1,7 @@
 import { formatJSON } from './lib/json.js';
 import { parseTimestamp, formatDateTime, dateToTimestamp } from './lib/time.js';
 import { transformURL } from './lib/url.js';
+import { initICO } from './ico-tool.js';
 
 const $ = id => document.getElementById(id);
 const on = (id, event, handler) => $(id).addEventListener(event, handler);
@@ -9,6 +10,7 @@ const tools = {
   timestamp: ['时间戳转换', '在一串数字和某个瞬间之间，轻松往返。', '02'],
   url: ['URL 编解码', '处理地址和参数，让每个字符准确传达。', '03'],
   diff: ['文本对比', '并排放下两个版本，让每一处变化浮现。', '04'],
+  ico: ['ICO 图标生成', '把一张图片，变成适合网站和应用的图标。', '05'],
 };
 let currentTool = 'json';
 let clockTimer;
@@ -301,6 +303,7 @@ on('diff-sample', 'click', () => {
 window.addEventListener('pagehide', () => { clearInterval(clockTimer); stopDiff(); });
 window.addEventListener('pageshow', () => { if (currentTool === 'timestamp') { clearInterval(clockTimer); updateClock(); clockTimer = setInterval(updateClock, 1000); } });
 
+initICO({ notify: toast });
 $('json-input').value = jsonSample;
 updateJSONInput(); runJSON();
 $('date-input').value = formatDateTime(Date.now(), 'beijing', 'T');

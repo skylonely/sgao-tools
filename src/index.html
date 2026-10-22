@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#f5f3ee">
   <title>JSON 格式化 · SGAO 工具箱</title>
-  <meta name="description" content="简单、顺手的在线开发工具箱：JSON 格式化、时间戳转换、URL 编解码、文本对比。无需登录，输入内容仅在浏览器本地处理。">
+  <meta name="description" content="简单、顺手的在线开发工具箱：JSON 格式化、时间戳转换、URL 编解码、文本对比、ICO 图标生成。无需登录，输入内容仅在浏览器本地处理。">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/app.js"></script>
@@ -31,6 +31,8 @@
     <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H5v20h14V7zM14 2v5h5M8 12h8m-8 4h5"/></symbol>
     <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
     <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 15v6h16v-6"/></symbol>
   </svg>
   <a class="skip-link" href="#main">跳到工具内容</a>
   <div class="app-shell">
@@ -39,12 +41,13 @@
         <span class="brand-mark"><svg class="icon"><use href="#i-code"/></svg></span>
         <span class="brand-word">SGAO<span>工具箱 <span class="brand-slash">/</span> TOOLS</span></span>
       </a>
-      <div class="nav-heading">日常开发，顺手一点 <span>04</span></div>
+      <div class="nav-heading">日常开发，顺手一点 <span>05</span></div>
       <nav class="tool-nav">
         <a href="#json" data-tool="json" class="nav-item active" aria-current="page"><svg class="icon"><use href="#i-braces"/></svg><span>JSON 格式化<small>整理结构，读懂数据</small></span><span class="nav-index">01</span></a>
         <a href="#timestamp" data-tool="timestamp" class="nav-item"><svg class="icon"><use href="#i-clock"/></svg><span>时间戳转换<small>时间与数字，自由转换</small></span><span class="nav-index">02</span></a>
         <a href="#url" data-tool="url" class="nav-item"><svg class="icon"><use href="#i-link"/></svg><span>URL 编解码<small>让每个字符准确传达</small></span><span class="nav-index">03</span></a>
         <a href="#diff" data-tool="diff" class="nav-item"><svg class="icon"><use href="#i-diff"/></svg><span>文本对比<small>细微变化，一眼看见</small></span><span class="nav-index">04</span></a>
+        <a href="#ico" data-tool="ico" class="nav-item"><svg class="icon"><use href="#i-image"/></svg><span>ICO 图标生成<small>一张图片，多种尺寸</small></span><span class="nav-index">05</span></a>
       </nav>
       <div class="sidebar-bottom">
         <div class="privacy-card"><svg class="icon"><use href="#i-shield"/></svg><strong>你的数据，留在你的浏览器</strong><p>无需登录，输入内容不上传。<br>关掉页面，就放下这次工作。</p></div>
@@ -89,6 +92,28 @@
           <div class="editor-grid"><div class="editor-panel"><div class="panel-heading"><label for="diff-before"><span class="panel-dot"></span>原始文本</label><span id="diff-before-count" class="panel-meta">0 行</span></div><textarea id="diff-before" class="plain-editor diff-input" placeholder="把原始版本放在这里…" spellcheck="false" maxlength="1000000" wrap="off"></textarea></div><div class="editor-panel"><div class="panel-heading"><label for="diff-after"><span class="panel-dot accent"></span>修改后文本</label><span id="diff-after-count" class="panel-meta">0 行</span></div><textarea id="diff-after" class="plain-editor diff-input" placeholder="把新版本放在这里，看看有什么不同…" spellcheck="false" maxlength="1000000" wrap="off"></textarea></div></div>
           <div id="diff-error" class="error-message" role="alert" hidden></div><div class="action-bar"><div class="action-buttons"><button id="diff-compare" class="button primary"><svg class="icon"><use href="#i-diff"/></svg>开始对比<svg class="icon"><use href="#i-arrow"/></svg></button><button id="diff-swap" class="button secondary"><svg class="icon"><use href="#i-swap"/></svg>交换文本</button></div><span class="small-note">逐行对比 · 换行符统一为 LF</span></div>
           <div class="diff-result-panel"><div class="panel-heading"><span>差异结果 <span id="diff-summary" class="diff-summary"></span></span><label class="checkbox-label"><input id="diff-only-changes" type="checkbox">仅看差异</label></div><div id="diff-results" class="diff-results"><div class="diff-empty"><svg class="icon"><use href="#i-diff"/></svg><strong>每一处变化，都有迹可循</strong><span>在上方放入两个版本，点击「开始对比」。</span></div></div></div>
+        </section>
+        <section id="view-ico" class="tool-view" aria-label="ICO 图标生成" hidden>
+          <div class="workspace-toolbar"><span class="small-note">PNG / JPG / WebP / SVG → ICO</span><div class="toolbar-actions"><button id="ico-sample" class="text-button"><svg class="icon"><use href="#i-file"/></svg>试试示例</button><button id="ico-clear" class="text-button muted" disabled><svg class="icon"><use href="#i-trash"/></svg>清空图片</button></div></div>
+          <div class="ico-workspace">
+            <div class="editor-panel ico-source-panel"><div class="panel-heading"><span><span class="panel-dot"></span>原始图片</span><span id="ico-source-meta" class="panel-meta">未选择图片</span></div>
+              <label id="ico-upload" class="ico-upload ico-checker"><input id="ico-file" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml,.png,.jpg,.jpeg,.webp,.svg" aria-label="选择源图片" aria-describedby="ico-upload-help"><span id="ico-upload-empty" class="ico-upload-empty"><span class="ico-upload-icon"><svg class="icon"><use href="#i-upload"/></svg></span><strong>拖入一张图片，从这里开始</strong><span>或点击选择本地图片</span><span class="button secondary">选择图片</span></span><img id="ico-source-image" alt="选中的源图片预览" hidden></label>
+              <div class="ico-source-details"><strong id="ico-source-name">支持透明图片，建议使用正方形原图</strong><span id="ico-upload-help">最大 10 MB · 点击预览区可重新选择图片</span></div>
+            </div>
+            <div class="form-panel ico-settings"><div class="form-heading"><span class="step-marker">ICO</span><h2>输出设置</h2></div>
+              <fieldset class="ico-size-field"><legend class="field-label">图标尺寸 <span class="small-note">可多选，合并为一个 ICO 文件</span></legend><div class="ico-size-options">
+                <label><input type="checkbox" name="ico-size" value="16" checked><span>16</span></label><label><input type="checkbox" name="ico-size" value="24"><span>24</span></label><label><input type="checkbox" name="ico-size" value="32" checked><span>32</span></label><label><input type="checkbox" name="ico-size" value="48" checked><span>48</span></label><label><input type="checkbox" name="ico-size" value="64"><span>64</span></label><label><input type="checkbox" name="ico-size" value="128"><span>128</span></label><label><input type="checkbox" name="ico-size" value="256"><span>256</span></label>
+              </div><div class="ico-presets"><button id="ico-preset-web" class="text-button" type="button">网站常用</button><span>·</span><button id="ico-preset-all" class="text-button" type="button">全部尺寸</button><span class="small-note">单位：像素</span></div></fieldset>
+              <label for="ico-fit" class="field-label">图片适配</label><select id="ico-fit"><option value="contain">完整显示（等比缩放，四周留白）</option><option value="cover">居中裁剪（等比填满图标）</option></select>
+              <label for="ico-background" class="field-label ico-field-gap">背景处理</label><div class="ico-background-row"><select id="ico-background"><option value="transparent">保留透明背景</option><option value="color">使用自定义底色</option></select><input id="ico-color" type="color" value="#ffffff" aria-label="自定义背景颜色" disabled></div>
+              <label for="ico-filename" class="field-label ico-field-gap">文件名称</label><div class="ico-filename-row"><input id="ico-filename" type="text" value="favicon" maxlength="100" autocomplete="off" spellcheck="false"><span>.ico</span></div>
+            </div>
+          </div>
+          <div id="ico-error" class="error-message" role="alert" hidden></div>
+          <div class="ico-preview-panel editor-panel"><div class="panel-heading"><span><span class="panel-dot accent"></span>效果预览</span><span id="ico-output-meta" class="panel-meta" role="status">等待生成</span></div><div id="ico-previews" class="ico-previews"><p class="ico-preview-empty">上传图片后，在这里查看各尺寸效果。</p></div><div class="panel-footer"><span>按实际像素尺寸显示，棋盘格表示透明区域</span><span>32-bit RGBA</span></div></div>
+          <p id="ico-warning" class="ico-upscale-warning" role="status" hidden>所选尺寸大于原图的短边，放大后可能变模糊。建议使用尺寸更大的原图。</p>
+          <div class="action-bar"><button id="ico-download" class="button primary" disabled><svg class="icon"><use href="#i-download"/></svg>生成并下载 ICO</button><span class="small-note">图片仅在当前浏览器处理，不会上传</span></div>
+          <div class="info-note"><svg class="icon"><use href="#i-info"/></svg><p>网站 favicon 通常选择 16、32、48 像素即可。透明留白会保留原图比例，居中裁剪会去掉超出正方形的部分；自定义底色可用于填充透明区域。</p></div>
         </section>
         <footer class="page-footer"><span>SGAO TOOLS <span class="footer-dot">·</span> 为日常的每一小步</span><span><span class="status-dot"></span>无需安装，即开即用</span></footer>
       </main>
