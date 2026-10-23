@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs><pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#e2e0d9"/></pattern></defs>
+  <path fill="#f5f3ee" d="M0 0h1200v630H0z"/>
+  <path fill="#1c1e24" d="M0 0h26v630H0z"/>
+  <g font-family="Arial, sans-serif"><rect x="83" y="62" width="55" height="55" rx="15" fill="#ec6245"/><path d="m104 80-10 10 10 10m14-20 10 10-10 10m-6-25-4 30" stroke="#fff" stroke-width="3" stroke-linejoin="round" fill="none"/><text x="157" y="102" fill="#25262c" font-size="35" font-weight="700" letter-spacing="4">SGAO / TOOLS</text>
+  <text x="83" y="204" fill="#777970" font-size="14" letter-spacing="3">SMALL TOOLS. EVERYDAY FLOW.</text>
+  <g font-family="PingFang SC, Microsoft YaHei, sans-serif" font-weight="600" font-size="68" fill="#25262c"><text x="78" y="299">日常开发，</text><text x="78" y="389">顺手一点<tspan fill="#ec6245">.</tspan></text></g>
+  <text x="84" y="457" font-family="PingFang SC, sans-serif" font-size="20" fill="#777970">图片优化 · 网站图标 · 二维码 · 开发工具</text>
+  <path d="M84 520h1033" stroke="#e2e0d9"/><text x="84" y="566" font-size="18" fill="#777970">tools.sgao.cc</text><text x="866" y="566" font-size="13" fill="#427c60" letter-spacing="1">08 TOOLS / ALL LOCAL</text>
+  <rect x="714" y="137" width="405" height="336" rx="22" fill="#eeece6" stroke="#e2e0d9"/><rect x="714" y="137" width="405" height="336" rx="22" fill="url(#grid)"/>
+  <g transform="translate(775 209) rotate(-9 69 74)"><rect width="141" height="149" rx="22" fill="#ec6245"/><path d="m35 40 30 30m0-24v24H41m65 42L76 82m0 24V82h24" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><text x="27" y="128" fill="#fff" font-size="13" letter-spacing="2">LESS KB</text></g>
+  <g transform="translate(932 181) rotate(9 68 68)"><rect width="136" height="136" rx="22" fill="#1c1e24"/><text x="18" y="82" fill="#f5f3ee" font-size="48">{</text><text x="46" y="74" fill="#ff967a" font-size="17">JSON</text><text x="107" y="82" fill="#f5f3ee" font-size="48">}</text></g>
+  <g transform="translate(943 313) rotate(4 63 63)"><rect width="126" height="126" rx="19" fill="#fffefb" stroke="#e2e0d9"/><g stroke="#427c60" stroke-width="4" fill="none"><path d="M30 24h22v22H30zM75 24h22v22H75zM30 68h22v22H30zM65 57v14h15v19h17M64 88h8M93 58h7v14"/></g><text x="19" y="113" fill="#427c60" font-size="10" letter-spacing="1">SCAN &amp; GO</text></g></g>
+</svg>

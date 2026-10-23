@@ -8,16 +8,28 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 
 | 工具 | 能力 | 入口 |
 | --- | --- | --- |
-| JSON 格式化 | 2/4 空格或 Tab、递归键名排序、压缩、语法高亮、错误定位、复制和下载；保留大整数、指数和重复键 | `/#json` |
-| 时间戳转换 | 秒/毫秒自动或手动识别、双向转换、UTC/北京时间/本机时区、当前时间和复制 | `/#timestamp` |
-| URL 编解码 | 参数、完整 URL 和表单三种模式，Unicode、错误提示、结果回填 | `/#url` |
-| 文本对比 | 逐行新增/删除、行号、忽略空白/大小写、仅看差异、交换版本 | `/#diff` |
-| 网站图标整包生成 | 一张 Logo 生成 ICO、9 张 PNG、Apple Touch/PWA/Maskable、Manifest、HTML 引用和说明，13 文件 ZIP；保留单独 ICO 下载 | `/#ico` |
-| 图片压缩 & 格式转换 | 批量感知质量检查、自适应有损编码、PNG 减色、智能选择格式、尺寸调整、原图滑块对比、单图及 ZIP 下载 | `/#image` |
-| 二维码生成 & 识别 | 网址、文字、Wi-Fi，颜色与 Logo、PNG/SVG 下载，自动回读校验，上传或拖入图片识别 | `/#qrcode` |
-| SVG 优化 & 转 PNG | 上传/粘贴、SVGO 精简、前后预览、保留 ID 与 viewBox、SVG 下载/复制、自定义尺寸与背景导出 PNG | `/#svg` |
+| JSON 格式化 | 2/4 空格或 Tab、递归键名排序、压缩、语法高亮、错误定位、复制和下载；保留大整数、指数和重复键 | `/json-formatter/` |
+| 时间戳转换 | 秒/毫秒自动或手动识别、双向转换、UTC/北京时间/本机时区、当前时间和复制 | `/timestamp-converter/` |
+| URL 编解码 | 参数、完整 URL 和表单三种模式，Unicode、错误提示、结果回填 | `/url-encoder/` |
+| 文本对比 | 逐行新增/删除、行号、忽略空白/大小写、仅看差异、交换版本 | `/text-diff/` |
+| 网站图标整包生成 | 一张 Logo 生成 ICO、9 张 PNG、Apple Touch/PWA/Maskable、Manifest、HTML 引用和说明，13 文件 ZIP；保留单独 ICO 下载 | `/favicon-generator/` |
+| 图片压缩 & 格式转换 | 批量感知质量检查、自适应有损编码、PNG 减色、智能选择格式、尺寸调整、原图滑块对比、单图及 ZIP 下载 | `/image-compressor/` |
+| 二维码生成 & 识别 | 网址、文字、Wi-Fi，颜色与 Logo、PNG/SVG 下载，自动回读校验，上传或拖入图片识别 | `/qrcode/` |
+| SVG 优化 & 转 PNG | 上传/粘贴、SVGO 精简、前后预览、保留 ID 与 viewBox、SVG 下载/复制、自定义尺寸与背景导出 PNG | `/svg-optimizer/` |
 
 包含自适应布局、浅色/深色主题和键盘操作。`⌘/Ctrl + Enter` 快速格式化 JSON。只保存颜色偏好，不使用分析服务或外部字体。
+
+## 导航首页与 SEO
+
+根目录 `/` 是工具导航首页，按「图片与图标 / 开发与文本 / 分享与连接」分类，可组合关键词搜索，支持空结果重置与键盘操作。搜索内容只用于本页筛选，不发送请求。
+
+构建时为首页和 8 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
+
+旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
+
+`/sitemap.xml` 由同一份页面目录生成，包含 9 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
+
+新增工具时，在 `src/lib/pages.js` 中填写目录、页面文案、步骤、FAQ 与关联工具，在 `src/index.html` 增加对应 `view-*` 区块，并在 `src/app.js` 注册初始化逻辑。构建会同步生成导航、独立页面与站点地图。
 
 ## 本地开发
 
@@ -42,9 +54,11 @@ npm run preview   # 预览 dist/
 ```text
 sgao-tools/
 ├── src/
-│   ├── index.html          # 工具页面
+│   ├── index.html          # 页面外壳与工具界面模板（经构建输出独立页面）
 │   ├── styles.css          # 布局、主题和响应式样式
-│   ├── app.js              # 路由及界面交互
+│   ├── portal.css          # 导航首页、工具说明与关联入口
+│   ├── directory.js        # 本地分类和关键词筛选
+│   ├── app.js              # 旧链接兼容与当前工具初始化
 │   ├── diff-worker.js      # 后台对比线程
 │   ├── ico-tool.js         # 网站图标整包、应用配置及下载
 │   ├── favicon-engine.js   # ICO/PNG、主屏幕及安全区图标渲染
@@ -59,7 +73,7 @@ sgao-tools/
 │   ├── vendor/             # 本地开源库与完整许可证
 │   └── lib/                # 可单独测试的工具逻辑
 ├── public/                 # 图标及静态响应头
-├── scripts/                # 零依赖开发服务器、静态构建
+├── scripts/                # 零依赖开发服务器、页面渲染与静态构建
 ├── tests/                  # Node.js 内置测试
 └── wrangler.jsonc          # 独立 Cloudflare Worker 和域名配置
 ```

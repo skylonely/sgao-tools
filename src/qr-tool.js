@@ -205,9 +205,8 @@ export function initQRCode({ notify }) {
     try { await navigator.clipboard.writeText(scanContent); notify('识别内容已复制'); }
     catch { $('qr-scan-result').focus(); $('qr-scan-result').select(); notify('请手动复制已选中的识别内容。'); }
   });
-  function open() { if (location.hash === '#qrcode' && !hasOpened) { hasOpened = true; updateCount(); generate(); } }
-  window.addEventListener('hashchange', open);
+  function open() { if (document.body.dataset.page === 'qrcode' && !hasOpened) { hasOpened = true; updateCount(); generate(); } }
   window.addEventListener('pagehide', () => { clearTimeout(debounce); generation++; scanVersion++; logoVersion++; jobs.forEach(job => job.cancel()); });
-  window.addEventListener('pageshow', event => { if (event.persisted && location.hash === '#qrcode' && !output) generate(); });
+  window.addEventListener('pageshow', event => { if (event.persisted && document.body.dataset.page === 'qrcode' && !output) generate(); });
   open();
 }

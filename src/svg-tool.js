@@ -199,9 +199,8 @@ export function initSVG({ notify }) {
   ['svg-background', 'svg-color'].forEach(id => $(id).addEventListener('input', updateExport));
   for (const scale of [1, 2, 4]) $(`svg-scale-${scale}`).addEventListener('click', () => { if (!output) return; $('svg-width').value = Math.max(1, Math.round(output.dimensions.width * scale)); $('svg-height').value = Math.max(1, Math.round(output.dimensions.height * scale)); updateExport(); });
   $('svg-png').addEventListener('click', exportPNG);
-  function open() { if (location.hash === '#svg' && !opened) { opened = true; sample(); } }
-  window.addEventListener('hashchange', open);
+  function open() { if (document.body.dataset.page === 'svg' && !opened) { opened = true; sample(); } }
   window.addEventListener('pagehide', () => { fileVersion++; invalidate('等待 SVG 内容'); downloadURLs.forEach(url => URL.revokeObjectURL(url)); downloadURLs.clear(); });
-  window.addEventListener('pageshow', event => { if (event.persisted && location.hash === '#svg' && $('svg-input').value.trim()) run(); });
+  window.addEventListener('pageshow', event => { if (event.persisted && document.body.dataset.page === 'svg' && $('svg-input').value.trim()) run(); });
   open();
 }
