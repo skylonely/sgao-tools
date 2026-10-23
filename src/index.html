@@ -6,10 +6,11 @@
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#f5f3ee">
   <title>JSON 格式化 · SGAO 工具箱</title>
-  <meta name="description" content="在线图片智能压缩与格式转换、ICO 生成、JSON 格式化、时间戳转换、URL 编解码、文本对比。图片在浏览器本地处理，批量优化网页图片并对比画质。">
+  <meta name="description" content="二维码生成与图片识别、在线图片压缩与格式转换、ICO 生成、JSON 格式化、时间戳转换、URL 编解码、文本对比。无需登录，内容在浏览器本地处理。">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/image-tool.css">
+  <link rel="stylesheet" href="/qr-tool.css">
   <script type="module" src="/app.js"></script>
 </head>
 <body>
@@ -35,6 +36,7 @@
     <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></symbol>
     <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 15v6h16v-6"/></symbol>
     <symbol id="i-compress" viewBox="0 0 24 24"><path d="M4 4l6 6m0-5v5H5m15 10-6-6m0 5v-5h5M14 4h6v6M4 14v6h6"/></symbol>
+    <symbol id="i-qr" viewBox="0 0 24 24"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM12 3v3m0 6h3v3h-3v3m6-6h3v3m-3 3v3h3m-9 0h3v-3M6 5v2m12-2v2M6 17v2"/></symbol>
   </svg>
   <a class="skip-link" href="#main">跳到工具内容</a>
   <div class="app-shell">
@@ -43,7 +45,7 @@
         <span class="brand-mark"><svg class="icon"><use href="#i-code"/></svg></span>
         <span class="brand-word">SGAO<span>工具箱 <span class="brand-slash">/</span> TOOLS</span></span>
       </a>
-      <div class="nav-heading">日常开发，顺手一点 <span>06</span></div>
+      <div class="nav-heading">日常开发，顺手一点 <span>07</span></div>
       <nav class="tool-nav">
         <a href="#json" data-tool="json" class="nav-item active" aria-current="page"><svg class="icon"><use href="#i-braces"/></svg><span>JSON 格式化<small>整理结构，读懂数据</small></span><span class="nav-index">01</span></a>
         <a href="#timestamp" data-tool="timestamp" class="nav-item"><svg class="icon"><use href="#i-clock"/></svg><span>时间戳转换<small>时间与数字，自由转换</small></span><span class="nav-index">02</span></a>
@@ -51,6 +53,7 @@
         <a href="#diff" data-tool="diff" class="nav-item"><svg class="icon"><use href="#i-diff"/></svg><span>文本对比<small>细微变化，一眼看见</small></span><span class="nav-index">04</span></a>
         <a href="#ico" data-tool="ico" class="nav-item"><svg class="icon"><use href="#i-image"/></svg><span>ICO 图标生成<small>一张图片，多种尺寸</small></span><span class="nav-index">05</span></a>
         <a href="#image" data-tool="image" class="nav-item"><svg class="icon"><use href="#i-compress"/></svg><span>图片压缩 & 转换<small>更小体积，更多细节</small></span><span class="nav-index">06</span></a>
+        <a href="#qrcode" data-tool="qrcode" class="nav-item"><svg class="icon"><use href="#i-qr"/></svg><span>二维码生成 & 识别<small>方寸之间，轻松分享</small></span><span class="nav-index">07</span></a>
       </nav>
       <div class="sidebar-bottom">
         <div class="privacy-card"><svg class="icon"><use href="#i-shield"/></svg><strong>你的数据，留在你的浏览器</strong><p>无需登录，输入内容不上传。<br>关掉页面，就放下这次工作。</p></div>
@@ -129,6 +132,47 @@
           <div id="image-results" hidden><div class="image-stats"><div><span>原图体积</span><strong id="image-input-total">0 B</strong></div><div><span>处理后体积</span><strong id="image-output-total">0 B</strong></div><div class="image-saved"><span>共节省</span><strong id="image-saved-total">0 B</strong></div></div><div class="image-results-panel editor-panel"><div class="panel-heading"><span>处理列表 <span class="panel-meta" id="image-count">0 张图片</span></span><button id="image-zip" class="copy-button" disabled><svg class="icon"><use href="#i-download"/></svg>打包下载 ZIP</button></div><div id="image-list" aria-live="polite" aria-relevant="text"></div><div class="panel-footer"><span id="image-summary-note" role="status">选择图片，即可开始优化</span></div></div></div>
           <div class="image-explain"><div><span class="feature-number">01</span><h3>压缩要小，细节要在</h3><p>对照原图的明暗、颜色和透明度，自动寻找适合当前图片的编码参数。</p></div><div><span class="feature-number">02</span><h3>为网页挑选合适格式</h3><p>照片、截图各有所长。自动比较格式，也能手动转换为 WebP、JPG 或 PNG。</p></div><div><span class="feature-number">03</span><h3>先对比，再带走</h3><p>查看实际节省量，拖动滑块检查画质。按需调整最长边，优化网页图片资源。</p></div></div>
           <p class="image-fine-print">压缩效果取决于原图内容与已有编码。画质检查是感知抽样评估，建议对文字、细线和品牌色进行预览；动态图片暂不处理。重新编码会移除 EXIF 等元数据，保留原文件时除外。</p>
+        </section>
+        <section id="view-qrcode" class="tool-view" aria-label="二维码生成与识别" hidden>
+          <div class="qr-workspace">
+            <div class="qr-card">
+              <div class="qr-card-head"><h2>分享，从这里开始</h2><span class="qr-step">01 / CREATE</span></div>
+              <div class="qr-form">
+                <div class="qr-type-switch" role="group" aria-label="二维码内容类型"><button type="button" data-qr-type="url" aria-pressed="true">网址链接</button><button type="button" data-qr-type="text" aria-pressed="false">文字内容</button><button type="button" data-qr-type="wifi" aria-pressed="false">Wi-Fi 连接</button></div>
+                <div id="qr-text-fields"><label class="qr-field" for="qr-content"><span id="qr-content-label">网址链接</span><textarea id="qr-content" maxlength="2000" spellcheck="false" placeholder="https://example.com">https://sgao.cc</textarea></label><div class="qr-content-note"><p id="qr-content-help">输入完整网址，扫码即可打开。</p><span id="qr-byte-count">15 / 1200 B</span></div></div>
+                <div id="qr-wifi-fields" class="qr-wifi-fields" hidden>
+                  <label class="qr-field">Wi-Fi 名称（SSID）<input id="qr-ssid" type="text" placeholder="例如 SGAO Guest" maxlength="64" autocomplete="off" spellcheck="false"></label>
+                  <label class="qr-field">加密方式<select id="qr-security"><option value="WPA">WPA / WPA2 Personal</option><option value="WEP">WEP</option><option value="nopass">无密码</option></select></label>
+                  <div class="qr-field"><label for="qr-password">Wi-Fi 密码</label><div class="qr-password-row"><input id="qr-password" type="password" maxlength="128" autocomplete="new-password" spellcheck="false"><button type="button" id="qr-password-toggle" class="text-button" aria-label="显示 Wi-Fi 密码">显示</button></div></div>
+                  <label class="checkbox-label"><input id="qr-hidden" type="checkbox">这是隐藏网络</label><p class="field-hint">密码会写入二维码，适合分享给需要连接网络的人。是否能直接连接取决于扫码设备。</p>
+                </div>
+                <div class="qr-settings">
+                  <label class="qr-field">二维码颜色<input id="qr-foreground" type="color" value="#20232b"></label><label class="qr-field">背景颜色<input id="qr-background" type="color" value="#ffffff"></label>
+                  <label class="qr-field">PNG 尺寸<select id="qr-size"><option value="256">256 × 256 px</option><option value="512" selected>512 × 512 px</option><option value="1024">1024 × 1024 px</option><option value="2048">2048 × 2048 px</option></select></label>
+                  <label class="qr-field">容错等级<select id="qr-level"><option value="L">低 · 更简洁</option><option value="M" selected>中 · 均衡推荐</option><option value="Q">较高 · 更耐遮挡</option><option value="H">高 · 适合 Logo</option></select></label>
+                </div>
+                <p id="qr-level-note" class="field-hint">默认均衡；高容错适合打印或遮挡。</p>
+                <div class="qr-logo-control"><label class="qr-logo-picker"><svg class="icon"><use href="#i-image"/></svg>添加 Logo<input id="qr-logo" type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" aria-label="选择二维码 Logo"></label><span id="qr-logo-name">可选 · PNG / JPG / WebP ≤ 2 MB</span><button id="qr-logo-remove" class="text-button muted" hidden>移除</button></div>
+                <div id="qr-error" class="error-message" role="alert" hidden></div>
+                <div class="qr-form-actions"><button id="qr-generate" class="button primary"><svg class="icon"><use href="#i-qr"/></svg>生成二维码</button><button id="qr-example" class="text-button">填入示例</button><button id="qr-clear" class="text-button muted">清空</button></div>
+              </div>
+            </div>
+            <div class="qr-card qr-preview-card">
+              <div class="qr-card-head"><h2>你的二维码</h2><span id="qr-output-meta" class="panel-meta">PNG / SVG</span></div>
+              <div class="qr-preview-area"><canvas id="qr-preview" role="img" aria-label="生成的二维码预览" hidden></canvas><div id="qr-empty" class="qr-empty-preview"><svg class="icon"><use href="#i-qr"/></svg><p>一个二维码<br>装下你想分享的内容</p></div></div>
+              <div id="qr-preview-status" class="qr-preview-status" role="status" aria-live="polite">填写内容，生成你的二维码</div>
+              <div class="qr-downloads"><button id="qr-download-png" class="button primary" disabled><svg class="icon"><use href="#i-download"/></svg>下载 PNG</button><button id="qr-download-svg" class="button secondary" disabled><svg class="icon"><use href="#i-download"/></svg>下载 SVG</button></div>
+              <p class="qr-preview-note"><strong>屏幕分享用 PNG，清晰印刷用 SVG。</strong><br>生成后自动回读校验；保留周围留白，使用时仍建议用手机实际扫码。内容较多时会自动提高 PNG 尺寸。</p>
+            </div>
+          </div>
+          <div class="qr-card qr-scan">
+            <div class="qr-card-head"><h2>也能，读懂一个二维码</h2><span class="qr-step">02 / SCAN</span></div>
+            <div class="qr-scan-body">
+              <label id="qr-scan-drop" class="qr-drop"><input id="qr-scan-file" type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" aria-label="选择需要识别的二维码图片"><svg class="icon"><use href="#i-upload"/></svg><strong>拖入二维码图片，或点击上传</strong><small>PNG / JPG / WebP · 单张 ≤ 20 MB<br>图片只在你的浏览器里读取</small></label>
+              <div class="qr-scan-result"><div><label for="qr-scan-result">识别内容</label><span id="qr-scan-meta" class="panel-meta">等待图片</span></div><textarea id="qr-scan-result" readonly spellcheck="false" placeholder="二维码里的文字、链接或 Wi-Fi 配置会出现在这里…"></textarea><div class="qr-scan-actions"><button id="qr-scan-copy" class="copy-button" disabled><svg class="icon"><use href="#i-copy"/></svg>复制内容</button><a id="qr-scan-open" class="text-button" target="_blank" rel="noopener noreferrer" hidden>打开链接<svg class="icon"><use href="#i-external"/></svg></a><button id="qr-scan-clear" class="text-button muted" disabled>清空识别</button></div><span id="qr-scan-status" role="status" aria-live="polite">上传包含二维码的截图或照片，自动识别其中一枚二维码。</span><div id="qr-scan-error" class="error-message" role="alert" hidden></div></div>
+            </div>
+          </div>
+          <div class="qr-tool-note"><svg class="icon"><use href="#i-shield"/></svg><p>无需注册，内容不上传、不保存。生成的是静态二维码，内容直接写入图片；下载后不会因本站服务变化而过期，链接能否访问取决于目标网站。</p></div>
         </section>
         <footer class="page-footer"><span>SGAO TOOLS <span class="footer-dot">·</span> 为日常的每一小步</span><span><span class="status-dot"></span>无需安装，即开即用</span></footer>
       </main>

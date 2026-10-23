@@ -7,4 +7,4 @@ await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 await cp(`${root}src`, output, { recursive: true });
 await cp(`${root}public`, output, { recursive: true });
-console.log('构建完成 → dist/（纯静态资源，无运行时依赖）');
+console.log('构建完成 → dist/（纯静态资源，无需服务端运行时）');

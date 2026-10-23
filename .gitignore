@@ -7,3 +7,7 @@ dist/
 .env.*
 !.env.example
 .dev.vars*
+
+# Browser-side QR libraries and their licenses are shipped with the site.
+!src/vendor/
+!src/vendor/**

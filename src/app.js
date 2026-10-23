@@ -3,6 +3,7 @@ import { parseTimestamp, formatDateTime, dateToTimestamp } from './lib/time.js';
 import { transformURL } from './lib/url.js';
 import { initICO } from './ico-tool.js';
 import { initImageTool } from './image-tool.js';
+import { initQRCode } from './qr-tool.js';
 
 const $ = id => document.getElementById(id);
 const on = (id, event, handler) => $(id).addEventListener(event, handler);
@@ -13,6 +14,7 @@ const tools = {
   diff: ['文本对比', '并排放下两个版本，让每一处变化浮现。', '04'],
   ico: ['ICO 图标生成', '把一张图片，变成适合网站和应用的图标。', '05'],
   image: ['图片压缩 & 格式转换', '让图片轻一点，让网页快一点。', '06'],
+  qrcode: ['二维码生成 & 识别', '把内容放进方寸之间，让分享更简单。', '07'],
 };
 let currentTool = 'json';
 let clockTimer;
@@ -311,6 +313,7 @@ window.addEventListener('pageshow', () => { if (currentTool === 'timestamp') { c
 
 initICO({ notify: toast });
 initImageTool({ notify: toast });
+initQRCode({ notify: toast });
 $('json-input').value = jsonSample;
 updateJSONInput(); runJSON();
 $('date-input').value = formatDateTime(Date.now(), 'beijing', 'T');
