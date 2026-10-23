@@ -1,4 +1,4 @@
-# Vendored QR libraries
+# Vendored browser libraries
 
 These libraries are served from this site, without a CDN or third-party requests.
 The application still builds and runs without an npm install.
@@ -15,3 +15,17 @@ The application still builds and runs without an npm install.
 
 The encoder loads with the QR UI. The decoder loads only in short-lived QR workers,
 for output verification or image recognition; workers terminate on completion or timeout.
+
+## SVG optimizer
+
+- `svgo.browser.js`: unchanged browser ESM bundle from **SVGO 4.1.0**,
+  <https://registry.npmjs.org/svgo/-/svgo-4.1.0.tgz>, retrieved 2026-10-23.
+  Archive integrity was checked against the registry SHA-512 value before extraction.
+  Bundle SHA-256: `76a415be3ead7a8b0e109c77b7b20cec478c46fe8a09a1b1ad42a80ecd91b0ee`.
+  MIT license: `svgo.LICENSE.txt`. Production dependency notices: `svgo.NOTICES.txt`;
+  exact versions follow <https://github.com/svg/svgo/blob/v4.1.0/pnpm-lock.yaml>.
+  The upstream bundle includes SVGO's patched SAX parser. We add no modifications
+  to the bundle; application validation and optimization options live in `svg-optimizer.js`.
+
+SVGO loads only inside a short-lived Worker after opening the SVG tool or starting
+an optimization. It does not add a bundle download to other tools or use a CDN.
