@@ -6,12 +6,13 @@
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#f5f3ee">
   <title>JSON 格式化 · SGAO 工具箱</title>
-  <meta name="description" content="SVG 优化与转 PNG、二维码生成与识别、在线图片压缩与格式转换、ICO 生成、JSON 格式化、时间戳转换、URL 编解码、文本对比。无需登录，内容在浏览器本地处理。">
+  <meta name="description" content="网站图标整包生成、SVG 优化与转 PNG、二维码生成与识别、图片压缩与格式转换、JSON 格式化、时间戳转换、URL 编解码、文本对比。无需登录，内容在浏览器本地处理。">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/image-tool.css">
   <link rel="stylesheet" href="/qr-tool.css">
   <link rel="stylesheet" href="/svg-tool.css">
+  <link rel="stylesheet" href="/favicon-tool.css">
   <script type="module" src="/app.js"></script>
 </head>
 <body>
@@ -53,7 +54,7 @@
         <a href="#timestamp" data-tool="timestamp" class="nav-item"><svg class="icon"><use href="#i-clock"/></svg><span>时间戳转换<small>时间与数字，自由转换</small></span><span class="nav-index">02</span></a>
         <a href="#url" data-tool="url" class="nav-item"><svg class="icon"><use href="#i-link"/></svg><span>URL 编解码<small>让每个字符准确传达</small></span><span class="nav-index">03</span></a>
         <a href="#diff" data-tool="diff" class="nav-item"><svg class="icon"><use href="#i-diff"/></svg><span>文本对比<small>细微变化，一眼看见</small></span><span class="nav-index">04</span></a>
-        <a href="#ico" data-tool="ico" class="nav-item"><svg class="icon"><use href="#i-image"/></svg><span>ICO 图标生成<small>一张图片，多种尺寸</small></span><span class="nav-index">05</span></a>
+        <a href="#ico" data-tool="ico" class="nav-item"><svg class="icon"><use href="#i-image"/></svg><span>网站图标整包<small>ICO · PNG · Manifest</small></span><span class="nav-index">05</span></a>
         <a href="#image" data-tool="image" class="nav-item"><svg class="icon"><use href="#i-compress"/></svg><span>图片压缩 & 转换<small>更小体积，更多细节</small></span><span class="nav-index">06</span></a>
         <a href="#qrcode" data-tool="qrcode" class="nav-item"><svg class="icon"><use href="#i-qr"/></svg><span>二维码生成 & 识别<small>方寸之间，轻松分享</small></span><span class="nav-index">07</span></a>
         <a href="#svg" data-tool="svg" class="nav-item"><svg class="icon"><use href="#i-vector"/></svg><span>SVG 优化 & PNG<small>轻巧矢量，清晰导出</small></span><span class="nav-index">08</span></a>
@@ -102,27 +103,53 @@
           <div id="diff-error" class="error-message" role="alert" hidden></div><div class="action-bar"><div class="action-buttons"><button id="diff-compare" class="button primary"><svg class="icon"><use href="#i-diff"/></svg>开始对比<svg class="icon"><use href="#i-arrow"/></svg></button><button id="diff-swap" class="button secondary"><svg class="icon"><use href="#i-swap"/></svg>交换文本</button></div><span class="small-note">逐行对比 · 换行符统一为 LF</span></div>
           <div class="diff-result-panel"><div class="panel-heading"><span>差异结果 <span id="diff-summary" class="diff-summary"></span></span><label class="checkbox-label"><input id="diff-only-changes" type="checkbox">仅看差异</label></div><div id="diff-results" class="diff-results"><div class="diff-empty"><svg class="icon"><use href="#i-diff"/></svg><strong>每一处变化，都有迹可循</strong><span>在上方放入两个版本，点击「开始对比」。</span></div></div></div>
         </section>
-        <section id="view-ico" class="tool-view" aria-label="ICO 图标生成" hidden>
-          <div class="workspace-toolbar"><span class="small-note">PNG / JPG / WebP / SVG → ICO</span><div class="toolbar-actions"><button id="ico-sample" class="text-button"><svg class="icon"><use href="#i-file"/></svg>试试示例</button><button id="ico-clear" class="text-button muted" disabled><svg class="icon"><use href="#i-trash"/></svg>清空图片</button></div></div>
+        <section id="view-ico" class="tool-view" aria-label="网站图标整包生成" hidden>
+          <div class="workspace-toolbar"><span class="small-note">一张图片 → ICO / PNG / Apple Touch / PWA</span><div class="toolbar-actions"><button id="ico-sample" class="text-button"><svg class="icon"><use href="#i-file"/></svg>试试示例</button><button id="ico-clear" class="text-button muted" disabled><svg class="icon"><use href="#i-trash"/></svg>清空图片</button></div></div>
           <div class="ico-workspace">
-            <div class="editor-panel ico-source-panel"><div class="panel-heading"><span><span class="panel-dot"></span>原始图片</span><span id="ico-source-meta" class="panel-meta">未选择图片</span></div>
-              <label id="ico-upload" class="ico-upload ico-checker"><input id="ico-file" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml,.png,.jpg,.jpeg,.webp,.svg" aria-label="选择源图片" aria-describedby="ico-upload-help"><span id="ico-upload-empty" class="ico-upload-empty"><span class="ico-upload-icon"><svg class="icon"><use href="#i-upload"/></svg></span><strong>拖入一张图片，从这里开始</strong><span>或点击选择本地图片</span><span class="button secondary">选择图片</span></span><img id="ico-source-image" alt="选中的源图片预览" hidden></label>
-              <div class="ico-source-details"><strong id="ico-source-name">支持透明图片，建议使用正方形原图</strong><span id="ico-upload-help">最大 10 MB · 点击预览区可重新选择图片</span></div>
+            <div class="editor-panel ico-source-panel"><div class="panel-heading"><span><span class="panel-dot"></span>上传你的 Logo</span><span id="ico-source-meta" class="panel-meta">未选择图片</span></div>
+              <label id="ico-upload" class="ico-upload ico-checker"><input id="ico-file" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml,.png,.jpg,.jpeg,.webp,.svg" aria-label="选择源图片" aria-describedby="ico-upload-help"><span id="ico-upload-empty" class="ico-upload-empty"><span class="ico-upload-icon"><svg class="icon"><use href="#i-upload"/></svg></span><strong>拖入一张 Logo，备齐所有图标</strong><span>PNG / JPG / WebP / SVG</span><span class="button secondary">选择图片</span></span><img id="ico-source-image" alt="选中的源图片预览" hidden></label>
+              <div class="ico-source-details"><strong id="ico-source-name">推荐 SVG 或至少 512 × 512 的清晰图片</strong><span id="ico-upload-help">最大 10 MB · 点击预览区可重新选择图片</span></div>
             </div>
-            <div class="form-panel ico-settings"><div class="form-heading"><span class="step-marker">ICO</span><h2>输出设置</h2></div>
-              <fieldset class="ico-size-field"><legend class="field-label">图标尺寸 <span class="small-note">可多选，合并为一个 ICO 文件</span></legend><div class="ico-size-options">
+            <div class="form-panel ico-settings"><div class="form-heading"><span class="step-marker">01</span><h2>图像设置</h2></div>
+              <label for="ico-fit" class="field-label">图片适配</label><select id="ico-fit"><option value="contain">完整显示（等比缩放，四周留白）</option><option value="cover">居中裁剪（等比填满图标）</option></select>
+              <label for="ico-background" class="field-label ico-field-gap">浏览器 / 通用 PWA 图标背景</label><div class="ico-background-row"><select id="ico-background"><option value="transparent">保留透明背景</option><option value="color">使用自定义底色</option></select><input id="ico-color" type="color" value="#ffffff" aria-label="自定义背景颜色" disabled></div>
+              <fieldset class="ico-size-field favicon-ico-sizes"><legend class="field-label">ICO 包含尺寸 <span class="small-note">至少选择一个，合并到整包的 favicon.ico</span></legend><div class="ico-size-options">
                 <label><input type="checkbox" name="ico-size" value="16" checked><span>16</span></label><label><input type="checkbox" name="ico-size" value="24"><span>24</span></label><label><input type="checkbox" name="ico-size" value="32" checked><span>32</span></label><label><input type="checkbox" name="ico-size" value="48" checked><span>48</span></label><label><input type="checkbox" name="ico-size" value="64"><span>64</span></label><label><input type="checkbox" name="ico-size" value="128"><span>128</span></label><label><input type="checkbox" name="ico-size" value="256"><span>256</span></label>
               </div><div class="ico-presets"><button id="ico-preset-web" class="text-button" type="button">网站常用</button><span>·</span><button id="ico-preset-all" class="text-button" type="button">全部尺寸</button><span class="small-note">单位：像素</span></div></fieldset>
-              <label for="ico-fit" class="field-label">图片适配</label><select id="ico-fit"><option value="contain">完整显示（等比缩放，四周留白）</option><option value="cover">居中裁剪（等比填满图标）</option></select>
-              <label for="ico-background" class="field-label ico-field-gap">背景处理</label><div class="ico-background-row"><select id="ico-background"><option value="transparent">保留透明背景</option><option value="color">使用自定义底色</option></select><input id="ico-color" type="color" value="#ffffff" aria-label="自定义背景颜色" disabled></div>
-              <label for="ico-filename" class="field-label ico-field-gap">文件名称</label><div class="ico-filename-row"><input id="ico-filename" type="text" value="favicon" maxlength="100" autocomplete="off" spellcheck="false"><span>.ico</span></div>
+              <label for="ico-filename" class="field-label">单独下载的 ICO 文件名</label><div class="ico-filename-row"><input id="ico-filename" type="text" value="favicon" maxlength="100" autocomplete="off" spellcheck="false"><span>.ico</span></div><p class="field-hint">整包中的文件固定命名，引用代码自动匹配。</p>
             </div>
           </div>
           <div id="ico-error" class="error-message" role="alert" hidden></div>
-          <div class="ico-preview-panel editor-panel"><div class="panel-heading"><span><span class="panel-dot accent"></span>效果预览</span><span id="ico-output-meta" class="panel-meta" role="status">等待生成</span></div><div id="ico-previews" class="ico-previews"><p class="ico-preview-empty">上传图片后，在这里查看各尺寸效果。</p></div><div class="panel-footer"><span>按实际像素尺寸显示，棋盘格表示透明区域</span><span>32-bit RGBA</span></div></div>
-          <p id="ico-warning" class="ico-upscale-warning" role="status" hidden>所选尺寸大于原图的短边，放大后可能变模糊。建议使用尺寸更大的原图。</p>
-          <div class="action-bar"><button id="ico-download" class="button primary" disabled><svg class="icon"><use href="#i-download"/></svg>生成并下载 ICO</button><span class="small-note">图片仅在当前浏览器处理，不会上传</span></div>
-          <div class="info-note"><svg class="icon"><use href="#i-info"/></svg><p>网站 favicon 通常选择 16、32、48 像素即可。透明留白会保留原图比例，居中裁剪会去掉超出正方形的部分；自定义底色可用于填充透明区域。</p></div>
+          <div class="favicon-config editor-panel"><div class="panel-heading"><span><span class="step-marker">02</span>应用信息</span><span class="panel-meta">同步生成 Manifest 与引用代码</span></div>
+            <div class="favicon-config-grid">
+              <label class="favicon-field favicon-span-2">应用名称<input id="favicon-app-name" type="text" value="我的网站" maxlength="80" autocomplete="off" placeholder="例如 SGAO 工具箱"></label>
+              <label class="favicon-field">应用短名称<input id="favicon-short-name" type="text" value="我的网站" maxlength="24" autocomplete="off" placeholder="用于主屏幕标签"></label>
+              <label class="favicon-field">打开方式<select id="favicon-display"><option value="standalone">独立应用窗口</option><option value="minimal-ui">精简浏览器界面</option><option value="browser">浏览器窗口</option></select></label>
+              <label class="favicon-field favicon-span-2">图标部署路径<input id="favicon-asset-path" type="text" value="/" maxlength="240" spellcheck="false" autocomplete="off" placeholder="例如 / 或 /assets/icons/"><small>把解压文件放到此 URL 对应的目录。</small></label>
+              <label class="favicon-field favicon-span-2">应用入口路径<input id="favicon-app-path" type="text" value="/" maxlength="240" spellcheck="false" autocomplete="off" placeholder="例如 / 或 /app/"><small>同步设置应用入口与可导航范围。</small></label>
+              <label class="favicon-field">主题色<input id="favicon-theme" type="color" value="#ec6245"></label>
+              <label class="favicon-field">应用底色<input id="favicon-app-background" type="color" value="#ffffff"></label>
+              <p class="favicon-config-help favicon-span-2">Apple Touch 与 Maskable 图标自动使用应用底色。Maskable 会额外保留安全留白，适配圆形等系统裁切。</p>
+            </div>
+          </div>
+          <div id="favicon-error" class="error-message" role="alert" hidden></div>
+          <p id="ico-warning" class="ico-upscale-warning" role="status" hidden>源图片短边小于 512 像素，较大的 PWA 图标可能变模糊。建议使用 SVG 或更清晰的原图。</p>
+          <div class="favicon-action-bar"><div class="action-buttons"><button id="favicon-download" class="button primary" disabled>下载 ZIP 整包</button><button id="ico-download" class="button secondary" disabled>单独下载 ICO</button></div><span id="favicon-status" role="status" aria-live="polite">选择一张 Logo，自动生成完整资源包。</span></div>
+          <div id="favicon-results" hidden>
+            <div class="favicon-platform-heading"><h2>放到屏幕里，看一看</h2><label class="checkbox-label"><input id="favicon-safe-zone" type="checkbox" checked>显示 Maskable 安全区</label></div>
+            <div class="favicon-platforms">
+              <div class="favicon-platform-card"><span class="favicon-platform-label">BROWSER / 浏览器标签</span><div class="favicon-browser"><div class="favicon-browser-tab"><span id="favicon-browser-icon"></span><span id="favicon-browser-title">我的网站</span><span class="favicon-tab-close" aria-hidden="true">×</span></div><div class="favicon-browser-content"><span></span><span></span><span></span></div></div><p>16px 实际大小，检查小图标是否清晰。</p></div>
+              <div class="favicon-platform-card"><span class="favicon-platform-label">APPLE / 主屏幕</span><div class="favicon-home-screen"><span id="favicon-apple-icon" class="favicon-apple-icon"></span><span id="favicon-apple-title">我的网站</span></div><p>180px · 不透明底色，四周保留留白。</p></div>
+              <div class="favicon-platform-card"><span class="favicon-platform-label">PWA / 自适应图标</span><div class="favicon-home-screen"><span id="favicon-maskable-stage" class="favicon-maskable-stage show-safe-zone"><span id="favicon-maskable-icon"></span></span><span id="favicon-maskable-title">我的网站</span></div><p>安全区辅助线仅用于预览，不会导出。</p></div>
+            </div>
+            <div class="favicon-files editor-panel"><div class="panel-heading"><span><span class="panel-dot accent"></span>整包文件清单</span><span id="favicon-file-count" class="panel-meta">13 个文件</span></div><div id="favicon-file-list" class="favicon-files-grid"></div><div class="panel-footer"><span>包含 ICO、9 张 PNG、Manifest、HTML 引用和放置说明</span><span>ZIP / UTF-8</span></div></div>
+            <div class="favicon-code-grid">
+              <div class="editor-panel"><div class="panel-heading"><label for="favicon-html">HTML 引用代码</label><button id="favicon-copy-html" class="copy-button" disabled><svg class="icon"><use href="#i-copy"/></svg>复制 HTML</button></div><textarea id="favicon-html" class="favicon-code" readonly spellcheck="false" wrap="off" aria-label="HTML 引用代码"></textarea><div class="panel-footer"><span>复制到网站的 &lt;head&gt; 中</span><span>html-head.txt</span></div></div>
+              <div class="editor-panel"><div class="panel-heading"><label for="favicon-manifest">Web App Manifest</label><button id="favicon-copy-manifest" class="copy-button" disabled><svg class="icon"><use href="#i-copy"/></svg>复制 Manifest</button></div><textarea id="favicon-manifest" class="favicon-code" readonly spellcheck="false" wrap="off" aria-label="Web App Manifest"></textarea><div class="panel-footer"><span>图标相对 Manifest 定位，入口使用本站路径</span><span>site.webmanifest</span></div></div>
+            </div>
+            <details class="favicon-ico-details"><summary>查看 ICO 各尺寸预览 <span id="ico-output-meta" class="panel-meta">等待生成</span></summary><div id="ico-previews" class="ico-previews"></div><p class="small-note">按实际像素尺寸显示；棋盘格表示透明区域。</p></details>
+          </div>
+          <div class="info-note"><svg class="icon"><use href="#i-shield"/></svg><p>图片和应用信息仅在当前浏览器处理。整包附有文件放置说明；主屏幕为效果示意，实际裁切以设备为准。Manifest 提供应用入口和图标配置，离线能力需由站点另外实现。</p></div>
         </section>
         <section id="view-image" class="tool-view" aria-label="图片压缩和格式转换" hidden>
           <div class="image-intro"><div><span class="image-kicker">LESS WEIGHT. MORE DETAIL.</span><h2>减小体积，留住细节<span>.</span></h2><p>智能有损压缩，为网页准备更轻的图片。<br>根据画质对比调整压缩程度，把每一 KB 用在值得保留的地方。</p></div><div class="image-intro-mark" aria-hidden="true"><svg class="icon"><use href="#i-compress"/></svg><span>JPG · PNG · WebP</span></div></div>

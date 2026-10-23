@@ -12,7 +12,7 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 | 时间戳转换 | 秒/毫秒自动或手动识别、双向转换、UTC/北京时间/本机时区、当前时间和复制 | `/#timestamp` |
 | URL 编解码 | 参数、完整 URL 和表单三种模式，Unicode、错误提示、结果回填 | `/#url` |
 | 文本对比 | 逐行新增/删除、行号、忽略空白/大小写、仅看差异、交换版本 | `/#diff` |
-| ICO 图标生成 | 上传或拖入 PNG/JPG/WebP/SVG，多尺寸合并、透明背景或自选底色、完整缩放/居中裁剪、实际尺寸预览和下载 | `/#ico` |
+| 网站图标整包生成 | 一张 Logo 生成 ICO、9 张 PNG、Apple Touch/PWA/Maskable、Manifest、HTML 引用和说明，13 文件 ZIP；保留单独 ICO 下载 | `/#ico` |
 | 图片压缩 & 格式转换 | 批量感知质量检查、自适应有损编码、PNG 减色、智能选择格式、尺寸调整、原图滑块对比、单图及 ZIP 下载 | `/#image` |
 | 二维码生成 & 识别 | 网址、文字、Wi-Fi，颜色与 Logo、PNG/SVG 下载，自动回读校验，上传或拖入图片识别 | `/#qrcode` |
 | SVG 优化 & 转 PNG | 上传/粘贴、SVGO 精简、前后预览、保留 ID 与 viewBox、SVG 下载/复制、自定义尺寸与背景导出 PNG | `/#svg` |
@@ -46,7 +46,8 @@ sgao-tools/
 │   ├── styles.css          # 布局、主题和响应式样式
 │   ├── app.js              # 路由及界面交互
 │   ├── diff-worker.js      # 后台对比线程
-│   ├── ico-tool.js         # 本地图片读取、预览和图标下载
+│   ├── ico-tool.js         # 网站图标整包、应用配置及下载
+│   ├── favicon-engine.js   # ICO/PNG、主屏幕及安全区图标渲染
 │   ├── image-tool.js       # 批量图片队列、对比及下载
 │   ├── image-engine.js     # 智能压缩与格式转换
 │   ├── image-worker.js     # 后台压缩线程
@@ -102,8 +103,24 @@ GitHub 自动部署可沿用主站的 **Cloudflare Workers Builds**：
 - JSON 上限为 2,000,000 个 UTF-16 字符，最多嵌套 200 层；大结果取消语法高亮以降低渲染开销。格式化保留数值文本及重复键，不执行 JSON 中的内容。
 - 时间戳自动模式按绝对值 `10¹¹` 区分秒与毫秒；较早的毫秒值请手选单位。秒支持最多 3 位小数，日期输入精确到秒；北京时间固定为 UTC+08:00，本机模式遵守系统时区及夏令时。
 - 文本对比统一 CRLF/CR 为 LF；末尾换行参与对比。两侧合计上限 2,000,000 字符、20,000 行。忽略空白会移除全部空白，含行内空格。极大差异按整段展示并提示；结果最多显示 3,000 行，可用「仅看差异」缩小范围。
-- ICO 支持 PNG/JPG/WebP/SVG 源图，单张不超过 10 MB、边长不超过 8192、总像素不超过 2400 万。支持 16/24/32/48/64/128/256 像素，默认合并 16/32/48；以 32 位 BGRA 位图和透明掩码编码为真实 ICO 文件，保留半透明。完整显示等比留白，居中裁剪等比填满。预览按实际尺寸显示，放大较小原图会提示可能模糊。图片与生成内容仅保存在页面内存，刷新即清除。
+- 网站图标源图支持 PNG/JPG/WebP/SVG，单张不超过 10 MB、边长不超过 8192、总像素不超过 2400 万。ICO 支持 16/24/32/48/64/128/256 像素，默认合并 16/32/48；以 32 位 BGRA 位图和透明掩码编码为真实 ICO 文件。完整显示等比留白，居中裁剪等比填满。源位图短边小于 512 时提示放大可能模糊。图片与生成内容仅保存在页面内存。
 - 不提供后端账户、同步或输入历史；刷新页面会清除输入并显示示例。
+
+## 网站图标整包
+
+入口仍为 `/#ico`，原有书签和单独 ICO 下载继续可用。浏览器本地生成 13 个文件，无新增库或服务：
+
+- `favicon.ico`：使用用户选择的 ICO 尺寸；整包中固定此文件名，单独下载可自定义名称。
+- 9 张 PNG：浏览器 16/32/48/96、Apple Touch 180、普通 PWA 192/512，以及 Maskable 192/512。浏览器/普通 PWA 可透明或填自选底色；Apple 与 Maskable 始终填应用底色，Alpha 为不透明。
+- `site.webmanifest`、`html-head.txt`、`README.txt`：应用名称/短名称、主题色/底色、打开方式、应用入口、scope/id，以及放置和部署说明。
+
+Apple 图标使用 8% 内边距。Maskable 按源图完整矩形的对角线缩放，保证四角均位于中心半径 40% 的安全圆内，支持宽高比不一的 Logo；完整显示不裁切，用户选择居中裁剪时按其选择裁切。安全区辅助线只用于界面预览，不会写进导出图片。普通与 Maskable 图标分别使用 `purpose: any` 与 `purpose: maskable`。
+
+图标目录和应用入口均为本站绝对目录，可部署到子路径。中文目录自动进行一次 URL 编码，拒绝站外 URL、上级目录、查询/片段和重复编码。HTML 引用使用图标部署目录；Manifest 的图标 `src` 相对自身位置，`start_url`、`scope` 与 `id` 使用独立的应用入口目录。HTML 中用户文本会转义；Manifest 使用 JSON 序列化。
+
+图像设置更新时旧图包立即失效并重新编码，应用文本/路径更新只重新生成配置文件。ZIP 固定平铺 13 个文件，可单独下载每个文件，复制 HTML 和 Manifest。图标预览为效果示意；设备裁切、缓存和安装条件仍需在实际站点检查。此资源包提供图标与配置，站点离线能力需要另外实现。
+
+参考：[Web App Manifest](https://web.dev/learn/pwa/web-app-manifest)、[Maskable 图标](https://web.dev/articles/maskable-icon)、[Apple 主屏幕图标](https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariWebContent/ConfiguringWebApplications/ConfiguringWebApplications.html)。
 
 ## 图片智能压缩
 
