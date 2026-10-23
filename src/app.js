@@ -2,6 +2,7 @@ import { formatJSON } from './lib/json.js';
 import { parseTimestamp, formatDateTime, dateToTimestamp } from './lib/time.js';
 import { transformURL } from './lib/url.js';
 import { initICO } from './ico-tool.js';
+import { initImageTool } from './image-tool.js';
 
 const $ = id => document.getElementById(id);
 const on = (id, event, handler) => $(id).addEventListener(event, handler);
@@ -11,6 +12,7 @@ const tools = {
   url: ['URL 编解码', '处理地址和参数，让每个字符准确传达。', '03'],
   diff: ['文本对比', '并排放下两个版本，让每一处变化浮现。', '04'],
   ico: ['ICO 图标生成', '把一张图片，变成适合网站和应用的图标。', '05'],
+  image: ['图片压缩 & 格式转换', '让图片轻一点，让网页快一点。', '06'],
 };
 let currentTool = 'json';
 let clockTimer;
@@ -26,6 +28,10 @@ function navigate() {
     else link.removeAttribute('aria-current');
   });
   const [title, description, number] = tools[tool];
+  if (matchMedia('(max-width: 760px)').matches) {
+    const selected = document.querySelector('.nav-item.active'), nav = selected.parentElement;
+    nav.scrollLeft = selected.offsetLeft - nav.offsetLeft - (nav.clientWidth - selected.clientWidth) / 2;
+  }
   $('breadcrumb-current').textContent = title;
   $('page-title').replaceChildren(document.createTextNode(title));
   const dot = document.createElement('span'); dot.className = 'title-dot'; dot.textContent = '.';
@@ -304,6 +310,7 @@ window.addEventListener('pagehide', () => { clearInterval(clockTimer); stopDiff(
 window.addEventListener('pageshow', () => { if (currentTool === 'timestamp') { clearInterval(clockTimer); updateClock(); clockTimer = setInterval(updateClock, 1000); } });
 
 initICO({ notify: toast });
+initImageTool({ notify: toast });
 $('json-input').value = jsonSample;
 updateJSONInput(); runJSON();
 $('date-input').value = formatDateTime(Date.now(), 'beijing', 'T');

@@ -6,9 +6,10 @@
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#f5f3ee">
   <title>JSON 格式化 · SGAO 工具箱</title>
-  <meta name="description" content="简单、顺手的在线开发工具箱：JSON 格式化、时间戳转换、URL 编解码、文本对比、ICO 图标生成。无需登录，输入内容仅在浏览器本地处理。">
+  <meta name="description" content="在线图片智能压缩与格式转换、ICO 生成、JSON 格式化、时间戳转换、URL 编解码、文本对比。图片在浏览器本地处理，批量优化网页图片并对比画质。">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/image-tool.css">
   <script type="module" src="/app.js"></script>
 </head>
 <body>
@@ -33,6 +34,7 @@
     <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></symbol>
     <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/></symbol>
     <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 15v6h16v-6"/></symbol>
+    <symbol id="i-compress" viewBox="0 0 24 24"><path d="M4 4l6 6m0-5v5H5m15 10-6-6m0 5v-5h5M14 4h6v6M4 14v6h6"/></symbol>
   </svg>
   <a class="skip-link" href="#main">跳到工具内容</a>
   <div class="app-shell">
@@ -41,13 +43,14 @@
         <span class="brand-mark"><svg class="icon"><use href="#i-code"/></svg></span>
         <span class="brand-word">SGAO<span>工具箱 <span class="brand-slash">/</span> TOOLS</span></span>
       </a>
-      <div class="nav-heading">日常开发，顺手一点 <span>05</span></div>
+      <div class="nav-heading">日常开发，顺手一点 <span>06</span></div>
       <nav class="tool-nav">
         <a href="#json" data-tool="json" class="nav-item active" aria-current="page"><svg class="icon"><use href="#i-braces"/></svg><span>JSON 格式化<small>整理结构，读懂数据</small></span><span class="nav-index">01</span></a>
         <a href="#timestamp" data-tool="timestamp" class="nav-item"><svg class="icon"><use href="#i-clock"/></svg><span>时间戳转换<small>时间与数字，自由转换</small></span><span class="nav-index">02</span></a>
         <a href="#url" data-tool="url" class="nav-item"><svg class="icon"><use href="#i-link"/></svg><span>URL 编解码<small>让每个字符准确传达</small></span><span class="nav-index">03</span></a>
         <a href="#diff" data-tool="diff" class="nav-item"><svg class="icon"><use href="#i-diff"/></svg><span>文本对比<small>细微变化，一眼看见</small></span><span class="nav-index">04</span></a>
         <a href="#ico" data-tool="ico" class="nav-item"><svg class="icon"><use href="#i-image"/></svg><span>ICO 图标生成<small>一张图片，多种尺寸</small></span><span class="nav-index">05</span></a>
+        <a href="#image" data-tool="image" class="nav-item"><svg class="icon"><use href="#i-compress"/></svg><span>图片压缩 & 转换<small>更小体积，更多细节</small></span><span class="nav-index">06</span></a>
       </nav>
       <div class="sidebar-bottom">
         <div class="privacy-card"><svg class="icon"><use href="#i-shield"/></svg><strong>你的数据，留在你的浏览器</strong><p>无需登录，输入内容不上传。<br>关掉页面，就放下这次工作。</p></div>
@@ -115,11 +118,24 @@
           <div class="action-bar"><button id="ico-download" class="button primary" disabled><svg class="icon"><use href="#i-download"/></svg>生成并下载 ICO</button><span class="small-note">图片仅在当前浏览器处理，不会上传</span></div>
           <div class="info-note"><svg class="icon"><use href="#i-info"/></svg><p>网站 favicon 通常选择 16、32、48 像素即可。透明留白会保留原图比例，居中裁剪会去掉超出正方形的部分；自定义底色可用于填充透明区域。</p></div>
         </section>
+        <section id="view-image" class="tool-view" aria-label="图片压缩和格式转换" hidden>
+          <div class="image-intro"><div><span class="image-kicker">LESS WEIGHT. MORE DETAIL.</span><h2>减小体积，留住细节<span>.</span></h2><p>智能有损压缩，为网页准备更轻的图片。<br>根据画质对比调整压缩程度，把每一 KB 用在值得保留的地方。</p></div><div class="image-intro-mark" aria-hidden="true"><svg class="icon"><use href="#i-compress"/></svg><span>JPG · PNG · WebP</span></div></div>
+          <div class="image-benefits"><span><svg class="icon"><use href="#i-shield"/></svg>全程本地处理</span><span><svg class="icon"><use href="#i-image"/></svg>保留透明通道</span><span><svg class="icon"><use href="#i-file"/></svg>单批最多 20 张</span><button id="image-sample" class="text-button">试试示例 <span aria-hidden="true">↗</span></button></div>
+          <label class="image-drop" id="image-drop"><input type="file" id="image-files" accept="image/jpeg,image/png,image/webp,image/avif,.jpg,.jpeg,.png,.webp,.avif" multiple aria-label="选择需要压缩的图片"><span class="image-drop-icon"><svg class="icon"><use href="#i-upload"/></svg></span><strong>把图片拖到这里，给体积做个减法</strong><span>或点击选择文件 · 支持静态 JPG、PNG、WebP、AVIF</span><span class="image-drop-limit">单张 ≤ 20 MB / 每批 ≤ 100 MB / 无需登录</span></label>
+          <div class="image-options"><label>压缩策略<select id="image-profile"><option value="balanced">智能均衡 · 推荐</option><option value="quality">画质优先 · 更多细节</option><option value="small">体积优先 · 更小文件</option></select></label><label>输出格式<select id="image-format"><option value="auto">智能选择 · 优先减小体积</option><option value="image/webp">WebP · 适合网页</option><option value="image/jpeg">JPG · 通用照片格式</option><option value="image/png">PNG · 保留透明与减色压缩</option></select></label><label>最长边<select id="image-max-edge"><option value="0">保持原始尺寸</option><option value="2560">不超过 2560 px</option><option value="1920">不超过 1920 px</option><option value="1280">不超过 1280 px</option><option value="800">不超过 800 px</option></select></label><label class="image-background-label">JPG 底色<input id="image-background" type="color" value="#ffffff" disabled></label></div>
+          <p class="image-option-note">智能模式比较原格式与 WebP；没有更小且合适的结果时保留原图。JPG 会将透明区域填为所选底色。</p>
+          <div id="image-error" class="error-message" role="alert" hidden></div>
+          <div class="action-bar image-action-bar"><div class="action-buttons"><button id="image-run" class="button primary" disabled>开始智能压缩</button><button id="image-stop" class="button secondary" hidden>停止处理</button></div><button id="image-clear" class="text-button muted" disabled>清空队列</button></div>
+          <div id="image-results" hidden><div class="image-stats"><div><span>原图体积</span><strong id="image-input-total">0 B</strong></div><div><span>处理后体积</span><strong id="image-output-total">0 B</strong></div><div class="image-saved"><span>共节省</span><strong id="image-saved-total">0 B</strong></div></div><div class="image-results-panel editor-panel"><div class="panel-heading"><span>处理列表 <span class="panel-meta" id="image-count">0 张图片</span></span><button id="image-zip" class="copy-button" disabled><svg class="icon"><use href="#i-download"/></svg>打包下载 ZIP</button></div><div id="image-list" aria-live="polite" aria-relevant="text"></div><div class="panel-footer"><span id="image-summary-note" role="status">选择图片，即可开始优化</span></div></div></div>
+          <div class="image-explain"><div><span class="feature-number">01</span><h3>压缩要小，细节要在</h3><p>对照原图的明暗、颜色和透明度，自动寻找适合当前图片的编码参数。</p></div><div><span class="feature-number">02</span><h3>为网页挑选合适格式</h3><p>照片、截图各有所长。自动比较格式，也能手动转换为 WebP、JPG 或 PNG。</p></div><div><span class="feature-number">03</span><h3>先对比，再带走</h3><p>查看实际节省量，拖动滑块检查画质。按需调整最长边，优化网页图片资源。</p></div></div>
+          <p class="image-fine-print">压缩效果取决于原图内容与已有编码。画质检查是感知抽样评估，建议对文字、细线和品牌色进行预览；动态图片暂不处理。重新编码会移除 EXIF 等元数据，保留原文件时除外。</p>
+        </section>
         <footer class="page-footer"><span>SGAO TOOLS <span class="footer-dot">·</span> 为日常的每一小步</span><span><span class="status-dot"></span>无需安装，即开即用</span></footer>
       </main>
     </div>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <dialog id="image-compare-dialog" class="image-compare-dialog" aria-labelledby="image-compare-title"><div class="panel-heading"><strong id="image-compare-title">画质对比</strong><button id="image-compare-close" class="icon-button" aria-label="关闭画质对比">✕</button></div><div class="image-compare-stage ico-checker"><img id="image-compare-original" alt="原始图片"><img id="image-compare-output" alt="处理后的图片"><span class="image-compare-badge image-compare-badge-left">处理后</span><span class="image-compare-badge image-compare-badge-right">原图</span></div><label class="image-compare-control">拖动滑块，对照画面细节<input id="image-compare-slider" type="range" min="0" max="100" value="50" aria-label="处理后图片显示比例"></label><div class="image-compare-metadata"><span id="image-compare-original-meta"></span><span id="image-compare-output-meta"></span></div></dialog>
   <noscript><p class="noscript-note">请开启 JavaScript 以使用工具。所有计算均在你的浏览器内完成。</p></noscript>
 </body>
 </html>
