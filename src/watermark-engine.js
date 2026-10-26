@@ -1,24 +1,11 @@
-import { inspectImage, resizeDimensions } from './lib/image-compression.js';
+import { decodeLocalImage, createImagePreview } from './local-image.js';
 import { checkWatermarkFile, checkWatermarkDimensions, validateWatermark, WATERMARK_FONTS, watermarkLayout, tileWatermarks, watermarkMime } from './lib/watermark.js';
 
 export async function decodeWatermarkImage(file, logo = false) {
   checkWatermarkFile(file, 0, 0, logo);
-  const info = inspectImage(new Uint8Array(await file.arrayBuffer()));
-  if (info.width) checkWatermarkDimensions(info.width, info.height, logo);
-  let image;
-  try { image = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
-  catch { throw new Error('图片无法读取，请检查文件，或换用支持该格式的浏览器。'); }
-  try { checkWatermarkDimensions(image.width, image.height, logo); return { image, mime: info.mime }; }
-  catch (error) { image.close(); throw error; }
+  return decodeLocalImage(file, (width, height) => checkWatermarkDimensions(width, height, logo));
 }
-export async function watermarkThumbnail(image) {
-  const canvas = document.createElement('canvas'), size = resizeDimensions(image.width, image.height, 960);
-  canvas.width = size.width; canvas.height = size.height;
-  try {
-    const ctx = canvas.getContext('2d'); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(image, 0, 0, size.width, size.height);
-    return await createImageBitmap(canvas);
-  } finally { canvas.width = canvas.height = 1; }
-}
+export const watermarkThumbnail = createImagePreview;
 
 export function measureWatermark(ctx, size, options, logo) {
   const short = Math.min(size.width, size.height);

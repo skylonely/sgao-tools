@@ -16,10 +16,12 @@
   <link rel="stylesheet" href="/crop-tool.css">
   <link rel="stylesheet" href="/color-tool.css">
   <link rel="stylesheet" href="/watermark-tool.css">
+  <link rel="stylesheet" href="/collage-tool.css">
   <script type="module" src="/app.js"></script>
 </head>
 <body>
   <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-collage" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18M3 12h9m0-4h9m-9 8h9"/></symbol>
     <symbol id="i-stamp" viewBox="0 0 24 24"><path d="M7 14h10l2 4H5l2-4Zm3 0V9a4 4 0 1 1 4 0v5M4 21h16"/></symbol>
     <symbol id="i-palette" viewBox="0 0 24 24"><path d="M20.9 13.6A9 9 0 1 0 12 21h1.4a2.3 2.3 0 0 0 1.5-4.1 1.6 1.6 0 0 1 1-2.8h2.9a2.2 2.2 0 0 0 2.1-.5Z"/><circle cx="7.5" cy="10" r=".7"/><circle cx="10" cy="6.5" r=".7"/><circle cx="14.5" cy="6.5" r=".7"/><circle cx="17.5" cy="10" r=".7"/></symbol>
     <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5m8-10 5 5-5 5m-3-13-2 16"/></symbol>
@@ -330,6 +332,30 @@
               </fieldset><p id="wm-config-error" class="error-message" role="alert" hidden></p><nav class="wm-quick-links wm-settings-jumps" aria-label="返回水印操作区"><a href="#wm-preview">返回预览 ↑</a><a href="#wm-batch">前往批量导出 ↑</a></nav></div>
             </div>
             <div class="info-note"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg><p>只处理静态图片；源图单边 ≤ 10000 px、总像素 ≤ 3200 万，Logo 单边 ≤ 4096 px、总像素 ≤ 1600 万。重新编码会移除 EXIF 等元数据。建议先检查各张图片的导出效果，再使用结果。</p></div>
+          </div>
+        </section>
+
+        <section id="view-collage" class="tool-view" aria-label="图片拼接与拼图" hidden>
+          <div class="cg-flow"><a href="/image-cropper/">裁剪与调整尺寸</a><span aria-hidden="true">→</span><span class="current">拼接与拼图</span><span aria-hidden="true">→</span><a href="/image-watermark/">添加水印</a><span aria-hidden="true">→</span><a href="/image-compressor/">智能压缩 ↗</a></div>
+          <div class="workspace-toolbar"><span class="muted">几张图片，一个完整的故事。</span><div class="toolbar-actions"><button id="cg-sample" type="button" class="text-button">试试拼图示例</button><button id="cg-clear" type="button" class="text-button muted" disabled>清空图片</button></div></div>
+          <label id="cg-drop" class="cg-drop"><input id="cg-files" type="file" accept="image/png,image/jpeg,image/webp,image/avif,.png,.jpg,.jpeg,.webp,.avif" multiple aria-label="选择需要拼接的图片"><svg class="icon" aria-hidden="true"><use href="#i-collage"/></svg><span><strong>放进几张图片，把画面连起来</strong><small>点击选择或拖入静态 PNG / JPG / WebP / AVIF<br>最多 20 张 · 单张 ≤ 20 MB · 合计 ≤ 100 MB</small></span><span class="cg-drop-tag" aria-hidden="true">LITTLE MOMENTS, TOGETHER.</span></label>
+          <p id="cg-status" class="cg-status" role="status" aria-live="polite">图片只在当前浏览器处理，不上传、不保存输入历史。</p><p id="cg-error" class="error-message" role="alert" hidden></p>
+          <div id="cg-workspace" hidden><nav class="cg-quick-links" aria-label="拼图操作区导航"><a href="#cg-preview">查看预览 ↓</a><a href="#cg-settings-panel">调整布局 ↓</a><a href="#cg-order">调整顺序 ↓</a></nav>
+            <div class="cg-workspace">
+              <div class="cg-preview-column"><div class="cg-card" id="cg-preview"><div class="cg-card-heading"><h2>把零散的画面，放在一起</h2><span>01 / COMPOSE</span></div><div class="cg-preview-toolbar"><div class="cg-views" role="group" aria-label="拼图预览内容"><button id="cg-view-layout" type="button" aria-pressed="true">布局预览</button><button id="cg-view-output" type="button" aria-pressed="false" disabled>导出结果</button></div><label for="cg-zoom">查看比例<select id="cg-zoom"><option value="fit">适应画布</option><option value="0.25">25%</option><option value="0.5">50%</option><option value="1">100%</option><option value="2">200%</option></select></label></div>
+                <div id="cg-viewport" class="cg-viewport"><div id="cg-stage" class="cg-stage cg-checker"><canvas id="cg-canvas" role="img" aria-label="当前拼接布局预览"></canvas><img id="cg-result-image" alt="实际导出的拼图图片" hidden></div><span id="cg-preview-empty" hidden>请修正布局设置，预览会自动更新。</span></div>
+                <div class="cg-preview-footer"><span id="cg-dimensions" class="cg-dimensions">等待有效布局</span><p id="cg-preview-note" class="cg-hint">布局预览使用缩略图，生成后可查看实际导出结果。</p><p id="cg-scale-note" class="cg-hint" hidden></p><p id="cg-upscale-note" class="cg-hint" hidden></p></div></div>
+                <div class="cg-card cg-order-card" id="cg-order"><div class="cg-card-heading"><h2>排好顺序，再连起来</h2><span id="cg-count"></span></div><p class="cg-sort-help" id="cg-sort-help">拖动左侧手柄，或使用上移、下移按钮排序。聚焦手柄后可用 ↑ / ↓ 移动，Home / End 移到首尾。</p><div id="cg-list" class="cg-list" aria-label="拼图图片顺序"></div></div>
+              </div>
+              <div class="cg-card cg-settings-card" id="cg-settings-panel"><div class="cg-card-heading"><h2>选一个刚好的布局</h2><span>02 / LAYOUT</span></div><fieldset id="cg-settings" class="cg-settings"><legend class="sr-only">拼图布局与导出设置</legend>
+                <label class="cg-field">拼接方式<select id="cg-mode"><option value="grid">网格拼图</option><option value="vertical">纵向拼接 · 长图</option><option value="horizontal">横向拼接 · 对比图</option></select></label><label class="cg-field" for="cg-base"><span id="cg-base-label">目标宽度（含外边距，px）</span><input id="cg-base" type="number" min="64" max="10000" step="1" value="1200" inputmode="numeric"></label>
+                <div id="cg-grid-fields"><div class="cg-two-fields"><label class="cg-field">网格列数<select id="cg-columns"><option value="2">2 列</option><option value="3">3 列</option><option value="4">4 列</option><option value="5">5 列</option></select></label><label class="cg-field">单格比例<select id="cg-ratio"><option value="1">1:1</option><option value="1.3333333333333333">4:3</option><option value="0.75">3:4</option><option value="1.7777777777777777">16:9</option><option value="0.5625">9:16</option></select></label></div><label class="cg-field">图片适配<select id="cg-fit"><option value="contain">完整显示 · 等比留白</option><option value="cover">居中裁切 · 填满网格</option></select></label><p class="cg-hint cg-grid-hint">完整显示保留整张图片；居中裁切会截去超出网格的部分。尾行不足时保留空格背景。</p></div>
+                <div class="cg-two-fields"><label class="cg-field">图片间距（px）<input id="cg-gap" type="number" min="0" max="300" step="1" value="12" inputmode="numeric"></label><label class="cg-field">外边距（px）<input id="cg-padding" type="number" min="0" max="300" step="1" value="16" inputmode="numeric"></label></div>
+                <div class="cg-background-row"><label class="cg-field">画布背景<select id="cg-background"><option value="color">自选底色</option><option value="transparent">透明</option></select></label><label for="cg-color">底色<input id="cg-color" type="color" value="#ffffff"></label></div><p id="cg-background-note" class="cg-hint"></p>
+                <div class="cg-export-settings"><span class="cg-field-title">导出图片</span><label class="cg-field">图片格式<select id="cg-format"><option value="image/png">PNG · 保留透明</option><option value="image/jpeg">JPG · 通用照片</option><option value="image/webp">WebP · 适合网页</option></select></label><label class="cg-quality-label" for="cg-quality">JPG / WebP 质量 <output id="cg-quality-value">92%</output></label><input id="cg-quality" class="cg-range" type="range" min="10" max="100" step="1" value="92" disabled><label class="cg-field" for="cg-name">下载名称<input id="cg-name" type="text" value="sgao-collage" maxlength="80" spellcheck="false" autocomplete="off"></label><p class="cg-hint">PNG 无损编码；JPG / WebP 支持有损质量。超出画布上限时会自动等比缩小，实际尺寸见预览下方。</p></div>
+              </fieldset><p id="cg-settings-error" class="error-message" role="alert" hidden></p><div class="cg-result"><div class="cg-build-actions"><button id="cg-run" type="button" class="button primary">生成拼图</button><button id="cg-stop" type="button" class="button secondary" hidden>停止</button></div><progress id="cg-progress" value="0" max="20" aria-label="拼图生成进度"></progress><strong id="cg-result-name">准备好画面，再生成拼图</strong><span id="cg-result-meta"></span><button id="cg-download" type="button" class="button secondary" disabled><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>下载拼图</button><div class="cg-next-actions"><button id="cg-watermark" type="button" class="button secondary" disabled>继续加水印 ↗</button><button id="cg-compress" type="button" class="button secondary" disabled>继续压缩 ↗</button></div><p id="cg-transfer-note" class="cg-hint" role="status"></p></div><nav class="cg-quick-links cg-settings-jumps" aria-label="返回拼图操作区"><a href="#cg-preview">返回预览 ↑</a><a href="#cg-order">调整顺序 ↑</a></nav></div>
+            </div>
+            <div class="info-note"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg><p>源图和输出单边 ≤ 10000 px，总像素 ≤ 3200 万。仅处理静态图片，AVIF 解码取决于浏览器。重新编码会移除 EXIF 等元数据；生成结果可在当前页面继续处理，刷新后清除。</p></div>
           </div>
         </section>
 

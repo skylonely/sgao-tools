@@ -302,7 +302,7 @@ function initDiff() {
 
 if (!redirectLegacyHash()) {
   const initializers = { home: initDirectory, json: initJSON, timestamp: initTimestamp, url: initURL, diff: initDiff };
-  const modules = { ico: ['./ico-tool.js', 'initICO'], image: ['./image-tool.js', 'initImageTool'], qrcode: ['./qr-tool.js', 'initQRCode'], svg: ['./svg-tool.js', 'initSVG'], crop: ['./crop-tool.js', 'initCrop'], color: ['./color-tool.js', 'initColor'], watermark: ['./watermark-tool.js', 'initWatermark'] };
+  const modules = { ico: ['./ico-tool.js', 'initICO'], image: ['./image-tool.js', 'initImageTool'], qrcode: ['./qr-tool.js', 'initQRCode'], svg: ['./svg-tool.js', 'initSVG'], crop: ['./crop-tool.js', 'initCrop'], color: ['./color-tool.js', 'initColor'], watermark: ['./watermark-tool.js', 'initWatermark'], collage: ['./collage-tool.js', 'initCollage'] };
   if (initializers[currentTool]) initializers[currentTool]();
   else if (modules[currentTool]) {
     const [path, name] = modules[currentTool];

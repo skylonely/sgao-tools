@@ -2,7 +2,7 @@ const PREFIX = 'sgao-crop-transfer';
 const validToken = token => typeof token === 'string' && /^[a-f0-9-]{36}$/.test(token);
 
 // One-use, same-origin window messages: images are never written to browser storage.
-export function sendToCompressor(file) {
+function sendProcessedImage(file, path) {
   return new Promise((resolve, reject) => {
     const token = crypto.randomUUID(); let popup, timer;
     const cleanup = () => { clearTimeout(timer); window.removeEventListener('message', receive); window.removeEventListener('pagehide', abandon); };
@@ -13,13 +13,15 @@ export function sendToCompressor(file) {
       if (event.data.type === `${PREFIX}:received`) { cleanup(); resolve(); }
     }
     window.addEventListener('message', receive); window.addEventListener('pagehide', abandon, { once: true });
-    popup = window.open(`/image-compressor/#crop-transfer=${token}`, '_blank');
-    if (!popup) { cleanup(); reject(new Error('浏览器阻止了新标签页。请允许打开后重试，或下载图片后在压缩工具中选择文件。')); return; }
-    timer = setTimeout(() => { cleanup(); reject(new Error('图片传递超时，请重试，或下载后在压缩工具中选择文件。')); }, 20_000);
+    popup = window.open(`${path}#crop-transfer=${token}`, '_blank');
+    if (!popup) { cleanup(); reject(new Error('浏览器阻止了新标签页。请允许打开后重试，或下载图片后在目标工具中选择文件。')); return; }
+    timer = setTimeout(() => { cleanup(); reject(new Error('图片传递超时，请重试，或下载后在目标工具中选择文件。')); }, 20_000);
   });
 }
+export const sendToCompressor = file => sendProcessedImage(file, '/image-compressor/');
+export const sendToWatermark = file => sendProcessedImage(file, '/image-watermark/');
 
-export function receiveCropFile(onFile, onError) {
+export function receiveProcessedImage(onFile, onError) {
   if (!location.hash.startsWith('#crop-transfer=')) return;
   const token = location.hash.slice('#crop-transfer='.length), sender = window.opener;
   history.replaceState(null, '', `${location.pathname}${location.search}`);
@@ -40,3 +42,5 @@ export function receiveCropFile(onFile, onError) {
   timer = setTimeout(() => { cleanup(); onError('未收到图片，请重试，或手动选择文件。'); window.opener = null; }, 20_000);
   ready();
 }
+// Keep existing crop/compressor imports and bookmarked transfer URLs compatible.
+export const receiveCropFile = receiveProcessedImage;

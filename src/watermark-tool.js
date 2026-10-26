@@ -1,7 +1,7 @@
 import { WATERMARK_LIMITS, validateWatermark, checkWatermarkFile, clampWatermarkCenter, watermarkMime, watermarkFilename } from './lib/watermark.js';
 import { decodeWatermarkImage, watermarkThumbnail, paintWatermark, encodeWatermark } from './watermark-engine.js';
 import { createZIP } from './lib/zip.js';
-import { sendToCompressor } from './image-transfer.js';
+import { sendToCompressor, receiveProcessedImage } from './image-transfer.js';
 
 export function initWatermark({ notify }) {
   const $ = id => document.getElementById(id), items = [], downloadURLs = new Set();
@@ -267,4 +267,5 @@ export function initWatermark({ notify }) {
   });
   window.addEventListener('pageshow', event => { if (event.persisted) { update(); schedulePaint(); } });
   update();
+  receiveProcessedImage(file => { addFiles([file]); notify('已接收图片，可以继续添加水印'); }, message => error('wm-error', message));
 }

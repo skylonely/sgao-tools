@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { sendToCompressor, receiveCropFile } from '../src/image-transfer.js';
+import { sendToCompressor, sendToWatermark, receiveCropFile, receiveProcessedImage } from '../src/image-transfer.js';
 
 function setup() {
   const old = { window: globalThis.window, location: globalThis.location, history: globalThis.history };
@@ -52,5 +52,29 @@ test('blocked popups and direct transfer links have usable errors without hangin
     location.hash = '#crop-transfer=invalid'; let message;
     receiveCropFile(() => assert.fail('unexpected file'), error => { message = error; });
     assert.match(message, /未收到图片/);
+  } finally { env.restore(); }
+});
+
+test('collage handoff opens the watermark page and transfers only to its verified window', async () => {
+  const env = setup(), messages = [], popup = { postMessage(data, origin) { messages.push({ data, origin }); } }; let url;
+  env.window.open = destination => { url = destination; return popup; };
+  try {
+    const file = new File(['pixels'], 'collage.png', { type: 'image/png' }), pending = sendToWatermark(file);
+    assert.ok(url.startsWith('/image-watermark/#crop-transfer=')); const token = url.split('=')[1];
+    env.emit({ origin: location.origin, source: {}, data: { type: 'sgao-crop-transfer:ready', token } }); assert.equal(messages.length, 0);
+    env.emit({ origin: location.origin, source: popup, data: { type: 'sgao-crop-transfer:ready', token } }); assert.equal(messages[0].data.file, file);
+    env.emit({ origin: location.origin, source: popup, data: { type: 'sgao-crop-transfer:received', token } }); await pending;
+    assert.equal(env.listeners.get('message').size, 0);
+  } finally { env.restore(); }
+});
+
+test('generic receiver also accepts watermark handoffs and retains legacy receiver compatibility', () => {
+  const env = setup(), token = 'a1234567-1234-4567-8910-123456789abc', sender = { postMessage() {} }; let received;
+  try {
+    assert.equal(receiveCropFile, receiveProcessedImage); location.pathname = '/image-watermark/'; location.hash = `#crop-transfer=${token}`; env.window.opener = sender;
+    receiveProcessedImage(file => { received = file; }, error => assert.fail(error));
+    const file = new File(['pixels'], 'collage.webp', { type: 'image/webp' });
+    env.emit({ origin: location.origin, source: sender, data: { type: 'sgao-crop-transfer:file', token, file } });
+    assert.equal(received, file); assert.equal(env.window.opener, null);
   } finally { env.restore(); }
 });

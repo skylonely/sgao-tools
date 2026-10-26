@@ -2,7 +2,7 @@ export const SITE_URL = 'https://tools.sgao.cc';
 export const HOME = {
   key: 'home', path: '/', name: '工具导航',
   title: 'SGAO 工具箱 · 免费在线图片与开发工具',
-  description: '免费的在线图片与开发工具箱：图片水印与批量加水印、图片取色与配色板、图片裁剪与尺寸调整、图片压缩、格式转换、网站图标整包生成、二维码、SVG 优化、JSON 格式化、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
+  description: '免费的在线图片与开发工具箱：图片拼接与拼图、批量加水印、图片取色与配色板、图片裁剪与尺寸调整、图片压缩、格式转换、网站图标整包生成、二维码、SVG 优化、JSON 格式化、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
 };
 
 // Shared by the static build, local server and legacy-link compatibility.
@@ -104,7 +104,7 @@ export const TOOLS = [
     intro: '从图片中选出需要的区域，再按像素调整输出尺寸。支持拖动、数值输入和方向键微调，适合制作头像、文章封面及网页素材。',
     steps: ['上传静态 PNG、JPG、WebP 或 AVIF，选择自由裁剪、原图比例或常用比例。', '拖动选区和控制点，按需旋转、翻转；填写导出宽高，选择格式与背景。', '检查实际导出预览和体积后下载，或在新标签页继续智能压缩，无需重复选择图片。'],
     faqs: [['图片与导出尺寸有什么限制？', '源图单张最高 20 MB、单边不超过 10000 px、总像素不超过 3200 万；导出单边最高 8192 px、总像素不超过 3200 万。继续压缩时，导出文件需在 20 MB 以内。'], ['解锁比例后，图片会变形吗？', '默认采用等比完整显示，在指定画布中居中留白。也可明确选择「拉伸填满指定尺寸」。JPG 不支持透明，留白和透明区域会使用所选底色。'], ['旋转、放大和继续压缩如何工作？', '旋转会按当前比例重新选取画面；翻转以当前画面方向为准。放大不会增加细节。继续压缩会打开同站新标签页，直接传递当前结果，不上传图片，也不将图片写入浏览器存储。']],
-    related: ['watermark', 'image', 'color'],
+    related: ['collage', 'watermark', 'image'],
   },
   {
     key: 'color', path: '/image-color-picker/', name: '图片取色 & 配色板', icon: 'palette', category: 'image',
@@ -128,8 +128,19 @@ export const TOOLS = [
     faqs: [['图片和 Logo 有什么限制？', '每批最多 20 张、单张最高 20 MB、原图合计最高 100 MB，单边最高 10000 px、总像素最高 3200 万。Logo 最高 5 MB、4096 px 和 1600 万像素。仅支持静态位图，AVIF 解码取决于浏览器；本批次结果合计最高 200 MB。'], ['不同大小的图片，水印会如何定位？', '文字字号、Logo 宽度和边距以每张图片的短边为基准；自定义中心位置按图片宽高百分比应用。单个水印旋转后仍限制在画面内，过长文字会自动缩小；平铺允许边缘裁切，过密时自动调大间距。'], ['输出会改变图片尺寸、画质或元数据吗？', '保留浏览器按图片方向解码后的像素尺寸，重新编码会移除 EXIF 等元数据。PNG 无损编码，JPG/WebP 可设置有损质量，体积可能增加。跟随原格式时 AVIF 转 PNG；JPG 透明区域使用所选底色。字体取决于本机，导出后请检查效果；继续压缩的单张结果需在 20 MB 以内。']],
     related: ['crop', 'image', 'color'],
   },
+  {
+    key: 'collage', path: '/image-collage/', name: '图片拼接 & 拼图', icon: 'collage', category: 'image',
+    title: '图片拼接与拼图 · 在线长图、横向拼接与网格排版 - SGAO 工具箱',
+    tagline: '把零散的画面，连成一个完整的故事。',
+    description: '免费在线拼接图片，支持纵向长图、横向拼接、2–5 列网格拼图、拖动排序、间距、外边距和透明背景。最多 20 张，导出 PNG/JPG/WebP，继续加水印或压缩，全程本地处理。',
+    card: '拼成长图、横向对比图或网格，排好顺序，连接每个画面。', tags: ['三种布局', '拖动排序'], keywords: '图片 拼接 拼图 长图 合并 网格 横向 纵向 collage stitch merge join png jpg webp avif',
+    intro: '把截图、产品图和文章配图组合在一起。横向与纵向拼接统一高度或宽度并保留比例，网格支持等比留白或明确选择居中裁切；生成后还能接着加水印、压缩。',
+    steps: ['上传静态 PNG、JPG、WebP 或 AVIF，最多 20 张；可试试四张不同比例的示例。', '拖动手柄或使用上移、下移排序，选择横向、纵向或网格布局，调整尺寸、间距与背景。', '点击「生成拼图」，查看实际导出结果，下载 PNG/JPG/WebP，或直接送至水印、压缩工具。'],
+    faqs: [['输入和输出尺寸有什么限制？', '最多 20 张，单张最高 20 MB、原图合计最高 100 MB；源图与输出单边最高 10000 px、总像素最高 3200 万。超出输出上限时自动等比缩小，并显示实际尺寸。AVIF 解码取决于浏览器；只处理静态图片。'], ['图片会被拉伸或裁切吗？', '横向和纵向拼接会保持图片比例。网格默认完整显示，剩余区域留背景；选择「居中裁切」时，超出单格的部分会被截去。网格按从左到右、从上到下的顺序排列，尾行不足时保留空格背景。'], ['为什么预览、文件大小或后续处理有限制？', '布局预览使用缩略图，生成后可切到实际导出结果并以 100% 查看。PNG 保留透明，JPG 使用所选底色；JPG/WebP 质量可调，重新编码会移除 EXIF 等元数据。送至水印或压缩工具的结果需在 20 MB 以内，过大时可改用 JPG/WebP 或减小尺寸。']],
+    related: ['crop', 'watermark', 'image'],
+  },
 ];
-export const HOME_ORDER = ['image', 'crop', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
+export const HOME_ORDER = ['image', 'crop', 'collage', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
 export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }];
 export function toolByKey(key) { return TOOLS.find(tool => tool.key === key); }
 export function pageForPath(pathname) {
