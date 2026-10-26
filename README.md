@@ -18,6 +18,7 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 | SVG 优化 & 转 PNG | 上传/粘贴、SVGO 精简、前后预览、保留 ID 与 viewBox、SVG 下载/复制、自定义尺寸与背景导出 PNG | `/svg-optimizer/` |
 | 图片裁剪 & 尺寸调整 | 自由/固定比例、八向控制点、数值与键盘微调、旋转翻转、精确宽高、透明/实色背景、PNG/JPG/WebP 导出，直接继续压缩 | `/image-cropper/` |
 | 图片取色 & 配色板 | 原图像素与放大镜、HEX/RGB/HSL/Alpha、5–8 代表色、CSS 变量、JSON 与 PNG 色卡 | `/image-color-picker/` |
+| 图片水印 & 批量加水印 | 中文文字/Logo、九宫格/拖动定位、相对大小、透明度和旋转、错行平铺、PNG/JPG/WebP、ZIP 与继续压缩 | `/image-watermark/` |
 
 包含自适应布局、浅色/深色主题和键盘操作。`⌘/Ctrl + Enter` 快速格式化 JSON。只保存颜色偏好，不使用分析服务或外部字体。
 
@@ -25,11 +26,11 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 
 根目录 `/` 是工具导航首页，按「图片与图标 / 开发与文本 / 分享与连接」分类，可组合关键词搜索，支持空结果重置与键盘操作。搜索内容只用于本页筛选，不发送请求。
 
-构建时为首页和 10 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
+构建时为首页和 11 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
 
-旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg`、`/#crop`、`/#color` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
+旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg`、`/#crop`、`/#color`、`/#watermark` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
 
-`/sitemap.xml` 由同一份页面目录生成，包含 11 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
+`/sitemap.xml` 由同一份页面目录生成，包含 12 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
 
 新增工具时，在 `src/lib/pages.js` 中填写目录、页面文案、步骤、FAQ 与关联工具，在 `src/index.html` 增加对应 `view-*` 区块，并在 `src/app.js` 注册初始化逻辑。构建会同步生成导航、独立页面与站点地图。
 
@@ -70,7 +71,9 @@ sgao-tools/
 │   ├── color-tool.js       # 原图像素取色、放大镜、配色板与导出
 │   ├── color-engine.js     # 本地图片解码、抽样和 PNG 色卡渲染
 │   ├── color-worker.js     # 后台代表色提取
-│   ├── image-transfer.js   # 单次同源窗口消息，将裁剪结果交给压缩工具
+│   ├── watermark-tool.js   # 文字/Logo 设置、相对定位、批量队列与下载
+│   ├── watermark-engine.js # 本地解码、水印测量绘制和原尺寸编码
+│   ├── image-transfer.js   # 单次同源窗口消息，将裁剪或水印结果交给压缩工具
 │   ├── image-engine.js     # 智能压缩与格式转换
 │   ├── image-worker.js     # 后台压缩线程
 │   ├── qr-tool.js          # 二维码生成、Logo、图片识别与下载
@@ -191,9 +194,19 @@ Apple 图标使用 8% 内边距。Maskable 按源图完整矩形的对角线缩�
 
 ## 图片取色与配色板
 
-- 独立入口 `/image-color-picker/`，兼容 `/#color`；已加入首页、图片分类、关键词搜索、侧栏和站点地图。目前共 10 个工具、11 个规范页面。
+- 独立入口 `/image-color-picker/`，兼容 `/#color`；已加入首页、图片分类、关键词搜索、侧栏和站点地图。
 - 静态 PNG/JPG/WebP/AVIF 单张最高 20 MB、单边最高 10000 px、总像素最高 3200 万。AVIF 解码取决于浏览器；沿用动画检查。替换、清空和离开页面会终止提取并释放图片及结果 URL，不保存文件和取色历史。
 - 按浏览器解码后的原图读取一个 sRGB 像素，不从缩小的预览取色。支持点击/拖动、零起点 X/Y 数值、方向键 1 px 与 Shift 10 px；11 × 11 像素的放大镜跟随指针预览，离开画面恢复到锁定像素。颜色值保留 Alpha，非不透明颜色输出八位 HEX 与现代 CSS RGB/HSL 语法。浏览器色彩管理和隐私保护可能影响像素读数。
 - 配色在最长边 256 px 的抽样图上提取：忽略全透明像素，半透明按白底合成。5 bit RGB 直方图归并相近颜色，使用 Oklab 感知空间的确定性加权聚类，最多 18 轮，独立 Worker 执行并设 12 秒超时。选择 5–8 色，色彩较少时按实际归组数返回，不补造颜色；比例为非全透明抽样像素的近似占比。代表色为所在组中最接近中心的直方图颜色，可能不是原图的某个精确像素。
 - 输出 `--color-1` 等 CSS 变量、带 sRGB/抽样/透明处理说明的 JSON，以及 1200 × 820 PNG 色卡（原图、色值、占比）。PNG 预览使用实际编码结果；提取设置变更会立即废弃旧结果，版本号防止晚到结果覆盖。剪贴板不可用时会选中对应输入或 CSS 内容供手动复制。
 - Oklab 转换采用作者提供的公有领域公式：[Björn Ottosson / Oklab](https://bottosson.github.io/posts/oklab/)。未引入新库、后端或外部请求。
+
+## 图片水印与批量加水印
+
+- 独立入口 `/image-watermark/`，兼容 `/#watermark`，包含首页入口、分类搜索、独立 SEO、FAQ、关联工具及站点地图。当前共 11 个工具、12 个规范页面。
+- 文字水印支持中文、最多 120 个 UTF-16 字符和 3 行，系统黑体/宋体/等宽字体、加粗和颜色；字体由本机提供。Logo 支持静态 PNG/JPG/WebP/AVIF，最高 5 MB、单边 4096 px、1600 万像素，推荐透明 PNG。沿用静态图片检查，不接受 SVG 或动画。
+- 单个或错行平铺水印，文字字号、Logo 宽度和边距以每张图片短边为基准；自定义中心位置按宽高百分比应用。单个水印支持九宫格、拖动、数字与键盘（1 px / Shift 10 px），旋转后的完整边界保持在画面内，超大水印等比缩小。平铺按旋转后的边界计算间距，边缘允许裁切；最多 600 个实例，过密时自动调大间距并提示。
+- 每批最多 20 张、单张 20 MB、原图合计 100 MB，单边 10000 px、3200 万像素。上传时依次验证并制作最长边 960 px 的预览，释放完整解码图；导出时逐张重新解码，完成后释放位图与完整画布。可停止当前任务，丢弃未完成结果并保留已完成图片。本批结果合计上限 200 MB，防止大批 PNG 占用过多内存。
+- 导出保留浏览器按方向解码后的原始像素尺寸，PNG/JPG/WebP 使用真实 MIME 校验，避免浏览器回退 PNG 却使用 WebP 扩展名。跟随原格式时 AVIF 转 PNG；JPG 会先填自选背景，PNG/WebP 可保留透明。JPG/WebP 质量可调，重新编码会移除 EXIF 等元数据，体积可能增加。
+- 原图、水印预览、实际编码结果可切换；修改设置立即清除旧结果并禁用下载。单图下载与 ZIP 使用独立结果，ZIP 沿用 UTF-8、CRC 和重名处理。当前单张结果可通过既有同源窗口握手送至压缩工具，需在 20 MB 以内；未新增上传接口或持久化图片。图像处理与打包使用现有本地工具链，无新增依赖。
+- 新增测试包含配置和输入边界、九宫格、旋转适配、1000 组随机位置、批量相对缩放、平铺上限、实际格式/文件名、终止与位图释放；浏览器检查中文双行、Logo、平铺、多比例批量、原尺寸导出和压缩接续。

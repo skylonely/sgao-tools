@@ -51,6 +51,6 @@ test('blocked popups and direct transfer links have usable errors without hangin
     assert.equal(env.listeners.get('message').size, 0);
     location.hash = '#crop-transfer=invalid'; let message;
     receiveCropFile(() => assert.fail('unexpected file'), error => { message = error; });
-    assert.match(message, /未收到裁剪图片/);
+    assert.match(message, /未收到图片/);
   } finally { env.restore(); }
 });

@@ -43,7 +43,7 @@ function metadata(page) {
 function navigation(page) {
   return `<a href="/" data-tool="home" class="nav-item nav-home${page.key === 'home' ? ' active' : ''}"${page.key === 'home' ? ' aria-current="page"' : ''}>${icon('grid')}<span>工具导航<small>找到眼下需要的工具</small></span></a>
       <div class="nav-heading">日常开发，顺手一点 <span>${String(TOOLS.length).padStart(2, '0')}</span></div>
-      <nav class="tool-nav" aria-label="全部工具">${TOOLS.map((tool, i) => `<a href="${tool.path}" data-tool="${tool.key}" class="nav-item${page.key === tool.key ? ' active' : ''}"${page.key === tool.key ? ' aria-current="page"' : ''}>${icon(tool.icon)}<span>${escapeHTML(tool.name.replace('网站图标整包生成', '网站图标整包').replace('图片压缩 & 格式转换', '图片压缩 & 转换').replace('SVG 优化 & 转 PNG', 'SVG 优化 & PNG').replace('图片裁剪 & 尺寸调整', '图片裁剪 & 缩放'))}<small>${escapeHTML(tool.tags.join(' · '))}</small></span><span class="nav-index">${String(i + 1).padStart(2, '0')}</span></a>`).join('\n')}</nav>`;
+      <nav class="tool-nav" aria-label="全部工具">${TOOLS.map((tool, i) => `<a href="${tool.path}" data-tool="${tool.key}" class="nav-item${page.key === tool.key ? ' active' : ''}"${page.key === tool.key ? ' aria-current="page"' : ''}>${icon(tool.icon)}<span>${escapeHTML(tool.name.replace('网站图标整包生成', '网站图标整包').replace('图片压缩 & 格式转换', '图片压缩 & 转换').replace('SVG 优化 & 转 PNG', 'SVG 优化 & PNG').replace('图片裁剪 & 尺寸调整', '图片裁剪 & 缩放').replace('图片水印 & 批量加水印', '图片水印 & 批量'))}<small>${escapeHTML(tool.tags.join(' · '))}</small></span><span class="nav-index">${String(i + 1).padStart(2, '0')}</span></a>`).join('\n')}</nav>`;
 }
 
 function homeContent() {
@@ -78,8 +78,8 @@ export function renderPage(template, page = HOME) {
     .replace('<span id="breadcrumb-current">JSON 格式化</span></div>', `<span id="breadcrumb-current" aria-current="page">${escapeHTML(page.name)}</span></nav>`)
     .replace(/        <div class="page-heading">[\s\S]*?(?=        <footer class="page-footer">)/, `${content}\n`)
     .replace('<link rel="stylesheet" href="/styles.css">', '<link rel="stylesheet" href="/styles.css">\n  <link rel="stylesheet" href="/portal.css">');
-  const stylesheet = { image: 'image-tool', qrcode: 'qr-tool', svg: 'svg-tool', ico: 'favicon-tool', crop: 'crop-tool', color: 'color-tool' }[page.key];
-  html = html.replace(/  <link rel="stylesheet" href="\/(image-tool|qr-tool|svg-tool|favicon-tool|crop-tool|color-tool)\.css">\n/g, (match, name) => name === stylesheet ? match : '');
+  const stylesheet = { image: 'image-tool', qrcode: 'qr-tool', svg: 'svg-tool', ico: 'favicon-tool', crop: 'crop-tool', color: 'color-tool', watermark: 'watermark-tool' }[page.key];
+  html = html.replace(/  <link rel="stylesheet" href="\/(image-tool|qr-tool|svg-tool|favicon-tool|crop-tool|color-tool|watermark-tool)\.css">\n/g, (match, name) => name === stylesheet ? match : '');
   if (page.key !== 'image') html = html.replace(/  <dialog id="image-compare-dialog"[\s\S]*?<\/dialog>\n/, '');
   return html;
 }

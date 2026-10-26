@@ -23,7 +23,7 @@ export function receiveCropFile(onFile, onError) {
   if (!location.hash.startsWith('#crop-transfer=')) return;
   const token = location.hash.slice('#crop-transfer='.length), sender = window.opener;
   history.replaceState(null, '', `${location.pathname}${location.search}`);
-  if (!validToken(token) || !sender) { onError('未收到裁剪图片，请从裁剪工具重新发送，或手动选择文件。'); return; }
+  if (!validToken(token) || !sender) { onError('未收到图片，请从来源工具重新发送，或手动选择文件。'); return; }
   let interval, timer;
   const cleanup = () => { clearInterval(interval); clearTimeout(timer); window.removeEventListener('message', receive); window.removeEventListener('pagehide', cleanup); };
   function receive(event) {
@@ -37,6 +37,6 @@ export function receiveCropFile(onFile, onError) {
   window.addEventListener('message', receive); window.addEventListener('pagehide', cleanup, { once: true });
   const ready = () => sender.postMessage({ type: `${PREFIX}:ready`, token }, location.origin);
   interval = setInterval(ready, 500);
-  timer = setTimeout(() => { cleanup(); onError('未收到裁剪图片，请重试，或手动选择文件。'); window.opener = null; }, 20_000);
+  timer = setTimeout(() => { cleanup(); onError('未收到图片，请重试，或手动选择文件。'); window.opener = null; }, 20_000);
   ready();
 }

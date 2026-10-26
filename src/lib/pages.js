@@ -2,7 +2,7 @@ export const SITE_URL = 'https://tools.sgao.cc';
 export const HOME = {
   key: 'home', path: '/', name: '工具导航',
   title: 'SGAO 工具箱 · 免费在线图片与开发工具',
-  description: '免费的在线图片与开发工具箱：图片取色与配色板、图片裁剪与尺寸调整、图片压缩、格式转换、网站图标整包生成、二维码、SVG 优化、JSON 格式化、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
+  description: '免费的在线图片与开发工具箱：图片水印与批量加水印、图片取色与配色板、图片裁剪与尺寸调整、图片压缩、格式转换、网站图标整包生成、二维码、SVG 优化、JSON 格式化、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
 };
 
 // Shared by the static build, local server and legacy-link compatibility.
@@ -104,7 +104,7 @@ export const TOOLS = [
     intro: '从图片中选出需要的区域，再按像素调整输出尺寸。支持拖动、数值输入和方向键微调，适合制作头像、文章封面及网页素材。',
     steps: ['上传静态 PNG、JPG、WebP 或 AVIF，选择自由裁剪、原图比例或常用比例。', '拖动选区和控制点，按需旋转、翻转；填写导出宽高，选择格式与背景。', '检查实际导出预览和体积后下载，或在新标签页继续智能压缩，无需重复选择图片。'],
     faqs: [['图片与导出尺寸有什么限制？', '源图单张最高 20 MB、单边不超过 10000 px、总像素不超过 3200 万；导出单边最高 8192 px、总像素不超过 3200 万。继续压缩时，导出文件需在 20 MB 以内。'], ['解锁比例后，图片会变形吗？', '默认采用等比完整显示，在指定画布中居中留白。也可明确选择「拉伸填满指定尺寸」。JPG 不支持透明，留白和透明区域会使用所选底色。'], ['旋转、放大和继续压缩如何工作？', '旋转会按当前比例重新选取画面；翻转以当前画面方向为准。放大不会增加细节。继续压缩会打开同站新标签页，直接传递当前结果，不上传图片，也不将图片写入浏览器存储。']],
-    related: ['image', 'color', 'svg'],
+    related: ['watermark', 'image', 'color'],
   },
   {
     key: 'color', path: '/image-color-picker/', name: '图片取色 & 配色板', icon: 'palette', category: 'image',
@@ -117,8 +117,19 @@ export const TOOLS = [
     faqs: [['支持多大的图片？', '单张最高 20 MB、单边不超过 10000 px、总像素不超过 3200 万。仅处理静态图片；AVIF 能否解码取决于浏览器。图片与结果只留在当前页面内存，刷新后清除。'], ['透明图片和代表色占比如何处理？', '像素取色保留 Alpha，半透明值输出 8 位 HEX 和带透明度的 RGB / HSL。自动配色忽略全透明像素，半透明区域按白底合成；最长边 256 px 的缩略图用于抽样，占比是近似统计，相近颜色会合并。'], ['取色值与设计软件一定相同吗？', '结果为浏览器解码并转换后的 sRGB 像素，包含图片方向处理。色彩管理、原图色域和浏览器的隐私保护设置可能影响读数。代表色用于归纳配色，并不保证是原图中某个精确像素；精确查看请使用单点取色。']],
     related: ['crop', 'image', 'ico'],
   },
+  {
+    key: 'watermark', path: '/image-watermark/', name: '图片水印 & 批量加水印', icon: 'stamp', category: 'image',
+    title: '图片水印与批量加水印 · 文字、Logo、全图平铺 - SGAO 工具箱',
+    tagline: '一张张好图片，留下属于你的印记。',
+    description: '免费在线给图片批量加文字或 Logo 水印，支持中文、九宫格定位、拖动、透明度、旋转与全图平铺。每批最多 20 张，单张最高 20 MB，导出 PNG/JPG/WebP 和 ZIP，图片本地处理。',
+    card: '文字或 Logo，一套设置批量加水印，单张下载或整包带走。', tags: ['文字 / Logo', '批量 20 张'], keywords: '图片 水印 批量 加水印 watermark logo 文字 透明度 平铺 png jpg webp avif zip',
+    intro: '为文章配图、产品图和摄影作品添加署名或品牌标记。水印大小、边距与位置按图片相对尺寸应用，横图、竖图和不同分辨率可共用一套设置。',
+    steps: ['选择静态 PNG、JPG、WebP 或 AVIF 图片，最多 20 张，也可试试不同比例的批量示例。', '选择文字或 Logo 水印，调整位置、大小、不透明度和旋转；单个水印可拖动，也可选择全图平铺。', '点击「应用到全部图片」，逐张检查实际导出结果，单张下载、打包 ZIP，或把当前结果送至压缩工具。'],
+    faqs: [['图片和 Logo 有什么限制？', '每批最多 20 张、单张最高 20 MB、原图合计最高 100 MB，单边最高 10000 px、总像素最高 3200 万。Logo 最高 5 MB、4096 px 和 1600 万像素。仅支持静态位图，AVIF 解码取决于浏览器；本批次结果合计最高 200 MB。'], ['不同大小的图片，水印会如何定位？', '文字字号、Logo 宽度和边距以每张图片的短边为基准；自定义中心位置按图片宽高百分比应用。单个水印旋转后仍限制在画面内，过长文字会自动缩小；平铺允许边缘裁切，过密时自动调大间距。'], ['输出会改变图片尺寸、画质或元数据吗？', '保留浏览器按图片方向解码后的像素尺寸，重新编码会移除 EXIF 等元数据。PNG 无损编码，JPG/WebP 可设置有损质量，体积可能增加。跟随原格式时 AVIF 转 PNG；JPG 透明区域使用所选底色。字体取决于本机，导出后请检查效果；继续压缩的单张结果需在 20 MB 以内。']],
+    related: ['crop', 'image', 'color'],
+  },
 ];
-export const HOME_ORDER = ['image', 'crop', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
+export const HOME_ORDER = ['image', 'crop', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
 export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }];
 export function toolByKey(key) { return TOOLS.find(tool => tool.key === key); }
 export function pageForPath(pathname) {
