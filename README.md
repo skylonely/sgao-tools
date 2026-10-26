@@ -17,6 +17,7 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 | 二维码生成 & 识别 | 网址、文字、Wi-Fi，颜色与 Logo、PNG/SVG 下载，自动回读校验，上传或拖入图片识别 | `/qrcode/` |
 | SVG 优化 & 转 PNG | 上传/粘贴、SVGO 精简、前后预览、保留 ID 与 viewBox、SVG 下载/复制、自定义尺寸与背景导出 PNG | `/svg-optimizer/` |
 | 图片裁剪 & 尺寸调整 | 自由/固定比例、八向控制点、数值与键盘微调、旋转翻转、精确宽高、透明/实色背景、PNG/JPG/WebP 导出，直接继续压缩 | `/image-cropper/` |
+| 图片取色 & 配色板 | 原图像素与放大镜、HEX/RGB/HSL/Alpha、5–8 代表色、CSS 变量、JSON 与 PNG 色卡 | `/image-color-picker/` |
 
 包含自适应布局、浅色/深色主题和键盘操作。`⌘/Ctrl + Enter` 快速格式化 JSON。只保存颜色偏好，不使用分析服务或外部字体。
 
@@ -24,11 +25,11 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 
 根目录 `/` 是工具导航首页，按「图片与图标 / 开发与文本 / 分享与连接」分类，可组合关键词搜索，支持空结果重置与键盘操作。搜索内容只用于本页筛选，不发送请求。
 
-构建时为首页和 9 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
+构建时为首页和 10 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
 
-旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
+旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg`、`/#crop`、`/#color` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
 
-`/sitemap.xml` 由同一份页面目录生成，包含 10 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
+`/sitemap.xml` 由同一份页面目录生成，包含 11 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
 
 新增工具时，在 `src/lib/pages.js` 中填写目录、页面文案、步骤、FAQ 与关联工具，在 `src/index.html` 增加对应 `view-*` 区块，并在 `src/app.js` 注册初始化逻辑。构建会同步生成导航、独立页面与站点地图。
 
@@ -66,6 +67,9 @@ sgao-tools/
 │   ├── image-tool.js       # 批量图片队列、对比及下载
 │   ├── crop-tool.js        # 裁剪选区、尺寸设置、实际导出预览与下载
 │   ├── crop-engine.js      # 本地解码、旋转翻转和 PNG/JPG/WebP 编码
+│   ├── color-tool.js       # 原图像素取色、放大镜、配色板与导出
+│   ├── color-engine.js     # 本地图片解码、抽样和 PNG 色卡渲染
+│   ├── color-worker.js     # 后台代表色提取
 │   ├── image-transfer.js   # 单次同源窗口消息，将裁剪结果交给压缩工具
 │   ├── image-engine.js     # 智能压缩与格式转换
 │   ├── image-worker.js     # 后台压缩线程
@@ -176,7 +180,7 @@ Apple 图标使用 8% 内边距。Maskable 按源图完整矩形的对角线缩�
 
 ## 图片裁剪与尺寸调整
 
-- 独立入口 `/image-cropper/`，支持 `/#crop` 兼容链接。导航首页、侧栏、分类搜索、独立 SEO 和站点地图共用工具目录，当前为 9 个工具、10 个页面。
+- 独立入口 `/image-cropper/`，支持 `/#crop` 兼容链接。导航首页、侧栏、分类搜索、独立 SEO 和站点地图共用工具目录。
 - 静态 PNG/JPG/WebP/AVIF 单张最高 20 MB，源图单边最高 10000 px、总像素最高 3200 万。浏览器支持决定 AVIF 能否解码；动画由已有图片检查逻辑拒绝。读取替换和清空通过版本号丢弃晚到结果并释放 ImageBitmap。
 - 自由、原图、1:1、4:3、3:4、16:9、9:16 比例。移动选区、八向控制点、空白处拖动新建，支持 Pointer Events；也可输入源像素坐标。聚焦选区或控制点后用方向键移动/缩放，Shift 为 10 px。选区始终保持在图像范围内。
 - 左右 90° 旋转会按当前比例重建选区；水平、垂直翻转以旋转后的坐标为准。自定义导出尺寸在继续裁剪和旋转后保留，锁定比例时自动重算另一边。「重置画面」还原方向、裁剪比例与原始导出尺寸，不重置已选择的文件格式。
@@ -184,3 +188,12 @@ Apple 图标使用 8% 内边距。Maskable 按源图完整矩形的对角线缩�
 - 预览图使用实际编码后的文件，与下载内容相同，展示真实像素尺寸、格式和体积。设置变化立即禁用旧结果，拖动结束后防抖生成，只串行执行一次编码，旧任务完成后只保留最新版本。下载名清理路径与控制字符，并使用真实编码对应的扩展名。
 - 「在新标签页继续压缩」传递当前导出 File，由同源窗口消息完成一次握手，双方检查精确来源、窗口引用与随机单次令牌，并在成功、超时或离开页面时清理。令牌从接收页面地址移除，接收后释放 opener，不使用服务器、IndexedDB、localStorage 或 sessionStorage 保存图片。压缩工具接收后由用户选择策略并启动，导出大于 20 MB 时提示缩小后再传递。若弹窗被阻止，可允许打开后重试，或下载再手动选择。
 - 新增测试覆盖边界、固定比例控制点、400 组随机拖动、旋转翻转矩阵、尺寸上限、留白/拉伸、文件命名，以及传递来源校验、重复消息和弹窗阻止。
+
+## 图片取色与配色板
+
+- 独立入口 `/image-color-picker/`，兼容 `/#color`；已加入首页、图片分类、关键词搜索、侧栏和站点地图。目前共 10 个工具、11 个规范页面。
+- 静态 PNG/JPG/WebP/AVIF 单张最高 20 MB、单边最高 10000 px、总像素最高 3200 万。AVIF 解码取决于浏览器；沿用动画检查。替换、清空和离开页面会终止提取并释放图片及结果 URL，不保存文件和取色历史。
+- 按浏览器解码后的原图读取一个 sRGB 像素，不从缩小的预览取色。支持点击/拖动、零起点 X/Y 数值、方向键 1 px 与 Shift 10 px；11 × 11 像素的放大镜跟随指针预览，离开画面恢复到锁定像素。颜色值保留 Alpha，非不透明颜色输出八位 HEX 与现代 CSS RGB/HSL 语法。浏览器色彩管理和隐私保护可能影响像素读数。
+- 配色在最长边 256 px 的抽样图上提取：忽略全透明像素，半透明按白底合成。5 bit RGB 直方图归并相近颜色，使用 Oklab 感知空间的确定性加权聚类，最多 18 轮，独立 Worker 执行并设 12 秒超时。选择 5–8 色，色彩较少时按实际归组数返回，不补造颜色；比例为非全透明抽样像素的近似占比。代表色为所在组中最接近中心的直方图颜色，可能不是原图的某个精确像素。
+- 输出 `--color-1` 等 CSS 变量、带 sRGB/抽样/透明处理说明的 JSON，以及 1200 × 820 PNG 色卡（原图、色值、占比）。PNG 预览使用实际编码结果；提取设置变更会立即废弃旧结果，版本号防止晚到结果覆盖。剪贴板不可用时会选中对应输入或 CSS 内容供手动复制。
+- Oklab 转换采用作者提供的公有领域公式：[Björn Ottosson / Oklab](https://bottosson.github.io/posts/oklab/)。未引入新库、后端或外部请求。

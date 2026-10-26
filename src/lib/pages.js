@@ -2,7 +2,7 @@ export const SITE_URL = 'https://tools.sgao.cc';
 export const HOME = {
   key: 'home', path: '/', name: '工具导航',
   title: 'SGAO 工具箱 · 免费在线图片与开发工具',
-  description: '免费的在线图片与开发工具箱：图片裁剪与尺寸调整、图片压缩、格式转换、网站图标整包生成、二维码、SVG 优化、JSON 格式化、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
+  description: '免费的在线图片与开发工具箱：图片取色与配色板、图片裁剪与尺寸调整、图片压缩、格式转换、网站图标整包生成、二维码、SVG 优化、JSON 格式化、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
 };
 
 // Shared by the static build, local server and legacy-link compatibility.
@@ -104,10 +104,21 @@ export const TOOLS = [
     intro: '从图片中选出需要的区域，再按像素调整输出尺寸。支持拖动、数值输入和方向键微调，适合制作头像、文章封面及网页素材。',
     steps: ['上传静态 PNG、JPG、WebP 或 AVIF，选择自由裁剪、原图比例或常用比例。', '拖动选区和控制点，按需旋转、翻转；填写导出宽高，选择格式与背景。', '检查实际导出预览和体积后下载，或在新标签页继续智能压缩，无需重复选择图片。'],
     faqs: [['图片与导出尺寸有什么限制？', '源图单张最高 20 MB、单边不超过 10000 px、总像素不超过 3200 万；导出单边最高 8192 px、总像素不超过 3200 万。继续压缩时，导出文件需在 20 MB 以内。'], ['解锁比例后，图片会变形吗？', '默认采用等比完整显示，在指定画布中居中留白。也可明确选择「拉伸填满指定尺寸」。JPG 不支持透明，留白和透明区域会使用所选底色。'], ['旋转、放大和继续压缩如何工作？', '旋转会按当前比例重新选取画面；翻转以当前画面方向为准。放大不会增加细节。继续压缩会打开同站新标签页，直接传递当前结果，不上传图片，也不将图片写入浏览器存储。']],
-    related: ['image', 'ico', 'svg'],
+    related: ['image', 'color', 'svg'],
+  },
+  {
+    key: 'color', path: '/image-color-picker/', name: '图片取色 & 配色板', icon: 'palette', category: 'image',
+    title: '图片取色与配色板 · HEX、RGB、HSL 在线取色 - SGAO 工具箱',
+    tagline: '从一个像素，到一整组配色灵感。',
+    description: '上传图片在线取色，放大查看原图像素，复制 HEX、RGB、HSL 和透明度；自动提取 5–8 个代表色，导出 CSS 变量、JSON 和 PNG 色卡。单张最高 20 MB，图片不上传服务器。',
+    card: '精确拾取图片颜色，提取代表色，导出代码与灵感色卡。', tags: ['像素取色', '自动配色'], keywords: '图片 取色 配色 色卡 颜色 调色板 palette color picker hex rgb hsl png jpg webp avif css',
+    intro: '从照片、插画和网页素材里拾取颜色。单点取色读取原图像素并保留透明度，自动配色将相近颜色归组，适合整理网页主题与设计灵感。',
+    steps: ['上传静态 PNG、JPG、WebP 或 AVIF，也可点击「试试示例」。', '移动指针查看放大细节，点击锁定像素；复制 HEX、RGB、HSL，或用坐标和方向键微调。', '选择 5–8 个代表色，点击色卡复制 HEX，导出 CSS 变量、JSON 或包含原图的 PNG 色卡。'],
+    faqs: [['支持多大的图片？', '单张最高 20 MB、单边不超过 10000 px、总像素不超过 3200 万。仅处理静态图片；AVIF 能否解码取决于浏览器。图片与结果只留在当前页面内存，刷新后清除。'], ['透明图片和代表色占比如何处理？', '像素取色保留 Alpha，半透明值输出 8 位 HEX 和带透明度的 RGB / HSL。自动配色忽略全透明像素，半透明区域按白底合成；最长边 256 px 的缩略图用于抽样，占比是近似统计，相近颜色会合并。'], ['取色值与设计软件一定相同吗？', '结果为浏览器解码并转换后的 sRGB 像素，包含图片方向处理。色彩管理、原图色域和浏览器的隐私保护设置可能影响读数。代表色用于归纳配色，并不保证是原图中某个精确像素；精确查看请使用单点取色。']],
+    related: ['crop', 'image', 'ico'],
   },
 ];
-export const HOME_ORDER = ['image', 'crop', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
+export const HOME_ORDER = ['image', 'crop', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
 export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }];
 export function toolByKey(key) { return TOOLS.find(tool => tool.key === key); }
 export function pageForPath(pathname) {

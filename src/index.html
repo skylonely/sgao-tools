@@ -14,10 +14,12 @@
   <link rel="stylesheet" href="/svg-tool.css">
   <link rel="stylesheet" href="/favicon-tool.css">
   <link rel="stylesheet" href="/crop-tool.css">
+  <link rel="stylesheet" href="/color-tool.css">
   <script type="module" src="/app.js"></script>
 </head>
 <body>
   <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-palette" viewBox="0 0 24 24"><path d="M20.9 13.6A9 9 0 1 0 12 21h1.4a2.3 2.3 0 0 0 1.5-4.1 1.6 1.6 0 0 1 1-2.8h2.9a2.2 2.2 0 0 0 2.1-.5Z"/><circle cx="7.5" cy="10" r=".7"/><circle cx="10" cy="6.5" r=".7"/><circle cx="14.5" cy="6.5" r=".7"/><circle cx="17.5" cy="10" r=".7"/></symbol>
     <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5m8-10 5 5-5 5m-3-13-2 16"/></symbol>
     <symbol id="i-braces" viewBox="0 0 24 24"><path d="M9 3H7a2 2 0 0 0-2 2v4a3 3 0 0 1-2 3 3 3 0 0 1 2 3v4a2 2 0 0 0 2 2h2m6-18h2a2 2 0 0 1 2 2v4a3 3 0 0 0 2 3 3 3 0 0 0-2 3v4a2 2 0 0 1-2 2h-2"/></symbol>
     <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
@@ -263,6 +265,42 @@
           </div>
           <div class="info-note"><svg class="icon"><use href="#i-shield"/></svg><p>源图单边 ≤ 10000 px、总像素 ≤ 3200 万。重新编码会移除 EXIF 等元数据；仅支持静态图片。裁剪和缩放不能恢复原图没有的细节，导出前请检查预览。</p></div>
         </section>
+        <section id="view-color" class="tool-view" aria-label="图片取色与配色板" hidden>
+          <div class="workspace-toolbar"><span class="muted">从喜欢的画面里，找到下一组灵感。</span><div class="toolbar-actions"><button type="button" class="text-button" id="color-sample">试试示例</button><button type="button" class="text-button muted" id="color-clear" disabled>清空</button></div></div>
+          <label class="color-drop" id="color-drop"><input type="file" id="color-file" accept="image/png,image/jpeg,image/webp,image/avif" aria-label="选择取色图片"><svg class="icon" aria-hidden="true"><use href="#i-palette"/></svg><span><strong id="color-drop-title">放进一张图片，发现它的颜色</strong><small>点击选择或拖入静态 PNG / JPG / WebP / AVIF<br>单张 ≤ 20 MB · 单边 ≤ 10000 px · 总像素 ≤ 3200 万</small></span><span class="color-drop-tag" aria-hidden="true">PICK YOUR INSPIRATION ↗</span></label>
+          <p class="color-status" id="color-load-status" role="status">无需登录，图片只在当前浏览器处理。</p>
+          <p class="error-message" id="color-error" role="alert" hidden></p>
+          <div id="color-workspace" hidden>
+            <div class="color-workspace">
+              <div class="color-card color-source">
+                <div class="color-card-heading"><h2>在画面里，选中一个颜色</h2><span>01 / PICK</span></div>
+                <div class="color-source-meta"><strong id="color-source-name"></strong><span id="color-source-meta"></span></div>
+                <div class="color-viewport" id="color-viewport"><div class="color-stage color-checker" id="color-stage" tabindex="0" role="group" aria-label="图片取色画布" aria-describedby="color-keyboard-help"><canvas id="color-canvas" aria-hidden="true"></canvas><span id="color-marker" aria-hidden="true"></span></div></div>
+                <div class="color-source-footer"><span id="color-position">已选像素</span><div class="color-coordinates"><label for="color-x">X<input id="color-x" type="number" min="0" step="1" inputmode="numeric" aria-label="取色 X 坐标"></label><label for="color-y">Y<input id="color-y" type="number" min="0" step="1" inputmode="numeric" aria-label="取色 Y 坐标"></label></div></div>
+                <p class="color-hint" id="color-keyboard-help">点击或拖动锁定颜色；聚焦画布后，用方向键逐像素移动，Shift + 方向键移动 10 px。坐标从 0 开始。</p>
+              </div>
+              <div class="color-card color-inspector">
+                <div class="color-card-heading"><h2>当前颜色</h2><span>sRGB</span></div>
+                <div class="color-inspector-top"><div><canvas id="color-loupe" class="color-checker" width="110" height="110" role="img" aria-label="指针位置的像素放大预览"></canvas><span id="color-loupe-position" class="color-mini-label"></span></div><div><div class="color-checker color-selected-box"><span id="color-selected-swatch"></span></div><strong id="color-selected-hex"></strong></div></div>
+                <div class="color-values">
+                  <label for="color-hex">HEX</label><div class="color-value-row"><input id="color-hex" readonly spellcheck="false"><button type="button" data-color-copy="hex" class="icon-button" aria-label="复制 HEX"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg></button></div>
+                  <label for="color-rgb">RGB</label><div class="color-value-row"><input id="color-rgb" readonly spellcheck="false"><button type="button" data-color-copy="rgb" class="icon-button" aria-label="复制 RGB"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg></button></div>
+                  <label for="color-hsl">HSL</label><div class="color-value-row"><input id="color-hsl" readonly spellcheck="false"><button type="button" data-color-copy="hsl" class="icon-button" aria-label="复制 HSL"><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg></button></div>
+                  <p class="color-alpha" id="color-alpha"></p><p class="color-hint">取色读取原图像素，保留透明度；半透明颜色使用 8 位 HEX 和带 Alpha 的 RGB / HSL。棋盘格只辅助显示。</p>
+                </div>
+              </div>
+            </div>
+            <div class="color-card color-palette-card">
+              <div class="color-card-heading"><div><span class="color-eyebrow">02 / IMAGE PALETTE</span><h2>把画面，变成一组配色</h2></div><div class="color-palette-options"><label for="color-count">代表色<select id="color-count"><option value="5">5 色</option><option value="6" selected>6 色</option><option value="7">7 色</option><option value="8">8 色</option></select></label><button type="button" class="text-button" id="color-extract">重新提取</button></div></div>
+              <div class="color-palette-body"><p class="color-status" id="color-palette-status" role="status" aria-live="polite">等待提取代表色。</p><div id="color-palette" class="color-palette" aria-label="图片代表色"></div><p class="error-message" id="color-palette-error" role="alert" hidden></p><p class="color-hint">全透明像素不参与统计，半透明区域按白底合成；相近颜色会合并，实际色数可能少于所选数量。</p>
+                <div class="color-export-actions"><button class="button primary" type="button" id="color-css-copy" disabled><svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg>复制 CSS 变量</button><button class="button secondary" type="button" id="color-json" disabled>下载 JSON</button><button class="button secondary" type="button" id="color-png" disabled><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>下载色卡 PNG</button></div>
+                <details class="color-code-preview"><summary>查看 CSS 变量</summary><label class="sr-only" for="color-css">配色 CSS 变量</label><textarea id="color-css" readonly spellcheck="false" rows="10"></textarea></details>
+                <details class="color-card-preview" id="color-card-preview" hidden><summary>预览导出色卡 · 1200 × 820 PNG</summary><img id="color-card-image" alt="包含原图、代表色和色值的导出色卡预览" width="1200" height="820"></details>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <footer class="page-footer"><span>SGAO TOOLS <span class="footer-dot">·</span> 为日常的每一小步</span><span><span class="status-dot"></span>无需安装，即开即用</span></footer>
       </main>
     </div>
