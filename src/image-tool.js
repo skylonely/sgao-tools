@@ -1,5 +1,6 @@
 import { createZIP } from './lib/zip.js';
 import { savings } from './lib/image-compression.js';
+import { receiveCropFile } from './image-transfer.js';
 
 export function initImageTool({ notify }) {
   const $ = id => document.getElementById(id);
@@ -147,4 +148,5 @@ export function initImageTool({ notify }) {
   });
   window.addEventListener('pagehide', event => { if (!event.persisted) { version++; abort?.abort(); cancelJob?.(); for (const item of items) { clearResult(item); URL.revokeObjectURL(item.originalURL); } } });
   render();
+  receiveCropFile(file => { addFiles([file]); $('image-summary-note').textContent = '已接收裁剪结果。选择压缩策略后，点击「开始智能压缩」。'; notify('已接收裁剪图片'); }, error);
 }

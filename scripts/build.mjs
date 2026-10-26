@@ -16,4 +16,4 @@ for (const page of [HOME, ...TOOLS]) {
   await writeFile(`${directory}index.html`, renderPage(template, page));
 }
 await writeFile(`${output}/sitemap.xml`, renderSitemap());
-console.log('构建完成 → dist/（首页 + 8 个独立工具页面 + sitemap.xml）');
+console.log(`构建完成 → dist/（首页 + ${TOOLS.length} 个独立工具页面 + sitemap.xml）`);

@@ -16,6 +16,7 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 | 图片压缩 & 格式转换 | 批量感知质量检查、自适应有损编码、PNG 减色、智能选择格式、尺寸调整、原图滑块对比、单图及 ZIP 下载 | `/image-compressor/` |
 | 二维码生成 & 识别 | 网址、文字、Wi-Fi，颜色与 Logo、PNG/SVG 下载，自动回读校验，上传或拖入图片识别 | `/qrcode/` |
 | SVG 优化 & 转 PNG | 上传/粘贴、SVGO 精简、前后预览、保留 ID 与 viewBox、SVG 下载/复制、自定义尺寸与背景导出 PNG | `/svg-optimizer/` |
+| 图片裁剪 & 尺寸调整 | 自由/固定比例、八向控制点、数值与键盘微调、旋转翻转、精确宽高、透明/实色背景、PNG/JPG/WebP 导出，直接继续压缩 | `/image-cropper/` |
 
 包含自适应布局、浅色/深色主题和键盘操作。`⌘/Ctrl + Enter` 快速格式化 JSON。只保存颜色偏好，不使用分析服务或外部字体。
 
@@ -23,11 +24,11 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 
 根目录 `/` 是工具导航首页，按「图片与图标 / 开发与文本 / 分享与连接」分类，可组合关键词搜索，支持空结果重置与键盘操作。搜索内容只用于本页筛选，不发送请求。
 
-构建时为首页和 8 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
+构建时为首页和 9 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
 
 旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
 
-`/sitemap.xml` 由同一份页面目录生成，包含 9 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
+`/sitemap.xml` 由同一份页面目录生成，包含 10 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
 
 新增工具时，在 `src/lib/pages.js` 中填写目录、页面文案、步骤、FAQ 与关联工具，在 `src/index.html` 增加对应 `view-*` 区块，并在 `src/app.js` 注册初始化逻辑。构建会同步生成导航、独立页面与站点地图。
 
@@ -63,6 +64,9 @@ sgao-tools/
 │   ├── ico-tool.js         # 网站图标整包、应用配置及下载
 │   ├── favicon-engine.js   # ICO/PNG、主屏幕及安全区图标渲染
 │   ├── image-tool.js       # 批量图片队列、对比及下载
+│   ├── crop-tool.js        # 裁剪选区、尺寸设置、实际导出预览与下载
+│   ├── crop-engine.js      # 本地解码、旋转翻转和 PNG/JPG/WebP 编码
+│   ├── image-transfer.js   # 单次同源窗口消息，将裁剪结果交给压缩工具
 │   ├── image-engine.js     # 智能压缩与格式转换
 │   ├── image-worker.js     # 后台压缩线程
 │   ├── qr-tool.js          # 二维码生成、Logo、图片识别与下载
@@ -169,3 +173,14 @@ Apple 图标使用 8% 内边距。Maskable 按源图完整矩形的对角线缩�
 ## 增加工具
 
 在 `src/lib/` 添加独立逻辑并测试，在 `src/index.html` 添加侧栏入口和视图，在 `src/app.js` 的 `tools` 中登记路由并连接交互。构建脚本会自动复制 `src/` 下的所有模块，无需修改构建配置。
+
+## 图片裁剪与尺寸调整
+
+- 独立入口 `/image-cropper/`，支持 `/#crop` 兼容链接。导航首页、侧栏、分类搜索、独立 SEO 和站点地图共用工具目录，当前为 9 个工具、10 个页面。
+- 静态 PNG/JPG/WebP/AVIF 单张最高 20 MB，源图单边最高 10000 px、总像素最高 3200 万。浏览器支持决定 AVIF 能否解码；动画由已有图片检查逻辑拒绝。读取替换和清空通过版本号丢弃晚到结果并释放 ImageBitmap。
+- 自由、原图、1:1、4:3、3:4、16:9、9:16 比例。移动选区、八向控制点、空白处拖动新建，支持 Pointer Events；也可输入源像素坐标。聚焦选区或控制点后用方向键移动/缩放，Shift 为 10 px。选区始终保持在图像范围内。
+- 左右 90° 旋转会按当前比例重建选区；水平、垂直翻转以旋转后的坐标为准。自定义导出尺寸在继续裁剪和旋转后保留，锁定比例时自动重算另一边。「重置画面」还原方向、裁剪比例与原始导出尺寸，不重置已选择的文件格式。
+- 输出宽高为 1–8192 px 的整数，总像素最高 3200 万；默认尺寸会按上限缩小，可选 ½× / 1× / 2×。解锁比例后默认等比居中留白，也可明确选拉伸。PNG 保留透明，JPG 强制使用所选实色背景，WebP 支持透明；JPG/WebP 提供质量滑块。放大会显示提示。
+- 预览图使用实际编码后的文件，与下载内容相同，展示真实像素尺寸、格式和体积。设置变化立即禁用旧结果，拖动结束后防抖生成，只串行执行一次编码，旧任务完成后只保留最新版本。下载名清理路径与控制字符，并使用真实编码对应的扩展名。
+- 「在新标签页继续压缩」传递当前导出 File，由同源窗口消息完成一次握手，双方检查精确来源、窗口引用与随机单次令牌，并在成功、超时或离开页面时清理。令牌从接收页面地址移除，接收后释放 opener，不使用服务器、IndexedDB、localStorage 或 sessionStorage 保存图片。压缩工具接收后由用户选择策略并启动，导出大于 20 MB 时提示缩小后再传递。若弹窗被阻止，可允许打开后重试，或下载再手动选择。
+- 新增测试覆盖边界、固定比例控制点、400 组随机拖动、旋转翻转矩阵、尺寸上限、留白/拉伸、文件命名，以及传递来源校验、重复消息和弹窗阻止。

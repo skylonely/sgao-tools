@@ -2,7 +2,7 @@ export const SITE_URL = 'https://tools.sgao.cc';
 export const HOME = {
   key: 'home', path: '/', name: '工具导航',
   title: 'SGAO 工具箱 · 免费在线图片与开发工具',
-  description: '免费的在线图片与开发工具箱：图片压缩、格式转换、网站图标整包生成、二维码、SVG 优化、JSON 格式化、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
+  description: '免费的在线图片与开发工具箱：图片裁剪与尺寸调整、图片压缩、格式转换、网站图标整包生成、二维码、SVG 优化、JSON 格式化、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
 };
 
 // Shared by the static build, local server and legacy-link compatibility.
@@ -71,7 +71,7 @@ export const TOOLS = [
     intro: '为网页准备体积更小的图片。工具对照原图的颜色、明暗与透明度寻找编码参数，支持手动控制压缩程度，并用滑块检查细节。',
     steps: ['拖入静态 JPG、PNG、WebP 或 AVIF 图片，可批量选择。', '选择压缩策略、输出格式与最长边，点击「开始智能压缩」，查看体积和画质对比。', '按需调整参数重新处理，单张下载或打包下载 ZIP。'],
     faqs: [['支持多大的图片和多少张？', '单张最高 20 MB，每批最多 20 张、合计最高 100 MB；单边不超过 10000 px，总像素不超过 3200 万。设备可用内存也会影响处理能力。'], ['压缩后一定会变小吗？', '已经充分压缩的图片可能几乎没有缩小空间。有损压缩会改变图像数据，实际节省量与画质取决于图片内容，请在下载前检查对比。'], ['能输出哪些格式？', '可输出 JPG、PNG 和 WebP，也可自动选择合适格式。AVIF 用作输入，解码支持取决于浏览器；当前只处理静态图片。']],
-    related: ['svg', 'ico', 'qrcode'],
+    related: ['crop', 'svg', 'ico'],
   },
   {
     key: 'qrcode', path: '/qrcode/', name: '二维码生成 & 识别', icon: 'qr', category: 'share',
@@ -95,8 +95,19 @@ export const TOOLS = [
     faqs: [['PNG 最多能导出多大？', '宽高分别为 1–8192 px 的整数，总像素不超过 3200 万。支持锁定原始比例，解锁后图像等比居中留白。'], ['哪些 SVG 暂不支持？', '当前面向独立静态 SVG，不支持外部资源、脚本、动画和嵌入 HTML。文字效果依赖本机字体，请确认预览后再使用。'], ['优化后体积为什么变化不大？', '已经精简的 SVG 可能只有少量可优化空间。降低数值精度有时能进一步缩小体积，但可能改变曲线细节，建议对照检查。']],
     related: ['image', 'ico', 'qrcode'],
   },
+  {
+    key: 'crop', path: '/image-cropper/', name: '图片裁剪 & 尺寸调整', icon: 'crop', category: 'image',
+    title: '在线图片裁剪与尺寸调整 · 旋转、翻转、精确缩放 - SGAO 工具箱',
+    tagline: '留下刚好的画面，调整成需要的尺寸。',
+    description: '免费在线裁剪图片、调整像素尺寸、旋转和翻转，支持自由选区与常用比例、PNG/JPG/WebP 导出及透明背景。单张最高 20 MB，图片只在浏览器本地处理，还可继续智能压缩。',
+    card: '裁剪画面、旋转翻转与精确缩放，准备头像和网页封面。', tags: ['自由裁剪', '精确宽高'], keywords: '图片 裁剪 大小 尺寸 缩放 旋转 翻转 crop resize png jpg webp 头像 封面',
+    intro: '从图片中选出需要的区域，再按像素调整输出尺寸。支持拖动、数值输入和方向键微调，适合制作头像、文章封面及网页素材。',
+    steps: ['上传静态 PNG、JPG、WebP 或 AVIF，选择自由裁剪、原图比例或常用比例。', '拖动选区和控制点，按需旋转、翻转；填写导出宽高，选择格式与背景。', '检查实际导出预览和体积后下载，或在新标签页继续智能压缩，无需重复选择图片。'],
+    faqs: [['图片与导出尺寸有什么限制？', '源图单张最高 20 MB、单边不超过 10000 px、总像素不超过 3200 万；导出单边最高 8192 px、总像素不超过 3200 万。继续压缩时，导出文件需在 20 MB 以内。'], ['解锁比例后，图片会变形吗？', '默认采用等比完整显示，在指定画布中居中留白。也可明确选择「拉伸填满指定尺寸」。JPG 不支持透明，留白和透明区域会使用所选底色。'], ['旋转、放大和继续压缩如何工作？', '旋转会按当前比例重新选取画面；翻转以当前画面方向为准。放大不会增加细节。继续压缩会打开同站新标签页，直接传递当前结果，不上传图片，也不将图片写入浏览器存储。']],
+    related: ['image', 'ico', 'svg'],
+  },
 ];
-export const HOME_ORDER = ['image', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
+export const HOME_ORDER = ['image', 'crop', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
 export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }];
 export function toolByKey(key) { return TOOLS.find(tool => tool.key === key); }
 export function pageForPath(pathname) {
