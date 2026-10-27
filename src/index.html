@@ -17,10 +17,12 @@
   <link rel="stylesheet" href="/color-tool.css">
   <link rel="stylesheet" href="/watermark-tool.css">
   <link rel="stylesheet" href="/collage-tool.css">
+  <link rel="stylesheet" href="/image-pdf-tool.css">
   <script type="module" src="/app.js"></script>
 </head>
 <body>
   <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-pdf" viewBox="0 0 24 24"><path d="M14 2H5v20h14V7zM14 2v5h5"/><rect x="8" y="10" width="8" height="7" rx="1"/><path d="m8 15 2-2 2 2 2-3 2 3"/></symbol>
     <symbol id="i-collage" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18M3 12h9m0-4h9m-9 8h9"/></symbol>
     <symbol id="i-stamp" viewBox="0 0 24 24"><path d="M7 14h10l2 4H5l2-4Zm3 0V9a4 4 0 1 1 4 0v5M4 21h16"/></symbol>
     <symbol id="i-palette" viewBox="0 0 24 24"><path d="M20.9 13.6A9 9 0 1 0 12 21h1.4a2.3 2.3 0 0 0 1.5-4.1 1.6 1.6 0 0 1 1-2.8h2.9a2.2 2.2 0 0 0 2.1-.5Z"/><circle cx="7.5" cy="10" r=".7"/><circle cx="10" cy="6.5" r=".7"/><circle cx="14.5" cy="6.5" r=".7"/><circle cx="17.5" cy="10" r=".7"/></symbol>
@@ -359,6 +361,40 @@
           </div>
         </section>
 
+        <section id="view-imagepdf" class="tool-view" aria-label="图片转 PDF" hidden>
+          <div class="ip-flow"><a href="/image-cropper/">裁剪与调整尺寸</a><span>→</span><a href="/image-compressor/">压缩图片</a><span>→</span><strong>整理为 PDF</strong></div>
+          <div class="toolbar"><span class="toolbar-label">一张图片一页，把散落的资料整理好。</span><div class="toolbar-actions"><button class="text-button" id="ip-sample" type="button">试试三页示例</button><button class="text-button muted" id="ip-clear" type="button" disabled>清空图片</button></div></div>
+          <div class="ip-drop" id="ip-drop"><input type="file" id="ip-files" accept="image/png,image/jpeg,image/webp,image/avif,.png,.jpg,.jpeg,.webp,.avif" multiple aria-label="选择要转成 PDF 的图片"><svg class="icon" aria-hidden="true"><use href="#i-pdf"/></svg><div><strong>放进图片，整理成一份 PDF</strong><small>点击选择或拖入静态 PNG / JPG / WebP / AVIF<br>最多 20 张 · 单张 ≤ 20 MB · 合计 ≤ 100 MB</small></div><span class="ip-drop-tag">ONE IMAGE. ONE PAGE.</span></div>
+          <p class="ip-status" id="ip-status" role="status" aria-live="polite">图片只在浏览器内处理，刷新或关闭页面后清除。</p><div class="error-message" id="ip-error" role="alert" hidden></div>
+          <div class="ip-quick-links" id="ip-jumps"><a href="#ip-preview">查看页面 ↓</a><a href="#ip-settings-panel">调整排版 ↓</a><a href="#ip-order">调整页序 ↓</a></div>
+          <div class="ip-workspace" id="ip-workspace" hidden>
+            <div class="ip-preview-column">
+              <div class="ip-card" id="ip-preview"><div class="ip-card-heading"><h2>每一页，都安排妥当</h2><span>01 / PAGES</span></div>
+                <div class="ip-preview-toolbar"><div class="ip-views" role="group" aria-label="PDF 页面预览内容"><button id="ip-view-layout" type="button" aria-pressed="true">布局预览</button><button id="ip-view-output" type="button" aria-pressed="false" disabled>生成页预览</button></div><div class="ip-pagination"><button id="ip-prev" type="button" aria-label="上一页">←</button><label class="sr-only" for="ip-page">预览页码</label><select id="ip-page"></select><button id="ip-next" type="button" aria-label="下一页">→</button></div></div>
+                <div class="ip-viewport" id="ip-viewport"><div class="ip-stage" id="ip-stage"><canvas id="ip-canvas" role="img" aria-label="当前 PDF 页面的图片排版"></canvas></div><p id="ip-preview-empty" hidden>请修正页面设置，预览会自动更新。</p></div>
+                <div class="ip-preview-footer"><span id="ip-page-info"></span><p class="ip-hint" id="ip-page-meta"></p><p class="ip-hint" id="ip-crop-note" hidden></p><p class="ip-hint" id="ip-preview-note"></p></div>
+              </div>
+              <div class="ip-card ip-order-card" id="ip-order"><div class="ip-card-heading"><h2>排好页序，再装订成册</h2><span id="ip-count"></span></div><p class="ip-sort-help" id="ip-sort-help">拖动手柄，或使用上移、下移调整顺序。聚焦手柄后可用 ↑ / ↓ 移一页，Home / End 移至首尾；点击缩略图切换预览。</p><div class="ip-list" id="ip-list" role="group" aria-label="PDF 图片页序"></div></div>
+            </div>
+            <div class="ip-card" id="ip-settings-panel"><div class="ip-card-heading"><h2>给文档，一个合适的样子</h2><span>02 / DOCUMENT</span></div>
+              <fieldset class="ip-settings" id="ip-settings"><legend class="sr-only">PDF 页面与图片设置</legend>
+                <label class="ip-field">页面尺寸<select id="ip-paper"><option value="a4">A4 · 210 × 297 mm</option><option value="letter">Letter · 216 × 279 mm</option><option value="image">按图片比例 · 96 px / 英寸</option></select></label>
+                <div class="ip-two-fields"><label class="ip-field">页面方向<select id="ip-orientation"><option value="portrait">纵向</option><option value="landscape">横向</option><option value="auto">按图片横竖自动</option></select></label><label class="ip-field">四周边距（mm）<input id="ip-margin" type="number" min="0" max="40" step="1" value="10" inputmode="numeric"></label></div>
+                <label class="ip-field">图片适配<select id="ip-fit"><option value="contain">完整显示 · 等比留白</option><option value="cover">居中裁切 · 填满可用区域</option></select></label>
+                <label class="ip-field">页面与透明区域底色<input id="ip-background" type="color" value="#ffffff"></label><p class="ip-hint">按图片比例时，保留图片横竖方向，边距加在图片四周；采用 96 px / 英寸换算，不读取 EXIF 打印尺寸。</p>
+                <div class="ip-section"><span class="ip-field-title">清晰度与体积</span><label class="ip-field">快速设置<select id="ip-preset"><option value="balanced">均衡 · JPEG 90% / 2560 px</option><option value="clear">清晰优先 · 无损 PNG / 原尺寸</option><option value="small">更小体积 · JPEG 75% / 1600 px</option><option value="custom">自定义</option></select></label>
+                  <label class="ip-field">内嵌图片编码<select id="ip-encoding"><option value="jpeg">JPEG · 有损压缩</option><option value="lossless">PNG · 无损编码</option></select></label>
+                  <div class="ip-quality-label"><label for="ip-quality">JPEG 质量</label><output id="ip-quality-value" for="ip-quality">90%</output></div><input class="ip-range" id="ip-quality" type="range" min="40" max="100" step="1" value="90">
+                  <label class="ip-field">每张图片最长边<select id="ip-max-edge"><option value="0">保持原尺寸</option><option value="3200">不超过 3200 px</option><option value="2560" selected>不超过 2560 px</option><option value="1600">不超过 1600 px</option><option value="1200">不超过 1200 px</option></select></label><p class="ip-hint" id="ip-encoding-note"></p>
+                </div>
+                <div class="ip-section"><label class="ip-field">下载名称<input id="ip-name" type="text" maxlength="80" value="sgao-images" autocomplete="off"></label><p class="ip-hint">输出为图片型 PDF，文字不会变成可搜索、可编辑的文本。体积取决于图片内容与所选编码。</p></div>
+              </fieldset><div class="error-message" id="ip-settings-error" role="alert" hidden></div>
+              <div class="ip-result"><div class="ip-build-actions"><button class="button primary" id="ip-run" type="button" disabled>生成 PDF</button><button class="button secondary" id="ip-stop" type="button" hidden>停止</button></div><progress id="ip-progress" max="1" value="0" aria-label="PDF 生成进度"></progress><strong id="ip-result-name">把图片，整理成一份文档</strong><span id="ip-result-meta">一张图片一页 · PDF 最高 100 MB</span><button class="button secondary" id="ip-download" type="button" disabled><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>下载 PDF</button></div>
+              <div class="ip-quick-links ip-settings-jumps"><a href="#ip-preview">返回页面预览 ↑</a><a href="#ip-order">调整页序 ↑</a></div>
+            </div>
+          </div>
+          <div class="privacy-note"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg><span>源图单边 ≤ 10000 px、总像素 ≤ 3200 万，仅处理静态图片。AVIF 解码取决于浏览器；重新编码移除 EXIF 等图片元数据，不保存输入文件或生成记录。</span></div>
+        </section>
         <footer class="page-footer"><span>SGAO TOOLS <span class="footer-dot">·</span> 为日常的每一小步</span><span><span class="status-dot"></span>无需安装，即开即用</span></footer>
       </main>
     </div>

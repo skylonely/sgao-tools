@@ -29,3 +29,19 @@ for output verification or image recognition; workers terminate on completion or
 
 SVGO loads only inside a short-lived Worker after opening the SVG tool or starting
 an optimization. It does not add a bundle download to other tools or use a CDN.
+
+## Image-to-PDF writer
+
+- `pdf-lib.esm.min.js`: unchanged browser ESM bundle from **pdf-lib 1.17.1**,
+  <https://registry.npmjs.org/pdf-lib/-/pdf-lib-1.17.1.tgz>, retrieved 2026-10-27.
+  Archive SHA-512 matches the official registry integrity value.
+  Bundle SHA-256: `72c052d97b4d5d9fa6cdbdcb7ad709f03d4ddb1122390cb3afeba4d88651d969`.
+  MIT license: `pdf-lib.LICENSE.txt`. Bundled dependency licenses and copyright
+  notices: `pdf-lib.NOTICES.txt`; exact versions follow the upstream v1.17.1
+  `yarn.lock` (pako 1.0.10/1.0.11, @pdf-lib/upng 1.0.1,
+  @pdf-lib/standard-fonts 1.0.0 and tslib 1.11.1). Dependency archives were also
+  verified against that lock file's integrity values before extracting notices.
+
+The PDF library loads only when PDF generation starts, normally in a short-lived
+Worker. Browsers without OffscreenCanvas use a sequential main-thread fallback.
+No PDF input is parsed, and no external fonts, services or CDN requests are used.

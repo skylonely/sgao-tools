@@ -2,7 +2,7 @@ export const SITE_URL = 'https://tools.sgao.cc';
 export const HOME = {
   key: 'home', path: '/', name: '工具导航',
   title: 'SGAO 工具箱 · 免费在线图片与开发工具',
-  description: '免费的在线图片与开发工具箱：图片拼接与拼图、批量加水印、图片取色与配色板、图片裁剪与尺寸调整、图片压缩、格式转换、网站图标整包生成、二维码、SVG 优化、JSON 格式化、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
+  description: '免费的在线图片与开发工具箱：图片转 PDF、图片拼接与拼图、批量加水印、图片取色与配色板、图片裁剪与尺寸调整、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
 };
 
 // Shared by the static build, local server and legacy-link compatibility.
@@ -137,11 +137,22 @@ export const TOOLS = [
     intro: '把截图、产品图和文章配图组合在一起。横向与纵向拼接统一高度或宽度并保留比例，网格支持等比留白或明确选择居中裁切；生成后还能接着加水印、压缩。',
     steps: ['上传静态 PNG、JPG、WebP 或 AVIF，最多 20 张；可试试四张不同比例的示例。', '拖动手柄或使用上移、下移排序，选择横向、纵向或网格布局，调整尺寸、间距与背景。', '点击「生成拼图」，查看实际导出结果，下载 PNG/JPG/WebP，或直接送至水印、压缩工具。'],
     faqs: [['输入和输出尺寸有什么限制？', '最多 20 张，单张最高 20 MB、原图合计最高 100 MB；源图与输出单边最高 10000 px、总像素最高 3200 万。超出输出上限时自动等比缩小，并显示实际尺寸。AVIF 解码取决于浏览器；只处理静态图片。'], ['图片会被拉伸或裁切吗？', '横向和纵向拼接会保持图片比例。网格默认完整显示，剩余区域留背景；选择「居中裁切」时，超出单格的部分会被截去。网格按从左到右、从上到下的顺序排列，尾行不足时保留空格背景。'], ['为什么预览、文件大小或后续处理有限制？', '布局预览使用缩略图，生成后可切到实际导出结果并以 100% 查看。PNG 保留透明，JPG 使用所选底色；JPG/WebP 质量可调，重新编码会移除 EXIF 等元数据。送至水印或压缩工具的结果需在 20 MB 以内，过大时可改用 JPG/WebP 或减小尺寸。']],
-    related: ['crop', 'watermark', 'image'],
+    related: ['imagepdf', 'watermark', 'image'],
+  },
+  {
+    key: 'imagepdf', path: '/image-to-pdf/', name: '图片转 PDF', icon: 'pdf', category: 'document',
+    title: '图片转 PDF · 在线 JPG、PNG 合并为多页 PDF - SGAO 工具箱',
+    tagline: '把散落的图片，整理成一份文档。',
+    description: '免费在线图片转 PDF，支持 JPG、PNG、WebP、AVIF 批量合并、拖动排序、A4 / Letter / 按图片比例页面、边距、底色与清晰度设置。逐页预览，一键下载，全程浏览器本地处理。',
+    card: '整理截图、扫描件和产品图，一张图片一页，合成一份 PDF。', tags: ['批量排序', '本地 PDF'], keywords: '图片 PDF JPG JPEG PNG WebP AVIF 转换 合并 文档 扫描件 截图 image photo document',
+    intro: '将截图、扫描件和产品图片按顺序整理为多页 PDF。每张图片单独一页，可设置页面尺寸、方向、边距、适配与底色，并选择图片编码及最长边来控制清晰度和体积。',
+    steps: ['选择静态 JPG、PNG、WebP 或 AVIF，最多 20 张，也可以试试三页示例。', '拖动或用按钮调整页序，选择 A4、Letter 或按图片比例的页面，设置方向、边距、底色和图片清晰度。', '点击「生成 PDF」，切换页码检查生成页预览，确认后下载；修改设置需重新生成。'],
+    faqs: [['支持多少张图片和多大的文件？', '最多 20 张、单张最高 20 MB、原图合计最高 100 MB。每张源图单边最高 10000 px、总像素最高 3200 万；内嵌图片合计与 PDF 均最高 100 MB。只处理静态图片，AVIF 解码取决于浏览器。超限时请减少页数，或降低图片最长边。'], ['页面比例、裁切和透明区域如何处理？', 'A4 / Letter 可选纵向、横向或按图片横竖自动。完整显示保持比例并留白；居中裁切会截去超出可用区域的部分。按图片比例以 96 px / 英寸换算，边距加在图片四周，不使用 EXIF 打印尺寸。透明区域统一填入所选底色。'], ['PDF 一定更小吗？文字可以搜索或编辑吗？', '文件大小取决于图片和编码。PNG 对处理后的像素无损编码，体积可能增大；JPEG 为有损压缩，可调质量和最长边。生成的是图片型 PDF，不做 OCR，文字不会转为可搜索、可编辑的文本。预览使用内嵌图片缩略图与相同排版，原始清晰度请在 PDF 阅读器中检查。']],
+    related: ['crop', 'image', 'collage'],
   },
 ];
-export const HOME_ORDER = ['image', 'crop', 'collage', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
-export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }];
+export const HOME_ORDER = ['image', 'crop', 'collage', 'imagepdf', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
+export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'document', name: '文档与 PDF' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }];
 export function toolByKey(key) { return TOOLS.find(tool => tool.key === key); }
 export function pageForPath(pathname) {
   const path = pathname.replace(/\/index\.html$/, '/').replace(/\/?$/, '/');
