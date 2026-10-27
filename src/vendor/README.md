@@ -45,3 +45,20 @@ an optimization. It does not add a bundle download to other tools or use a CDN.
 The PDF library loads only when PDF generation starts, normally in a short-lived
 Worker. Browsers without OffscreenCanvas use a sequential main-thread fallback.
 No PDF input is parsed, and no external fonts, services or CDN requests are used.
+
+## PDF page renderer
+
+- `pdfjs/`: Mozilla PDF.js **6.4.299**, unchanged selected files from
+  <https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-6.4.299.tgz>, retrieved 2026-10-27.
+  Archive SHA-512 matches official registry metadata. We ship the legacy minified
+  ESM API/Worker plus the complete CMap, standard-font, ICC and WASM directories.
+  `pdf.min.mjs` SHA-256: `bccc24ea711db8e44503629519904a5292d73b9daaa214bbe7cdcc282b0f4259`.
+  `pdf.worker.min.mjs` SHA-256: `145d2dd3ab0c86151011dba95acfa2d5336e2accd59388ea43dbee0efddaaec6`.
+  Apache-2.0 license: `pdfjs/LICENSE`. Every bundled font, CMap, ICC and decoder
+  license remains in its original resource directory, including PDF.js decoder notices.
+
+The renderer loads only when a PDF is opened. All auxiliary files come from the
+same site inside the dedicated PDF.js Worker; PDF bytes and passwords are local.
+Only that Worker receives a resource-fetch/WASM CSP; HTML documents retain their
+existing no-connect policy. Application code never invokes document JavaScript,
+links, attachments or viewer scripting.

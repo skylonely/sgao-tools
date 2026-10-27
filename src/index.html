@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="/watermark-tool.css">
   <link rel="stylesheet" href="/collage-tool.css">
   <link rel="stylesheet" href="/image-pdf-tool.css">
+  <link rel="stylesheet" href="/pdf-images-tool.css">
   <script type="module" src="/app.js"></script>
 </head>
 <body>
@@ -394,6 +395,33 @@
             </div>
           </div>
           <div class="privacy-note"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg><span>源图单边 ≤ 10000 px、总像素 ≤ 3200 万，仅处理静态图片。AVIF 解码取决于浏览器；重新编码移除 EXIF 等图片元数据，不保存输入文件或生成记录。</span></div>
+        </section>
+        <section id="view-pdfimages" class="tool-view" aria-label="PDF 转图片" hidden>
+          <div class="ip-flow"><a href="/image-to-pdf/">图片转 PDF</a><span>⇄</span><strong>PDF 转图片</strong><span>→</span><a href="/image-compressor/">图片压缩与转换</a></div>
+          <div class="toolbar"><span class="toolbar-label">把文档的每一页，变成可以使用的图片。</span><div class="toolbar-actions"><button class="text-button" id="pi-sample" type="button">试试三页 PDF</button><button class="text-button muted" id="pi-clear" type="button" disabled>清空文档</button></div></div>
+          <div class="ip-drop" id="pi-drop"><input type="file" id="pi-file" accept="application/pdf,.pdf" aria-label="选择要转换为图片的 PDF"><svg class="icon" aria-hidden="true"><use href="#i-pdf"/></svg><div><strong>放进一份 PDF，把页面变成图片</strong><small>点击选择或拖入 PDF · 单份 ≤ 50 MB<br>文档最多 200 页 · 单次转换最多 50 页</small></div><span class="ip-drop-tag">FROM PAGES TO PIXELS.</span></div>
+          <p class="ip-status" id="pi-status" role="status" aria-live="polite">PDF 和转换结果只在当前页面内存中处理，刷新或关闭页面后清除。</p><div class="error-message" id="pi-error" role="alert" hidden></div>
+          <div class="pi-password-box" id="pi-password-box" hidden><p id="pi-password-message"></p><div class="pi-password-actions"><label class="ip-field">文档打开密码<input id="pi-password" type="password" autocomplete="off" aria-describedby="pi-password-message"></label><button id="pi-password-submit" class="button primary" type="button">打开文档</button><button id="pi-password-cancel" class="button secondary" type="button">取消</button></div></div>
+          <div class="ip-quick-links" id="pi-jumps" hidden><a href="#pi-preview">查看预览 ↓</a><a href="#pi-settings-panel">设置转换 ↓</a><a href="#pi-results">查看结果 ↓</a></div>
+          <div class="ip-workspace" id="pi-workspace" hidden>
+            <div class="ip-preview-column">
+              <div class="ip-card" id="pi-preview"><div class="ip-card-heading"><h2>从文档里，取出完整的画面</h2><span>01 / PREVIEW</span></div><div class="pi-source"><strong id="pi-source-name"></strong><span id="pi-source-meta"></span></div>
+                <div class="pi-preview-toolbar"><div class="pi-views" role="group" aria-label="PDF 页面预览内容"><button id="pi-view-document" type="button" aria-pressed="true">文档预览</button><button id="pi-view-output" type="button" aria-pressed="false" disabled>导出结果</button></div><div class="ip-pagination"><button id="pi-prev" type="button" aria-label="上一页" disabled>←</button><label class="sr-only" for="pi-page">预览页码</label><select id="pi-page"></select><button id="pi-next" type="button" aria-label="下一页" disabled>→</button></div></div>
+                <div class="pi-zoom-bar"><label for="pi-zoom">查看比例</label><select id="pi-zoom"><option value="fit">适应画布</option><option value="0.5">50%</option><option value="1">100%</option><option value="2">200%</option></select></div>
+                <div class="ip-viewport" id="pi-viewport"><div class="ip-stage pi-checker" id="pi-stage"><img id="pi-document-image" alt="PDF 文档页面缩略预览" hidden><img id="pi-output-image" alt="实际导出的 PDF 页面图片" hidden></div><p id="pi-empty">选择 PDF 后可逐页预览。</p></div>
+                <div class="ip-preview-footer"><span id="pi-dimensions">等待页面预览</span><p class="ip-hint" id="pi-scale-note" hidden></p><p class="ip-hint" id="pi-preview-note"></p><div class="pi-current-actions"><a class="button secondary" id="pi-download" aria-disabled="true" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>下载当前页</a><button class="button secondary" id="pi-compress" type="button" disabled>继续压缩 ↗</button><button class="button secondary" id="pi-watermark" type="button" disabled>继续加水印 ↗</button></div><p class="ip-hint" id="pi-transfer-note"></p></div>
+              </div>
+              <div class="ip-card ip-order-card" id="pi-results"><div class="pi-results-heading"><div><h2>这一批页面，准备好了</h2><span id="pi-results-count">0 张</span></div><div class="pi-zip-actions"><button class="button secondary" id="pi-zip" type="button" disabled>打包下载 ZIP</button><a class="pi-zip-file" id="pi-zip-file" hidden>再次下载 ZIP</a></div></div><div id="pi-results-list" role="group" aria-label="已转换图片列表"></div><p id="pi-results-empty">转换后的图片会出现在这里；可逐张下载，也可整批打包。</p></div>
+            </div>
+            <div class="ip-card" id="pi-settings-panel"><div class="ip-card-heading"><h2>选好页面，留下需要的细节</h2><span>02 / EXPORT</span></div>
+              <fieldset class="ip-settings" id="pi-settings"><legend class="sr-only">PDF 转图片设置</legend>
+                <label class="ip-field">转换页面<select id="pi-pages-mode"><option value="all">全部页面</option><option value="range">指定页码</option></select></label><label class="ip-field">页码范围<input id="pi-range" type="text" maxlength="500" placeholder="例如 1,3,5-8" autocomplete="off" disabled></label><p class="ip-hint">页码从 1 开始，重复页码自动去重，按文档顺序导出。单次最多 50 页。</p>
+                <div class="ip-section"><span class="ip-field-title">清晰度与尺寸</span><label class="ip-field">尺寸方式<select id="pi-mode"><option value="dpi">按分辨率 DPI</option><option value="edge">按最长边像素</option></select></label><label class="ip-field" id="pi-dpi-field">输出分辨率<select id="pi-dpi"><option value="72">72 DPI · 屏幕预览</option><option value="150" selected>150 DPI · 清晰均衡</option><option value="300">300 DPI · 更多细节</option></select></label><label class="ip-field" id="pi-edge-field" hidden>最长边（px）<input id="pi-edge" type="number" min="64" max="8192" step="1" value="2560" inputmode="numeric"></label><p class="ip-hint">输出单边最高 8192 px、总像素最高 3200 万，超限会等比缩小。提高 DPI 不会补回源图中缺失的细节。</p></div>
+                <div class="ip-section"><span class="ip-field-title">图片格式与背景</span><label class="ip-field">输出格式<select id="pi-format"><option value="image/png">PNG · 清晰文字 / 无损</option><option value="image/jpeg">JPG · 更小体积</option><option value="image/webp">WebP · 适合网页</option></select></label><div class="ip-quality-label"><label for="pi-quality">JPG / WebP 质量</label><output id="pi-quality-value" for="pi-quality">92%</output></div><input id="pi-quality" type="range" min="40" max="100" value="92" step="1"><div class="ip-two-fields"><label class="ip-field">页面背景<select id="pi-background"><option value="color">自选底色</option><option value="transparent">透明</option></select></label><label class="ip-field">底色<input id="pi-color" type="color" value="#ffffff"></label></div><p class="ip-hint" id="pi-background-note"></p></div>
+              </fieldset><div class="error-message" id="pi-settings-error" role="alert" hidden></div><div class="ip-result"><div class="ip-build-actions"><button class="button primary" id="pi-run" type="button" disabled>开始转换图片</button><button class="button secondary" id="pi-stop" type="button" hidden>停止</button></div><progress id="pi-progress" value="0" max="1" aria-label="PDF 页面转换进度"></progress><p class="ip-hint">逐页转换，停止后保留已完成图片。本批结果合计最高 150 MB。修改设置会清除旧结果。</p></div><div class="ip-quick-links ip-settings-jumps"><a href="#pi-preview">返回预览 ↑</a><a href="#pi-results">查看转换结果 ↑</a></div>
+            </div>
+          </div>
+          <div class="privacy-note"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg><span>文档、密码和图片不上传、不持久保存。页面按 PDF 原有方向渲染为图片；需要打开密码的文档可在本地解密，动态 XFA 表单需先另存为普通 PDF。</span></div>
         </section>
         <footer class="page-footer"><span>SGAO TOOLS <span class="footer-dot">·</span> 为日常的每一小步</span><span><span class="status-dot"></span>无需安装，即开即用</span></footer>
       </main>

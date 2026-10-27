@@ -19,6 +19,7 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 | 图片裁剪 & 尺寸调整 | 自由/固定比例、八向控制点、数值与键盘微调、旋转翻转、精确宽高、透明/实色背景、PNG/JPG/WebP 导出，直接继续压缩 | `/image-cropper/` |
 | 图片取色 & 配色板 | 原图像素与放大镜、HEX/RGB/HSL/Alpha、5–8 代表色、CSS 变量、JSON 与 PNG 色卡 | `/image-color-picker/` |
 | 图片水印 & 批量加水印 | 中文文字/Logo、九宫格/拖动定位、相对大小、透明度和旋转、错行平铺、PNG/JPG/WebP、ZIP 与继续压缩 | `/image-watermark/` |
+| PDF 转图片 | 全部或指定页码、DPI/最长边、PNG/JPG/WebP、透明/实色背景、密码、本地预览、ZIP、继续压缩和加水印 | `/pdf-to-images/` |
 | 图片转 PDF | JPG/PNG/WebP/AVIF 批量排序、A4/Letter/按图片比例、方向/边距/底色、PNG 无损或 JPEG 压缩、逐页预览与 PDF 下载 | `/image-to-pdf/` |
 | 图片拼接 & 拼图 | 横向/纵向等比拼接、2–5 列网格、居中裁切/完整显示、拖动与键盘排序、间距/背景、PNG/JPG/WebP，直接继续加水印或压缩 | `/image-collage/` |
 
@@ -28,11 +29,11 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 
 根目录 `/` 是工具导航首页，按「图片与图标 / 文档与 PDF / 开发与文本 / 分享与连接」分类，可组合关键词搜索，支持空结果重置与键盘操作。搜索内容只用于本页筛选，不发送请求。
 
-构建时为首页和 13 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
+构建时为首页和 14 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
 
-旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg`、`/#crop`、`/#color`、`/#watermark`、`/#collage`、`/#imagepdf` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
+旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg`、`/#crop`、`/#color`、`/#watermark`、`/#collage`、`/#imagepdf`、`/#pdfimages` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
 
-`/sitemap.xml` 由同一份页面目录生成，包含 14 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
+`/sitemap.xml` 由同一份页面目录生成，包含 15 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
 
 新增工具时，在 `src/lib/pages.js` 中填写目录、页面文案、步骤、FAQ 与关联工具，在 `src/index.html` 增加对应 `view-*` 区块，并在 `src/app.js` 注册初始化逻辑。构建会同步生成导航、独立页面与站点地图。
 
@@ -83,6 +84,9 @@ sgao-tools/
 │   ├── pdf-assembler.js    # 本地 pdf-lib 写入图片和页面
 │   ├── image-pdf-worker.js # 后台生成 PDF
 │   ├── pdf-task.js         # Worker 生命周期、停止与兼容回退
+│   ├── pdf-images-tool.js  # PDF 页码、预览、结果下载与接续处理
+│   ├── pdf-images-engine.js # PDF.js 解析、逐页渲染、编码和资源释放
+│   ├── pdf-tools.css       # 两个 PDF 工具共用的页面布局
 │   ├── image-transfer.js   # 单次同源窗口消息，接续压缩或水印工具
 │   ├── image-engine.js     # 智能压缩与格式转换
 │   ├── image-worker.js     # 后台压缩线程
@@ -233,7 +237,7 @@ Apple 图标使用 8% 内边距。Maskable 按源图完整矩形的对角线缩�
 
 ## 图片转 PDF
 
-- 独立入口 `/image-to-pdf/`，兼容 `/#imagepdf`；新增「文档与 PDF」分类，包含首页、搜索、侧栏、独立 SEO、FAQ 和站点地图。当前为 13 个工具、14 个规范页面。
+- 独立入口 `/image-to-pdf/`，兼容 `/#imagepdf`；新增「文档与 PDF」分类，包含首页、搜索、侧栏、独立 SEO、FAQ 和站点地图。
 - 最多 20 张静态 JPG/PNG/WebP/AVIF，单张 20 MB、合计 100 MB；每张单边 10000 px、3200 万像素。沿用静态图片校验和按方向解码，AVIF 支持取决于浏览器，不接受 SVG 或动画。
 - 一张图片一页。拖动手柄、上移/下移按钮或键盘调整顺序；焦点在手柄时，方向键移动一页，Home / End 移至首尾。点击缩略图或使用页码、上一页/下一页切换预览。
 - A4 / Letter 支持纵向、横向、按图片横竖自动；按图片比例以 96 px / 英寸换算，四周另加所选边距，方向与适配不再单独调整。0–40 mm 边距，完整显示或明确选择居中裁切，透明区域与页面填自选底色。预览和 PDF 写入共用点数坐标。
@@ -241,3 +245,14 @@ Apple 图标使用 8% 内边距。Maskable 按源图完整矩形的对角线缩�
 - 生成时逐张解码、处理、编码并释放完整画布和位图。内嵌图片合计与 PDF 均最高 100 MB；使用本站提供的 pdf-lib 1.17.1，优先在可终止 Worker 中生成，两分钟超时，不支持 OffscreenCanvas 时串行回退。停止会丢弃未完成 PDF 并保留源图和设置。
 - 生成页预览使用实际内嵌 PNG/JPEG 解码后的缩略图及相同页面排版，预览不等于 PDF 阅读器渲染；原始清晰度请下载后检查。任何输入、顺序或设置修改会废弃旧结果。下载为图片型 PDF，不含 OCR 或可编辑文字；重新编码移除 EXIF 等图片元数据，页面刷新/关闭后清除，不新增服务器或持久化图片。
 - 新增测试覆盖精确纸张尺寸、混合方向、96 DPI 换算、毫米边距、中心裁切、500 组随机边界、文件上限、Unicode 文件名、真实 PDF 回读、顺序和页数、资源释放、终止、格式回退与 Worker 清理。浏览器生成的 PDF 另用 Poppler 渲染检查。
+
+## PDF 转图片
+
+- 独立入口 `/pdf-to-images/`，兼容 `/#pdfimages`；接入文档分类、首页、侧栏、搜索、SEO、FAQ 与站点地图。当前共 14 个工具、15 个规范页面。
+- 单份 PDF 最高 50 MB、最多 200 页，每次最多转换 50 页。支持全部或 `1,3,5-8` 形式的指定页码，允许中文逗号、去重并按文档顺序导出。加密 PDF 可输入打开密码，本地解密，提交、取消和关闭页面后清空密码输入，不写入存储。纯 XFA 动态表单会提示先另存为普通 PDF。
+- 采用 PDF.js 6.4.299 的固定版本，库、解析 Worker、CMap、标准字体、ICC 与 WASM 解码器均随本站提供，并保留许可证。库仅在打开文档时加载；PDF 本身以文件字节传入，不使用 URL 抓取外部文档，不运行 PDF JavaScript 动作。文档页面仍使用 `connect-src none`；仅专用 PDF.js Worker 允许读取同站点资源及运行 WASM 解码器。开发服务器同时应用本站 `_headers`，使本地 QA 使用同样的限制。
+- PNG、JPG、WebP；JPG/WebP 质量 40–100，白底/自选底色或 PNG/WebP 透明背景。透明仅保留 PDF 未绘制区域，不移除文档自己的白色底图。整页渲染文字、矢量和位图，保留页面 CropBox、UserUnit 与原有方向，不提取内部原始图片或进行 OCR。缺少字体或特殊 PDF 的效果可能与其他阅读器不同。
+- 支持 72/150/300 DPI，或 64–8192 px 最长边。输出单边 8192 px、3200 万像素，超限等比缩小并显示实际像素与近似 DPI。预览用最长边 1000 px 缩略图，导出结果使用真实编码文件，可按 50/100/200% 查看；提高 DPI 不会恢复源图缺失细节。
+- 逐页串行渲染，释放每页画布和解析缓存；停止保留已完成结果，本批结果合计最高 150 MB。更新设置或替换文档会废弃旧结果及 URL，异步预览通过版本号与取消信号防止晚到内容覆盖。替换、清空和关闭页面销毁 PDF 解析任务和 Worker。
+- 单页下载或 UTF-8 ZIP，文件名包含真实页码与实际编码后缀。ZIP 可再次下载；修改设置后同时失效。当前单张结果 20 MB 内可通过既有一次性同源窗口消息继续压缩或加水印。输入和结果只存在页面内存，不上传、不持久保存。
+- 测试覆盖范围解析、输入/批次/结果上限、500 组随机尺寸、DPI、页数/XFA 拒绝、密码回调、页面方向与裁切、透明/JPG 底色、格式回退、取消/资源清理、部分成功与 Worker 响应头。浏览器检查了中文矢量/位图、加密打开、范围去重、真实图片尺寸、WebP Alpha、停止保留结果和工具接续；另用 Poppler 对照实际下载的 PNG。

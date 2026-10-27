@@ -2,7 +2,7 @@ export const SITE_URL = 'https://tools.sgao.cc';
 export const HOME = {
   key: 'home', path: '/', name: '工具导航',
   title: 'SGAO 工具箱 · 免费在线图片与开发工具',
-  description: '免费的在线图片与开发工具箱：图片转 PDF、图片拼接与拼图、批量加水印、图片取色与配色板、图片裁剪与尺寸调整、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
+  description: '免费的在线图片与开发工具箱：图片与 PDF 双向转换、图片拼接与拼图、批量加水印、图片取色与配色板、图片裁剪与尺寸调整、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
 };
 
 // Shared by the static build, local server and legacy-link compatibility.
@@ -148,10 +148,21 @@ export const TOOLS = [
     intro: '将截图、扫描件和产品图片按顺序整理为多页 PDF。每张图片单独一页，可设置页面尺寸、方向、边距、适配与底色，并选择图片编码及最长边来控制清晰度和体积。',
     steps: ['选择静态 JPG、PNG、WebP 或 AVIF，最多 20 张，也可以试试三页示例。', '拖动或用按钮调整页序，选择 A4、Letter 或按图片比例的页面，设置方向、边距、底色和图片清晰度。', '点击「生成 PDF」，切换页码检查生成页预览，确认后下载；修改设置需重新生成。'],
     faqs: [['支持多少张图片和多大的文件？', '最多 20 张、单张最高 20 MB、原图合计最高 100 MB。每张源图单边最高 10000 px、总像素最高 3200 万；内嵌图片合计与 PDF 均最高 100 MB。只处理静态图片，AVIF 解码取决于浏览器。超限时请减少页数，或降低图片最长边。'], ['页面比例、裁切和透明区域如何处理？', 'A4 / Letter 可选纵向、横向或按图片横竖自动。完整显示保持比例并留白；居中裁切会截去超出可用区域的部分。按图片比例以 96 px / 英寸换算，边距加在图片四周，不使用 EXIF 打印尺寸。透明区域统一填入所选底色。'], ['PDF 一定更小吗？文字可以搜索或编辑吗？', '文件大小取决于图片和编码。PNG 对处理后的像素无损编码，体积可能增大；JPEG 为有损压缩，可调质量和最长边。生成的是图片型 PDF，不做 OCR，文字不会转为可搜索、可编辑的文本。预览使用内嵌图片缩略图与相同排版，原始清晰度请在 PDF 阅读器中检查。']],
-    related: ['crop', 'image', 'collage'],
+    related: ['pdfimages', 'crop', 'image'],
+  },
+  {
+    key: 'pdfimages', path: '/pdf-to-images/', name: 'PDF 转图片', icon: 'pdf', category: 'document',
+    title: 'PDF 转图片 · 在线 PDF 转 PNG、JPG、WebP - SGAO 工具箱',
+    tagline: '从一份文档，到一张张清晰的图片。',
+    description: '免费在线 PDF 转图片，支持全部页面或指定页码、72/150/300 DPI、最长边设置、PNG/JPG/WebP、逐页预览和 ZIP 下载。可继续压缩、加水印，文档与密码仅在浏览器本地处理。',
+    card: '选择 PDF 页码与清晰度，导出 PNG、JPG、WebP，单张下载或整批打包。', tags: ['逐页转换', '批量 ZIP'], keywords: 'PDF 图片 PNG JPG JPEG WebP 转换 渲染 文档 扫描件 pages image export raster',
+    intro: '将 PDF 的文字、图片和矢量内容渲染为完整页面图片。支持按页码选择、设置分辨率和背景，逐页检查实际导出结果，再下载或继续压缩、添加水印。',
+    steps: ['选择一份 PDF，或试试三页示例；加密文档按提示输入打开密码，密码仅用于本地解密。', '选择全部或指定页码，如 1,3,5-8，设置 DPI 或最长边、图片格式与背景，单次最多 50 页。', '开始转换，逐页检查实际结果，单张下载或打包 ZIP；也可把当前页送至压缩、水印工具。'],
+    faqs: [['支持多大的 PDF 和多少页？', '单份最高 50 MB、最多 200 页，单次最多转换 50 页。本批结果合计最高 150 MB。图片单边最高 8192 px、总像素最高 3200 万，超过输出尺寸上限会等比缩小并显示实际尺寸。较长文档可使用指定页码分批处理。'], ['能打开加密 PDF、处理中文或透明背景吗？', '可输入文档打开密码在本地解密，不保存密码。字体、字形映射和图片解码资源随本站提供；缺少字体或特殊 PDF 的效果可能与原阅读器不同。PNG/WebP 可保留未绘制区域的透明度，PDF 自带白色背景不会被移除；JPG 使用所选底色。动态 XFA 表单需先另存为普通 PDF。'], ['转换的是完整页面，还是提取里面的原始图片？', '这是逐页渲染，文字、图片和矢量内容会合成为一张页面图片，保留 PDF 的页面方向。文档预览是缩略图，导出结果显示实际编码图片。可下载或打包已完成结果；修改设置会清除旧结果。送至压缩或水印工具的当前单张图片需在 20 MB 以内。']],
+    related: ['imagepdf', 'image', 'watermark'],
   },
 ];
-export const HOME_ORDER = ['image', 'crop', 'collage', 'imagepdf', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
+export const HOME_ORDER = ['image', 'crop', 'collage', 'imagepdf', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
 export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'document', name: '文档与 PDF' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }];
 export function toolByKey(key) { return TOOLS.find(tool => tool.key === key); }
 export function pageForPath(pathname) {

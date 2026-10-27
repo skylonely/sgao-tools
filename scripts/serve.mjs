@@ -4,15 +4,17 @@ import { resolve, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pageForPath } from '../src/lib/pages.js';
 import { renderPage, renderSitemap } from './render.mjs';
+import { staticHeaders } from './headers.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const source = process.argv.includes('--source');
 const portIndex = process.argv.indexOf('--port');
 const port = Number(portIndex === -1 ? process.env.PORT || 4173 : process.argv[portIndex + 1]);
 const roots = source ? [resolve(root, 'src'), resolve(root, 'public')] : [resolve(root, 'dist')];
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.txt': 'text/plain', '.json': 'application/json', '.xml': 'application/xml' };
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.wasm': 'application/wasm', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.pdf': 'application/pdf', '.txt': 'text/plain', '.json': 'application/json', '.xml': 'application/xml' };
+const headerSource = await readFile(resolve(root, source ? 'public/_headers' : 'dist/_headers'), 'utf8');
 function send(res, req, content, type, status = 200) {
-  res.writeHead(status, { 'Content-Type': `${type}${/^(text\/|application\/(json|xml))/.test(type) ? '; charset=utf-8' : ''}`, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
+  res.writeHead(status, { ...staticHeaders(headerSource, new URL(req.url, 'http://localhost').pathname), 'Content-Type': `${type}${/^(text\/|application\/(json|xml))/.test(type) ? '; charset=utf-8' : ''}`, 'Cache-Control': 'no-store' });
   res.end(req.method === 'HEAD' ? undefined : content);
 }
 const server = createServer(async (req, res) => {
