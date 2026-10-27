@@ -78,8 +78,8 @@ export function renderPage(template, page = HOME) {
     .replace('<span id="breadcrumb-current">JSON 格式化</span></div>', `<span id="breadcrumb-current" aria-current="page">${escapeHTML(page.name)}</span></nav>`)
     .replace(/        <div class="page-heading">[\s\S]*?(?=        <footer class="page-footer">)/, `${content}\n`)
     .replace('<link rel="stylesheet" href="/styles.css">', '<link rel="stylesheet" href="/styles.css">\n  <link rel="stylesheet" href="/portal.css">');
-  const stylesheet = { image: 'image-tool', qrcode: 'qr-tool', svg: 'svg-tool', ico: 'favicon-tool', crop: 'crop-tool', color: 'color-tool', watermark: 'watermark-tool', collage: 'collage-tool', imagepdf: 'image-pdf-tool', pdfimages: 'pdf-images-tool' }[page.key];
-  html = html.replace(/  <link rel="stylesheet" href="\/(image-tool|qr-tool|svg-tool|favicon-tool|crop-tool|color-tool|watermark-tool|collage-tool|image-pdf-tool|pdf-images-tool)\.css">\n/g, (match, name) => name === stylesheet ? match : '');
+  const stylesheet = { image: 'image-tool', qrcode: 'qr-tool', svg: 'svg-tool', ico: 'favicon-tool', crop: 'crop-tool', color: 'color-tool', watermark: 'watermark-tool', collage: 'collage-tool', imagepdf: 'image-pdf-tool', pdfimages: 'pdf-images-tool', pdforganizer: 'pdf-organizer-tool' }[page.key];
+  html = html.replace(/  <link rel="stylesheet" href="\/(image-tool|qr-tool|svg-tool|favicon-tool|crop-tool|color-tool|watermark-tool|collage-tool|image-pdf-tool|pdf-images-tool|pdf-organizer-tool)\.css">\n/g, (match, name) => name === stylesheet ? match : '');
   if (page.key !== 'image') html = html.replace(/  <dialog id="image-compare-dialog"[\s\S]*?<\/dialog>\n/, '');
   return html;
 }

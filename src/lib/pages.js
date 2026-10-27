@@ -2,7 +2,7 @@ export const SITE_URL = 'https://tools.sgao.cc';
 export const HOME = {
   key: 'home', path: '/', name: '工具导航',
   title: 'SGAO 工具箱 · 免费在线图片与开发工具',
-  description: '免费的在线图片与开发工具箱：图片与 PDF 双向转换、图片拼接与拼图、批量加水印、图片取色与配色板、图片裁剪与尺寸调整、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
+  description: '免费的在线图片与开发工具箱：图片与 PDF 双向转换、PDF 合并拆分、图片拼接与拼图、批量加水印、图片取色与配色板、图片裁剪与尺寸调整、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
 };
 
 // Shared by the static build, local server and legacy-link compatibility.
@@ -148,7 +148,7 @@ export const TOOLS = [
     intro: '将截图、扫描件和产品图片按顺序整理为多页 PDF。每张图片单独一页，可设置页面尺寸、方向、边距、适配与底色，并选择图片编码及最长边来控制清晰度和体积。',
     steps: ['选择静态 JPG、PNG、WebP 或 AVIF，最多 20 张，也可以试试三页示例。', '拖动或用按钮调整页序，选择 A4、Letter 或按图片比例的页面，设置方向、边距、底色和图片清晰度。', '点击「生成 PDF」，切换页码检查生成页预览，确认后下载；修改设置需重新生成。'],
     faqs: [['支持多少张图片和多大的文件？', '最多 20 张、单张最高 20 MB、原图合计最高 100 MB。每张源图单边最高 10000 px、总像素最高 3200 万；内嵌图片合计与 PDF 均最高 100 MB。只处理静态图片，AVIF 解码取决于浏览器。超限时请减少页数，或降低图片最长边。'], ['页面比例、裁切和透明区域如何处理？', 'A4 / Letter 可选纵向、横向或按图片横竖自动。完整显示保持比例并留白；居中裁切会截去超出可用区域的部分。按图片比例以 96 px / 英寸换算，边距加在图片四周，不使用 EXIF 打印尺寸。透明区域统一填入所选底色。'], ['PDF 一定更小吗？文字可以搜索或编辑吗？', '文件大小取决于图片和编码。PNG 对处理后的像素无损编码，体积可能增大；JPEG 为有损压缩，可调质量和最长边。生成的是图片型 PDF，不做 OCR，文字不会转为可搜索、可编辑的文本。预览使用内嵌图片缩略图与相同排版，原始清晰度请在 PDF 阅读器中检查。']],
-    related: ['pdfimages', 'crop', 'image'],
+    related: ['pdforganizer', 'pdfimages', 'image'],
   },
   {
     key: 'pdfimages', path: '/pdf-to-images/', name: 'PDF 转图片', icon: 'pdf', category: 'document',
@@ -159,10 +159,21 @@ export const TOOLS = [
     intro: '将 PDF 的文字、图片和矢量内容渲染为完整页面图片。支持按页码选择、设置分辨率和背景，逐页检查实际导出结果，再下载或继续压缩、添加水印。',
     steps: ['选择一份 PDF，或试试三页示例；加密文档按提示输入打开密码，密码仅用于本地解密。', '选择全部或指定页码，如 1,3,5-8，设置 DPI 或最长边、图片格式与背景，单次最多 50 页。', '开始转换，逐页检查实际结果，单张下载或打包 ZIP；也可把当前页送至压缩、水印工具。'],
     faqs: [['支持多大的 PDF 和多少页？', '单份最高 50 MB、最多 200 页，单次最多转换 50 页。本批结果合计最高 150 MB。图片单边最高 8192 px、总像素最高 3200 万，超过输出尺寸上限会等比缩小并显示实际尺寸。较长文档可使用指定页码分批处理。'], ['能打开加密 PDF、处理中文或透明背景吗？', '可输入文档打开密码在本地解密，不保存密码。字体、字形映射和图片解码资源随本站提供；缺少字体或特殊 PDF 的效果可能与原阅读器不同。PNG/WebP 可保留未绘制区域的透明度，PDF 自带白色背景不会被移除；JPG 使用所选底色。动态 XFA 表单需先另存为普通 PDF。'], ['转换的是完整页面，还是提取里面的原始图片？', '这是逐页渲染，文字、图片和矢量内容会合成为一张页面图片，保留 PDF 的页面方向。文档预览是缩略图，导出结果显示实际编码图片。可下载或打包已完成结果；修改设置会清除旧结果。送至压缩或水印工具的当前单张图片需在 20 MB 以内。']],
-    related: ['imagepdf', 'image', 'watermark'],
+    related: ['pdforganizer', 'imagepdf', 'image'],
+  },
+  {
+    key: 'pdforganizer', path: '/pdf-merge-split/', name: 'PDF 合并 & 拆分', icon: 'pdf', category: 'document',
+    title: 'PDF 合并与拆分 · 在线提取、排序、删除与旋转页面 - SGAO 工具箱',
+    tagline: '把需要的页面，整理成刚好的一份。',
+    description: '免费在线合并 PDF、按页码范围拆分或提取页面，支持缩略图预览、拖动排序、删除、旋转和 ZIP 下载。最多 10 份普通 PDF、合计 200 页，文件在浏览器本地处理，不上传。',
+    card: '合并多份 PDF，按范围拆分、提取页面，重新排序或旋转。', tags: ['页面整理', '本地 PDF'], keywords: 'PDF 合并 拆分 提取 页面 排序 删除 旋转 文档 merge split extract rotate reorder',
+    intro: '将多份 PDF 合成一份，或把一份文档分成需要的几份。先在缩略图中排好页序、移除多余页面、调整方向，再按当前顺序导出，直接保留原有文字、矢量和图片内容。',
+    steps: ['选择或拖入普通 PDF，最多 10 份、单份 50 MB、合计 100 MB / 200 页，可继续追加。', '拖动页面或使用方向按钮排序，旋转、删除页面；可恢复原始页序。选择合并、按范围拆分或每页一份。', '生成后逐页预览实际 PDF，单份下载或整批打包 ZIP。按范围拆分时每行一份，如第一行 1-3、第二行 4,6。'],
+    faqs: [['页码对应原文档，还是整理后的顺序？', '拆分范围对应左侧整理后的连续页码，从 1 开始。每行生成一份 PDF，支持 1,3,5-8；一行内重复页码自动去重，并按当前页序输出。多行可以重复提取同一页，本批导出页数合计最多 200 页。'], ['会影响清晰度、表单、签名或书签吗？', '直接复制 PDF 页面及其内容，保留文字、矢量图和原有图片清晰度，不进行图片压缩。首版暂不支持加密、交互表单和数字签名 PDF；书签、附件及文档级信息不保留，请保存原文件。页面链接与批注在重排后的行为可能变化，请检查结果。'], ['文件和结果有哪些限制？', '最多 10 份普通 PDF，单份最高 50 MB、源文件合计最高 100 MB / 200 页；单个结果最高 50 MB、本批结果合计最高 150 MB / 200 页。每页单独拆分会复制所需资源，体积可能明显增加。可停止后台处理，保留已完成文件；文件只在本地内存中处理。']],
+    related: ['imagepdf', 'pdfimages', 'image'],
   },
 ];
-export const HOME_ORDER = ['image', 'crop', 'collage', 'imagepdf', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
+export const HOME_ORDER = ['image', 'crop', 'collage', 'imagepdf', 'pdforganizer', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
 export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'document', name: '文档与 PDF' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }];
 export function toolByKey(key) { return TOOLS.find(tool => tool.key === key); }
 export function pageForPath(pathname) {

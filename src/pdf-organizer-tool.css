@@ -1,0 +1,55 @@
+@import url('/pdf-tools.css');
+@layer tools {
+  #view-pdforganizer>.toolbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:17px; }
+  #view-pdforganizer .toolbar-label { font-size:10px; color:var(--muted); line-height:1.9; }
+  #view-pdforganizer .toolbar-actions { display:flex; gap:17px; }
+  #pm-error { white-space:pre-line; overflow-wrap:anywhere; }
+  #pm-settings-error { margin:0 20px; font-size:11px; }
+  #pm-ranges { min-height:100px; resize:vertical; width:100%; font:12px/1.8 ui-monospace,monospace; padding:10px; }
+  #pm-plan { display:block; font-size:11px; line-height:1.9; color:var(--green); }
+  #pm-progress { width:100%; height:5px; margin:16px 0 0; accent-color:var(--accent); }
+  .pm-source-list { padding:4px 20px; border-bottom:1px solid var(--line); max-height:220px; overflow:auto; }
+  .pm-source { display:flex; align-items:center; gap:6px; padding:12px 0; border-bottom:1px solid var(--line); }
+  .pm-source:last-child { border-bottom:0; } .pm-source>span { flex:1; min-width:0; }
+  .pm-source strong { display:block; font-size:10px; font-weight:500; overflow-wrap:anywhere; } .pm-source small { display:block; font:9px/1.9 ui-monospace,monospace; color:var(--muted); margin-top:4px; }
+  .pm-source button { border:1px solid var(--line); border-radius:4px; background:var(--surface); font-size:10px; padding:5px 7px; flex-shrink:0; }
+  .pm-sort-bar { padding:13px 20px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; gap:15px; align-items:center; }
+  .pm-sort-bar p { margin:0; font-size:9px; color:var(--muted); line-height:1.9; } .pm-sort-bar button { flex-shrink:0; font-size:10px; }
+  .pm-pages { display:grid; grid-template-columns:repeat(auto-fill,minmax(155px,1fr)); gap:12px; padding:17px; max-height:590px; overflow:auto; background:var(--surface-2); align-content:start; }
+  .pm-page-card { border:1px solid var(--line); border-radius:7px; background:var(--surface); min-width:0; overflow:hidden; }
+  .pm-page-card.is-selected { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent); }
+  .pm-page-card.is-dragging { opacity:.5; } .pm-page-card.is-drop-target { box-shadow:inset 0 4px var(--accent); }
+  .pm-page-heading { padding:5px 10px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); }
+  .pm-page-heading strong { font:10px/1.8 ui-monospace,monospace; color:var(--accent); }
+  .pm-drag { border:0; background:transparent; color:var(--muted); font-size:22px; line-height:1; cursor:grab; touch-action:none; padding:0 4px; height:27px; }
+  .pm-choose { display:block; width:100%; border:0; background:transparent; padding:0 10px 10px; text-align:left; }
+  .pm-thumb { display:block; position:relative; height:174px; margin:0 -10px 10px; background:var(--surface-2); overflow:hidden; }
+  .pm-thumb img { position:absolute; left:50%; top:50%; box-shadow:0 2px 8px #1c1e2420; max-width:none; }
+  .pm-thumb-hint { display:flex; align-items:center; justify-content:center; height:100%; font-size:9px; color:var(--muted); }
+  .pm-choose>strong { display:block; font-size:9px; font-weight:500; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
+  .pm-choose>small { display:block; font:9px/1.8 ui-monospace,monospace; color:var(--muted); margin-top:5px; }
+  .pm-page-actions { display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--line); }
+  .pm-page-actions button { border:0; border-right:1px solid var(--line); background:transparent; font-size:17px; min-height:31px; padding:3px; }
+  .pm-page-actions button:last-child { border-right:0; } .pm-page-actions button:hover:not(:disabled) { color:var(--accent); background:var(--accent-soft); }
+  #pm-pages-empty { padding:25px; margin:0; text-align:center; color:var(--muted); font-size:11px; line-height:1.9; }
+  #pm-preview { margin-top:20px; } #pm-stage { position:relative; } #pm-preview-image { position:absolute; top:50%; left:50%; max-width:none; }
+  #pm-preview-empty { margin:auto; text-align:center; color:var(--muted); font-size:11px; line-height:1.9; overflow-wrap:anywhere; }
+  .pm-preview-toolbar { display:flex; justify-content:space-between; flex-wrap:wrap; align-items:center; gap:13px; padding:16px 20px; border-bottom:1px solid var(--line); }
+  .pm-preview-toolbar select { font-size:10px; max-width:160px; min-width:0; }
+  #pm-output-controls { padding:14px 20px; border-bottom:1px solid var(--line); } #pm-output-controls label { font-size:10px; display:flex; align-items:center; gap:12px; }
+  #pm-output-file { flex:1; min-width:0; font-size:10px; max-width:100%; }
+  #pm-preview-info { display:block; font:10px/1.9 ui-monospace,monospace; color:var(--green); overflow-wrap:anywhere; }
+  #pm-viewport { height:420px; }
+  #pm-results { margin-top:20px; } #pm-result-list { max-height:360px; overflow:auto; }
+  .pm-result-row { display:flex; align-items:center; gap:10px; padding:15px 18px; border-bottom:1px solid var(--line); }
+  .pm-result-row:last-child { border-bottom:0; } .pm-result-row>span { flex:1; min-width:0; }
+  .pm-result-row strong { display:block; font:10px/1.8 ui-monospace,monospace; overflow-wrap:anywhere; } .pm-result-row small { display:block; font-size:9px; line-height:1.8; color:var(--muted); margin-top:5px; max-height:48px; overflow:auto; overflow-wrap:anywhere; }
+  .pm-result-row button,.pm-result-row a { font-size:10px; flex-shrink:0; color:var(--accent); border:0; background:transparent; padding:5px 0; }
+  .pm-zip-actions { padding:16px 18px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; } .pm-zip-actions .button { font-size:11px; } #pm-zip-download { font-size:10px; color:var(--accent); }
+  #view-pdforganizer>.privacy-note { display:flex; align-items:flex-start; gap:10px; padding:18px 20px; margin-top:24px; border-radius:8px; background:var(--surface-2); color:var(--muted); font-size:10px; line-height:1.9; }
+  #view-pdforganizer>.privacy-note>.icon { flex-shrink:0; width:17px; height:17px; margin-top:1px; }
+  #pm-pages-card,#pm-settings-panel,#pm-preview,#pm-results { scroll-margin-top:20px; }
+}
+@layer responsive {
+  @media(max-width:600px) { .pm-pages { grid-template-columns:repeat(2,minmax(0,1fr)); padding:12px; gap:10px; max-height:560px; } .pm-source-list { padding:4px 17px; } .pm-sort-bar { align-items:flex-start; padding:13px 17px; } .pm-sort-bar p { font-size:8px; } .pm-sort-bar button { font-size:9px; } .pm-thumb { height:174px; } .pm-preview-toolbar { padding:14px 17px; } #pm-viewport { height:360px; } .pm-result-row { padding:14px 17px; } }
+}

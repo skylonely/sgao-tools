@@ -9,7 +9,7 @@ const template = await readFile(new URL('../src/index.html', import.meta.url), '
 test('independent routes resolve safely and old hash links retain query parameters', () => {
   assert.equal(pageForPath('/'), HOME);
   assert.equal(pageForPath('/index.html'), HOME);
-  assert.equal(new Set(TOOLS.map(tool => tool.path)).size, 14);
+  assert.equal(new Set(TOOLS.map(tool => tool.path)).size, 15);
   for (const tool of TOOLS) {
     assert.equal(pageForPath(tool.path), tool);
     assert.equal(pageForPath(tool.path.slice(0, -1)), tool);
@@ -38,22 +38,23 @@ test('initial HTML contains only its own tool, with unique SEO metadata and craw
     const views = [...html.matchAll(/<section id="view-([a-z]+)"/g)].map(match => match[1]);
     assert.deepEqual(views, page.key === 'home' ? [] : [page.key]);
     assert.equal(html.includes('<dialog id="image-compare-dialog"'), page.key === 'image');
-    assert.ok(!/href="#(?:json|timestamp|url|diff|ico|image|qrcode|svg|crop|color|watermark|collage|imagepdf|pdfimages)"/.test(html));
+    assert.ok(!/href="#(?:json|timestamp|url|diff|ico|image|qrcode|svg|crop|color|watermark|collage|imagepdf|pdfimages|pdforganizer)"/.test(html));
     assert.equal(html.includes('href="/color-tool.css"'), page.key === 'color');
     assert.equal(html.includes('href="/watermark-tool.css"'), page.key === 'watermark');
     assert.equal(html.includes('href="/collage-tool.css"'), page.key === 'collage');
     assert.equal(html.includes('href="/image-pdf-tool.css"'), page.key === 'imagepdf');
     assert.ok(!html.includes('src="/vendor/pdf-lib'));
     assert.equal(html.includes('href="/pdf-images-tool.css"'), page.key === 'pdfimages');
+    assert.equal(html.includes('href="/pdf-organizer-tool.css"'), page.key === 'pdforganizer');
     assert.ok(!html.includes('src="/vendor/pdfjs'));
     if (page.key !== 'home') {
       assert.ok(html.includes('如何使用'));
       assert.ok(html.includes('常见问题'));
       assert.ok(html.includes(escapeHTML(page.faqs[0][1])));
-    } else assert.equal((html.match(/data-card="/g) || []).length, 14);
+    } else assert.equal((html.match(/data-card="/g) || []).length, 15);
   }
-  assert.equal(titles.size, 15);
-  assert.equal(descriptions.size, 15);
+  assert.equal(titles.size, 16);
+  assert.equal(descriptions.size, 16);
 });
 
 test('structured data and sitemap agree on canonical pages without invented ratings or dates', () => {
@@ -66,7 +67,7 @@ test('structured data and sitemap agree on canonical pages without invented rati
     if (page.key !== 'home') {
       const crumbs = data['@graph'].find(item => item['@type'] === 'BreadcrumbList').itemListElement;
       assert.deepEqual(crumbs.map(crumb => crumb.item), [`${SITE_URL}/`, `${SITE_URL}${page.path}`]);
-    } else assert.equal(data['@graph'].find(item => item['@type'] === 'ItemList').itemListElement.length, 14);
+    } else assert.equal(data['@graph'].find(item => item['@type'] === 'ItemList').itemListElement.length, 15);
     assert.equal(JSON.stringify(data).includes('aggregateRating'), false);
   }
   const sitemap = renderSitemap();
@@ -77,12 +78,12 @@ test('structured data and sitemap agree on canonical pages without invented rati
 
 test('directory combines category and normalized search, including format and Chinese aliases', () => {
   const find = (query, category = 'all') => TOOLS.filter(tool => matchesTool(tool, query, category)).map(tool => tool.key);
-  assert.equal(find('').length, 14);
+  assert.equal(find('').length, 15);
   assert.deepEqual(find('', 'image'), ['ico', 'image', 'svg', 'crop', 'color', 'watermark', 'collage']);
   assert.deepEqual(find('  ＪＳＯＮ  '), ['json']);
   assert.deepEqual(find('PNG', 'image'), ['ico', 'image', 'svg', 'crop', 'color', 'watermark', 'collage']);
   assert.deepEqual(find('拼图'), ['collage']);
-  assert.deepEqual(find('PDF', 'document'), ['imagepdf', 'pdfimages']);
+  assert.deepEqual(find('PDF', 'document'), ['imagepdf', 'pdfimages', 'pdforganizer']);
   assert.deepEqual(find('扫描件'), ['imagepdf', 'pdfimages']);
   assert.deepEqual(find('取色'), ['color']);
   assert.deepEqual(find('水印'), ['watermark']);

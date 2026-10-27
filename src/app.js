@@ -15,9 +15,10 @@ function redirectLegacyHash() {
 }
 window.addEventListener('hashchange', redirectLegacyHash);
 const selected = document.querySelector('.tool-nav .nav-item.active');
-if (selected && matchMedia('(max-width: 760px)').matches) {
+if (selected) {
   const nav = selected.parentElement;
-  nav.scrollLeft = selected.offsetLeft - nav.offsetLeft - (nav.clientWidth - selected.clientWidth) / 2;
+  if (matchMedia('(max-width: 760px)').matches) nav.scrollLeft = selected.offsetLeft - nav.offsetLeft - (nav.clientWidth - selected.clientWidth) / 2;
+  else nav.scrollTop = selected.offsetTop - nav.offsetTop - (nav.clientHeight - selected.clientHeight) / 2;
 }
 document.querySelector('.skip-link').addEventListener('click', event => {
   event.preventDefault(); $('main').focus(); $('main').scrollIntoView({ block: 'start' });
@@ -302,7 +303,7 @@ function initDiff() {
 
 if (!redirectLegacyHash()) {
   const initializers = { home: initDirectory, json: initJSON, timestamp: initTimestamp, url: initURL, diff: initDiff };
-  const modules = { ico: ['./ico-tool.js', 'initICO'], image: ['./image-tool.js', 'initImageTool'], qrcode: ['./qr-tool.js', 'initQRCode'], svg: ['./svg-tool.js', 'initSVG'], crop: ['./crop-tool.js', 'initCrop'], color: ['./color-tool.js', 'initColor'], watermark: ['./watermark-tool.js', 'initWatermark'], collage: ['./collage-tool.js', 'initCollage'], imagepdf: ['./image-pdf-tool.js', 'initImagePDF'], pdfimages: ['./pdf-images-tool.js', 'initPDFImages'] };
+  const modules = { ico: ['./ico-tool.js', 'initICO'], image: ['./image-tool.js', 'initImageTool'], qrcode: ['./qr-tool.js', 'initQRCode'], svg: ['./svg-tool.js', 'initSVG'], crop: ['./crop-tool.js', 'initCrop'], color: ['./color-tool.js', 'initColor'], watermark: ['./watermark-tool.js', 'initWatermark'], collage: ['./collage-tool.js', 'initCollage'], imagepdf: ['./image-pdf-tool.js', 'initImagePDF'], pdfimages: ['./pdf-images-tool.js', 'initPDFImages'], pdforganizer: ['./pdf-organizer-tool.js', 'initPDFOrganizer'] };
   if (initializers[currentTool]) initializers[currentTool]();
   else if (modules[currentTool]) {
     const [path, name] = modules[currentTool];
