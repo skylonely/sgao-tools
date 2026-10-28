@@ -19,6 +19,7 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 | 图片裁剪 & 尺寸调整 | 自由/固定比例、八向控制点、数值与键盘微调、旋转翻转、精确宽高、透明/实色背景、PNG/JPG/WebP 导出，直接继续压缩 | `/image-cropper/` |
 | 图片取色 & 配色板 | 原图像素与放大镜、HEX/RGB/HSL/Alpha、5–8 代表色、CSS 变量、JSON 与 PNG 色卡 | `/image-color-picker/` |
 | 图片水印 & 批量加水印 | 中文文字/Logo、九宫格/拖动定位、相对大小、透明度和旋转、错行平铺、PNG/JPG/WebP、ZIP 与继续压缩 | `/image-watermark/` |
+| PDF 水印 & 页码 | 中文文字 / Logo 水印、位置 / 透明度 / 旋转 / 平铺、连续页码、指定范围、跳过封面、实际输出预览 | `/pdf-watermark/` |
 | PDF 合并 & 拆分 | 多文档合并、按范围提取/拆分、每页单独导出、拖动与键盘排序、旋转删除、实际结果预览与 ZIP | `/pdf-merge-split/` |
 | PDF 转图片 | 全部或指定页码、DPI/最长边、PNG/JPG/WebP、透明/实色背景、密码、本地预览、ZIP、继续压缩和加水印 | `/pdf-to-images/` |
 | 图片转 PDF | JPG/PNG/WebP/AVIF 批量排序、A4/Letter/按图片比例、方向/边距/底色、PNG 无损或 JPEG 压缩、逐页预览与 PDF 下载 | `/image-to-pdf/` |
@@ -30,11 +31,11 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 
 根目录 `/` 是工具导航首页，按「图片与图标 / 文档与 PDF / 开发与文本 / 分享与连接」分类，可组合关键词搜索，支持空结果重置与键盘操作。搜索内容只用于本页筛选，不发送请求。
 
-构建时为首页和 15 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
+构建时为首页和 16 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
 
-旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg`、`/#crop`、`/#color`、`/#watermark`、`/#collage`、`/#imagepdf`、`/#pdfimages`、`/#pdforganizer` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
+旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg`、`/#crop`、`/#color`、`/#watermark`、`/#collage`、`/#imagepdf`、`/#pdfimages`、`/#pdforganizer`、`/#pdfwatermark` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
 
-`/sitemap.xml` 由同一份页面目录生成，包含 16 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
+`/sitemap.xml` 由同一份页面目录生成，包含 17 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
 
 新增工具时，在 `src/lib/pages.js` 中填写目录、页面文案、步骤、FAQ 与关联工具，在 `src/index.html` 增加对应 `view-*` 区块，并在 `src/app.js` 注册初始化逻辑。构建会同步生成导航、独立页面与站点地图。
 
@@ -90,6 +91,10 @@ sgao-tools/
 │   ├── pdf-organizer-tool.js # PDF 合并、拆分页序与实际结果预览
 │   ├── pdf-organizer-engine.js # pdf-lib 页面复制、校验与输出
 │   ├── pdf-organizer-worker.js # 后台检查、生成与逐份结果
+│   ├── pdf-watermark-tool.js # PDF 水印、页码、范围与输出预览
+│   ├── pdf-watermark-overlay.js # 本机字体与 Logo 的高清透明图层
+│   ├── pdf-watermark-engine.js # 保留原页面并追加水印图层
+│   ├── pdf-watermark-worker.js # 后台写入与逐页图层协议
 │   ├── pdf-tools.css       # PDF 工具共用的页面布局
 │   ├── image-transfer.js   # 单次同源窗口消息，接续压缩或水印工具
 │   ├── image-engine.js     # 智能压缩与格式转换
@@ -272,3 +277,16 @@ Apple 图标使用 8% 内边距。Maskable 按源图完整矩形的对角线缩�
 - 检查与生成在可终止的独立 Worker 中执行，最长两分钟；停止或错误后保留已完成文件。单个结果最高 50 MB，本批结果合计最高 150 MB。修改页序、旋转、范围或名称会清除旧结果。
 - 缩略图按可见区域串行渲染；生成后用 PDF.js 直接读取实际 PDF 进行逐页预览。单份真实 PDF 下载或 ZIP 打包，ZIP 使用现有 UTF-8 / CRC32 实现并保留再次下载入口。
 - 沿用现有 PDF.js Worker 的同源资源策略，无新增外部请求、依赖或全局 CSP 放宽；源文件、预览和输出只留在当前页面内存中。
+
+
+## PDF 水印与页码
+
+- 独立入口 `/pdf-watermark/`，兼容 `/#pdfwatermark`；导航首页、文档分类、独立 SEO、FAQ、关联工具及站点地图同步更新。
+- 单份普通 PDF 输入和输出最高 50 MB、最多 200 页；沿用合并拆分工具的输入校验，暂不支持加密、交互表单、XFA 与数字签名文档。直接修改原页面内容流，保持原有页数、尺寸、裁切框、旋转和缩放单位；复杂批注或导航请核验并保留原件。
+- 水印可单独启用，支持中文 / 英文 / Emoji、最多 120 字符 / 3 行、三类本机字体、加粗、文字或 Logo 大小、颜色、不透明度、九宫格位置、边距、旋转及错行平铺。Logo 支持静态 PNG/JPG/WebP，最高 5 MB、4096 px、1600 万像素；使用已有的本地图片解码与动画检查。
+- 页码可单独启用，支持 `1`、`1 / 10`、`第 1 页`，起始编号 1–999999、8–36 pt、六种页眉/页脚位置、3–30 mm 边距、颜色和不透明度。按选中且未跳过封面的页面连续编号，分母为编号末值；跳过封面只作用于物理第 1 页的页码，不影响水印。
+- 全部或指定页码范围如 `1,3,5-8`，去重并按文档顺序处理。范围仅决定在哪些页追加内容，其余页仍保留；应用页面卡片会显示水印与实际编号，可切换预览。
+- 水印与页码通过本机 Canvas 绘制高清透明 PNG 图层，原 PDF 不栅格化；新增标记不是可搜索文字，字体与 Emoji 效果依赖设备。图层以每点 4 像素绘制，最长边最高 4096 px、总像素最高 800 万，超大页面会降低图层分辨率。本次图层传递合计最高 100 MB。
+- 使用实际 PDF.js viewport 的逆变换写入透明图层，处理 CropBox 非零/负坐标、0/90/180/270 度方向及 UserUnit；同内容图层按 SHA-256 复用，避免重复嵌入。原始文字与矢量内容保留，不重编码原文档图片。
+- PDF 检查与写入在可终止的独立 Worker 中执行，图层按需逐页生成，最长两分钟。停止会丢弃本次未完成结果并保留原文档；修改任何设置会清除旧结果。生成后用 PDF.js 读取实际 PDF 逐页核验，再使用真实 PDF 下载链接。
+- 无新增外部服务、依赖或全局 CSP 放宽，文件、Logo、图层和结果只在当前页面内存中处理。已覆盖编号/封面/范围、变换/尺寸边界、中文和 Logo 绘制、资源释放、原始页面保留、相同图层复用与停止后的迟到消息；用 Poppler 独立渲染了浏览器下载结果与四种旋转 / 裁切 / UserUnit 组合。

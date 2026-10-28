@@ -1,0 +1,38 @@
+@import url('/pdf-tools.css');
+@layer tools {
+  #view-pdfwatermark>.toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:17px; }
+  #view-pdfwatermark .toolbar-label { font-size:10px; line-height:1.9; color:var(--muted); }
+  #view-pdfwatermark .toolbar-actions { display:flex; gap:17px; }
+  #pw-error { white-space:pre-line; overflow-wrap:anywhere; }
+  .pw-source { padding:18px 20px; border-bottom:1px solid var(--line); } #pw-source-name { display:block; font:11px/1.9 ui-monospace,monospace; overflow-wrap:anywhere; } #pw-source-meta { display:block; font-size:10px; line-height:1.9; color:var(--muted); margin-top:6px; }
+  .pw-preview-toolbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; padding:16px 20px; }
+  .pw-preview-toolbar select { max-width:158px; min-width:0; font-size:10px; }
+  #pw-stage { position:relative; } #pw-page-image { display:block; width:100%; height:100%; } #pw-overlay-image { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+  #pw-preview-empty { margin:auto; font-size:11px; line-height:1.9; color:var(--muted); text-align:center; overflow-wrap:anywhere; }
+  #pw-page-info { display:block; font:11px/1.9 ui-monospace,monospace; color:var(--green); }
+  #pw-page-map { display:grid; grid-template-columns:repeat(auto-fill,minmax(103px,1fr)); gap:10px; padding:17px; max-height:250px; overflow:auto; }
+  #pw-page-map button { border:1px solid var(--line); border-radius:6px; background:var(--surface); padding:12px 8px; text-align:left; min-width:0; }
+  #pw-page-map button[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-soft); }
+  #pw-page-map strong { display:block; font:10px/1.8 ui-monospace,monospace; color:var(--accent); }
+  #pw-page-map small { display:block; font-size:9px; line-height:1.8; color:var(--muted); margin-top:5px; overflow-wrap:anywhere; }
+  .pw-toggles { display:flex; flex-wrap:wrap; gap:18px; padding-bottom:18px; border-bottom:1px solid var(--line); margin-bottom:18px; }
+  .pw-toggle { display:flex; align-items:center; gap:7px; font-size:11px; line-height:1.8; cursor:pointer; } .pw-toggle input { accent-color:var(--accent); width:14px; height:14px; flex-shrink:0; }
+  .pw-panels { display:flex; gap:6px; margin-bottom:18px; } .pw-panels button { flex:1; border:1px solid var(--line); border-radius:5px; background:var(--surface); padding:9px 7px; font-size:11px; }
+  .pw-panels button[aria-pressed="true"] { color:var(--accent); border-color:var(--accent); background:var(--accent-soft); }
+  #pw-text { width:100%; min-height:81px; resize:vertical; font-size:12px; line-height:1.8; padding:10px; }
+  #pw-logo-name { font-size:9px; color:var(--muted); line-height:1.9; overflow-wrap:anywhere; }
+  .pw-logo-actions { display:flex; gap:10px; flex-wrap:wrap; margin:12px 0 16px; } .pw-logo-actions button { font-size:10px; }
+  #pw-logo { font-size:10px; } #pw-panel-off { color:var(--muted); font-size:11px; line-height:1.9; padding:10px 0 22px; }
+  #pw-color,#pw-number-color { padding:4px; height:36px; } #pw-settings .pw-toggle { margin:0 0 17px; font-size:10px; }
+  #pw-plan { display:block; font-size:11px; line-height:1.9; color:var(--green); }
+  #pw-settings-error { margin:0 20px; font-size:11px; }
+  #pw-progress { display:block; width:100%; height:5px; margin:16px 0; accent-color:var(--accent); }
+  #pw-result-name { display:block; font:11px/1.9 ui-monospace,monospace; overflow-wrap:anywhere; } #pw-result-meta { display:block; font-size:10px; line-height:1.9; color:var(--muted); margin-top:7px; }
+  #pw-download { width:100%; margin-top:15px; font-size:11px; } #pw-download[aria-disabled="true"] { opacity:.45; cursor:not-allowed; }
+  #pw-preview,#pw-pages-card,#pw-settings-panel { scroll-margin-top:20px; }
+  #view-pdfwatermark>.privacy-note { display:flex; align-items:flex-start; gap:10px; padding:18px 20px; margin-top:24px; border-radius:8px; background:var(--surface-2); color:var(--muted); font-size:10px; line-height:1.9; }
+  #view-pdfwatermark>.privacy-note>.icon { flex-shrink:0; width:17px; height:17px; margin-top:1px; }
+}
+@layer responsive {
+  @media(max-width:600px) { .pw-source,.pw-preview-toolbar { padding:15px 17px; } .pw-preview-toolbar { gap:12px; } .pw-preview-toolbar .ip-views { flex-wrap:wrap; } .pw-preview-toolbar .ip-views button { font-size:9px; padding:7px 8px; } #pw-page-map { grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; padding:14px 17px; } #pw-settings-error { margin:0 17px; } }
+}

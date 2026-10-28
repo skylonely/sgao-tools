@@ -2,7 +2,7 @@ export const SITE_URL = 'https://tools.sgao.cc';
 export const HOME = {
   key: 'home', path: '/', name: '工具导航',
   title: 'SGAO 工具箱 · 免费在线图片与开发工具',
-  description: '免费的在线图片与开发工具箱：图片与 PDF 双向转换、PDF 合并拆分、图片拼接与拼图、批量加水印、图片取色与配色板、图片裁剪与尺寸调整、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
+  description: '免费的在线图片与开发工具箱：图片与 PDF 双向转换、PDF 合并拆分、PDF 水印与页码、图片拼接与拼图、批量加水印、图片取色与配色板、图片裁剪与尺寸调整、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
 };
 
 // Shared by the static build, local server and legacy-link compatibility.
@@ -170,10 +170,21 @@ export const TOOLS = [
     intro: '将多份 PDF 合成一份，或把一份文档分成需要的几份。先在缩略图中排好页序、移除多余页面、调整方向，再按当前顺序导出，直接保留原有文字、矢量和图片内容。',
     steps: ['选择或拖入普通 PDF，最多 10 份、单份 50 MB、合计 100 MB / 200 页，可继续追加。', '拖动页面或使用方向按钮排序，旋转、删除页面；可恢复原始页序。选择合并、按范围拆分或每页一份。', '生成后逐页预览实际 PDF，单份下载或整批打包 ZIP。按范围拆分时每行一份，如第一行 1-3、第二行 4,6。'],
     faqs: [['页码对应原文档，还是整理后的顺序？', '拆分范围对应左侧整理后的连续页码，从 1 开始。每行生成一份 PDF，支持 1,3,5-8；一行内重复页码自动去重，并按当前页序输出。多行可以重复提取同一页，本批导出页数合计最多 200 页。'], ['会影响清晰度、表单、签名或书签吗？', '直接复制 PDF 页面及其内容，保留文字、矢量图和原有图片清晰度，不进行图片压缩。首版暂不支持加密、交互表单和数字签名 PDF；书签、附件及文档级信息不保留，请保存原文件。页面链接与批注在重排后的行为可能变化，请检查结果。'], ['文件和结果有哪些限制？', '最多 10 份普通 PDF，单份最高 50 MB、源文件合计最高 100 MB / 200 页；单个结果最高 50 MB、本批结果合计最高 150 MB / 200 页。每页单独拆分会复制所需资源，体积可能明显增加。可停止后台处理，保留已完成文件；文件只在本地内存中处理。']],
-    related: ['imagepdf', 'pdfimages', 'image'],
+    related: ['pdfwatermark', 'imagepdf', 'pdfimages'],
+  },
+  {
+    key: 'pdfwatermark', path: '/pdf-watermark/', name: 'PDF 水印 & 页码', icon: 'stamp', category: 'document',
+    title: 'PDF 水印与页码 · 在线添加文字、Logo 和页面编号 - SGAO 工具箱',
+    tagline: '为文档加上标识，让每一页各就其位。',
+    description: '免费在线给 PDF 添加中文文字或 Logo 水印、统一页码，支持透明度、旋转、全页平铺、指定页码范围、跳过封面和实际导出预览。单份最高 50 MB、200 页，全程浏览器本地处理。',
+    card: '为 PDF 添加文字或 Logo 水印、统一页码，按范围应用并逐页检查。', tags: ['文字 / Logo', '连续页码'], keywords: 'PDF 水印 页码 编号 文字 logo 平铺 文档 watermark page number stamp',
+    intro: '为方案、报告和产品资料加上用途标识与统一页码。可单独启用水印或编号，按页面显示方向定位，逐页对照原文档，生成后再检查实际 PDF。',
+    steps: ['选择一份普通 PDF，单份最高 50 MB、最多 200 页，也可试试三页示例。', '选择文字或 Logo 水印，设置布局、旋转和透明度；按需启用页码，设置格式、位置、起始编号和跳过封面。', '选择全部或指定页面，生成后切换「导出结果」逐页检查并下载。未选中的页面仍保留在 PDF 中。'],
+    faqs: [['页码如何编号，跳过封面会影响水印吗？', '从所选且未跳过封面的第一页开始连续编号。支持 1、1 / 10 和第 1 页；分数格式的分母是最后一个编号，例如起始 5、共 3 个编号时显示 5 / 7、6 / 7、7 / 7。跳过封面只排除文档第 1 页的页码，不影响该页水印。'], ['会改变原文档清晰度或页面方向吗？', '保留原有页面、文字、矢量与图片内容，不把整份文档转为图片。新增水印和页码以高清透明图层叠加，文字依赖本机字体，新增标记不是可搜索文字。单页图层最长边 4096 px、总像素最高 800 万，超大页面及打印效果请检查实际结果。'], ['支持哪些 PDF，有什么限制？', '单份输入和输出最高 50 MB、最多 200 页。本次图层数据合计最高 100 MB，处理可停止，原文件不变。首版暂不支持加密、交互表单或数字签名文档；复杂批注和导航请核验并保留原件。Logo 支持静态 PNG/JPG/WebP，最高 5 MB、4096 px、1600 万像素。']],
+    related: ['pdforganizer', 'pdfimages', 'imagepdf'],
   },
 ];
-export const HOME_ORDER = ['image', 'crop', 'collage', 'imagepdf', 'pdforganizer', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
+export const HOME_ORDER = ['image', 'crop', 'collage', 'imagepdf', 'pdforganizer', 'pdfwatermark', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
 export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'document', name: '文档与 PDF' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }];
 export function toolByKey(key) { return TOOLS.find(tool => tool.key === key); }
 export function pageForPath(pathname) {
