@@ -9,3 +9,11 @@
 /vendor/pdfjs/pdf.worker.min.mjs
   ! Content-Security-Policy
   Content-Security-Policy: default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; img-src 'self' data: blob:; worker-src 'none'; object-src 'none'; base-uri 'none'
+
+# Only the pinned OCR worker can fetch its same-origin engine and language resources.
+/vendor/ocr/v7.0.0/worker.min.js
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; img-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'none'
+
+/vendor/ocr/v7.0.0/*
+  Cache-Control: public, max-age=31536000, immutable

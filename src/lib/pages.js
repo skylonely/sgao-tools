@@ -2,7 +2,7 @@ export const SITE_URL = 'https://tools.sgao.cc';
 export const HOME = {
   key: 'home', path: '/', name: '工具导航',
   title: 'SGAO 工具箱 · 免费在线图片与开发工具',
-  description: '免费的在线图片与开发工具箱：图片与 PDF 双向转换、PDF 合并拆分、PDF 水印与页码、图片拼接与拼图、批量加水印、图片取色与配色板、图片裁剪与尺寸调整、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
+  description: '免费的在线图片与开发工具箱：图片文字识别 OCR、图片与 PDF 双向转换、PDF 合并拆分、PDF 水印与页码、图片拼接与拼图、批量加水印、图片取色与配色板、图片裁剪与尺寸调整、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
 };
 
 // Shared by the static build, local server and legacy-link compatibility.
@@ -102,9 +102,9 @@ export const TOOLS = [
     description: '免费在线裁剪图片、调整像素尺寸、旋转和翻转，支持自由选区与常用比例、PNG/JPG/WebP 导出及透明背景。单张最高 20 MB，图片只在浏览器本地处理，还可继续智能压缩。',
     card: '裁剪画面、旋转翻转与精确缩放，准备头像和网页封面。', tags: ['自由裁剪', '精确宽高'], keywords: '图片 裁剪 大小 尺寸 缩放 旋转 翻转 crop resize png jpg webp 头像 封面',
     intro: '从图片中选出需要的区域，再按像素调整输出尺寸。支持拖动、数值输入和方向键微调，适合制作头像、文章封面及网页素材。',
-    steps: ['上传静态 PNG、JPG、WebP 或 AVIF，选择自由裁剪、原图比例或常用比例。', '拖动选区和控制点，按需旋转、翻转；填写导出宽高，选择格式与背景。', '检查实际导出预览和体积后下载，或在新标签页继续智能压缩，无需重复选择图片。'],
+    steps: ['上传静态 PNG、JPG、WebP 或 AVIF，选择自由裁剪、原图比例或常用比例。', '拖动选区和控制点，按需旋转、翻转；填写导出宽高，选择格式与背景。', '检查实际导出预览和体积后下载，或在新标签页继续智能压缩、识别文字，无需重复选择图片。'],
     faqs: [['图片与导出尺寸有什么限制？', '源图单张最高 20 MB、单边不超过 10000 px、总像素不超过 3200 万；导出单边最高 8192 px、总像素不超过 3200 万。继续压缩时，导出文件需在 20 MB 以内。'], ['解锁比例后，图片会变形吗？', '默认采用等比完整显示，在指定画布中居中留白。也可明确选择「拉伸填满指定尺寸」。JPG 不支持透明，留白和透明区域会使用所选底色。'], ['旋转、放大和继续压缩如何工作？', '旋转会按当前比例重新选取画面；翻转以当前画面方向为准。放大不会增加细节。继续压缩会打开同站新标签页，直接传递当前结果，不上传图片，也不将图片写入浏览器存储。']],
-    related: ['collage', 'watermark', 'image'],
+    related: ['ocr', 'watermark', 'image'],
   },
   {
     key: 'color', path: '/image-color-picker/', name: '图片取色 & 配色板', icon: 'palette', category: 'image',
@@ -157,9 +157,9 @@ export const TOOLS = [
     description: '免费在线 PDF 转图片，支持全部页面或指定页码、72/150/300 DPI、最长边设置、PNG/JPG/WebP、逐页预览和 ZIP 下载。可继续压缩、加水印，文档与密码仅在浏览器本地处理。',
     card: '选择 PDF 页码与清晰度，导出 PNG、JPG、WebP，单张下载或整批打包。', tags: ['逐页转换', '批量 ZIP'], keywords: 'PDF 图片 PNG JPG JPEG WebP 转换 渲染 文档 扫描件 pages image export raster',
     intro: '将 PDF 的文字、图片和矢量内容渲染为完整页面图片。支持按页码选择、设置分辨率和背景，逐页检查实际导出结果，再下载或继续压缩、添加水印。',
-    steps: ['选择一份 PDF，或试试三页示例；加密文档按提示输入打开密码，密码仅用于本地解密。', '选择全部或指定页码，如 1,3,5-8，设置 DPI 或最长边、图片格式与背景，单次最多 50 页。', '开始转换，逐页检查实际结果，单张下载或打包 ZIP；也可把当前页送至压缩、水印工具。'],
+    steps: ['选择一份 PDF，或试试三页示例；加密文档按提示输入打开密码，密码仅用于本地解密。', '选择全部或指定页码，如 1,3,5-8，设置 DPI 或最长边、图片格式与背景，单次最多 50 页。', '开始转换，逐页检查实际结果，单张下载或打包 ZIP；也可把当前页送至压缩、水印或 OCR 工具。'],
     faqs: [['支持多大的 PDF 和多少页？', '单份最高 50 MB、最多 200 页，单次最多转换 50 页。本批结果合计最高 150 MB。图片单边最高 8192 px、总像素最高 3200 万，超过输出尺寸上限会等比缩小并显示实际尺寸。较长文档可使用指定页码分批处理。'], ['能打开加密 PDF、处理中文或透明背景吗？', '可输入文档打开密码在本地解密，不保存密码。字体、字形映射和图片解码资源随本站提供；缺少字体或特殊 PDF 的效果可能与原阅读器不同。PNG/WebP 可保留未绘制区域的透明度，PDF 自带白色背景不会被移除；JPG 使用所选底色。动态 XFA 表单需先另存为普通 PDF。'], ['转换的是完整页面，还是提取里面的原始图片？', '这是逐页渲染，文字、图片和矢量内容会合成为一张页面图片，保留 PDF 的页面方向。文档预览是缩略图，导出结果显示实际编码图片。可下载或打包已完成结果；修改设置会清除旧结果。送至压缩或水印工具的当前单张图片需在 20 MB 以内。']],
-    related: ['pdforganizer', 'imagepdf', 'image'],
+    related: ['ocr', 'pdforganizer', 'imagepdf'],
   },
   {
     key: 'pdforganizer', path: '/pdf-merge-split/', name: 'PDF 合并 & 拆分', icon: 'pdf', category: 'document',
@@ -183,8 +183,19 @@ export const TOOLS = [
     faqs: [['页码如何编号，跳过封面会影响水印吗？', '从所选且未跳过封面的第一页开始连续编号。支持 1、1 / 10 和第 1 页；分数格式的分母是最后一个编号，例如起始 5、共 3 个编号时显示 5 / 7、6 / 7、7 / 7。跳过封面只排除文档第 1 页的页码，不影响该页水印。'], ['会改变原文档清晰度或页面方向吗？', '保留原有页面、文字、矢量与图片内容，不把整份文档转为图片。新增水印和页码以高清透明图层叠加，文字依赖本机字体，新增标记不是可搜索文字。单页图层最长边 4096 px、总像素最高 800 万，超大页面及打印效果请检查实际结果。'], ['支持哪些 PDF，有什么限制？', '单份输入和输出最高 50 MB、最多 200 页。本次图层数据合计最高 100 MB，处理可停止，原文件不变。首版暂不支持加密、交互表单或数字签名文档；复杂批注和导航请核验并保留原件。Logo 支持静态 PNG/JPG/WebP，最高 5 MB、4096 px、1600 万像素。']],
     related: ['pdforganizer', 'pdfimages', 'imagepdf'],
   },
+  {
+    key: 'ocr', path: '/image-to-text/', name: '图片文字识别（OCR）', icon: 'ocr', category: 'document',
+    title: '图片文字识别 OCR · 在线提取中英文、截图转文字 - SGAO 工具箱',
+    tagline: '把画面里的文字，变成可以继续使用的内容。',
+    description: '免费在线图片文字识别 OCR，支持简体中文、中英混合和英文，上传、拖入或粘贴 PNG/JPG/WebP 截图，旋转、灰度或黑白预处理，识别结果可校对、复制及下载 TXT。图片与文字在浏览器本地处理，不上传。',
+    card: '识别截图和扫描件图片中的中英文，对照原图校对，复制或下载文字。', tags: ['中英文', '本地识别'], keywords: 'OCR 图片 文字 识别 提取 截图 扫描件 印刷体 中文 英文 image text recognition png jpg jpeg webp tesseract',
+    intro: '从清晰截图、扫描件图片和印刷体素材中提取文字。按需旋转或预处理，在图片与识别文字之间对照校对；模型评分用于提示，不代表识别正确率。',
+    steps: ['上传或拖入一张静态 PNG/JPG/WebP，也可用 ⌘ / Ctrl + V 粘贴截图；单张最高 20 MB。', '选择简体中文、中英混合或英文，以及文字排版、旋转和预处理。可先查看实际识别用图，再开始识别。', '对照文字框校对结果，编辑后复制或下载 UTF-8 TXT。停止或失败会保留已有文本，重新识别成功后替换文本。'],
+    faqs: [['图片和模型会上传或保存吗？', '图片、识别文字和手动修改只留在当前页面内存，不上传、不写入浏览器存储。识别引擎与语言模型从本站按需加载，中英混合首次约 8–9 MB；公开静态资源可由浏览器缓存。'], ['支持多大图片，识别不准怎么办？', '静态 PNG/JPG/WebP 单张最高 20 MB，源图最高 3200 万像素、单边 10000 px；识别用图等比限制到 800 万像素、单边 4096 px。小字建议先裁剪需要区域，调整方向、语言和预处理。清晰印刷体较适合，手写、模糊、倾斜、复杂表格和排版的效果需人工核对。'], ['可以直接识别 PDF，或保留原来的表格排版吗？', '首版输入为图片，PDF 可先用「PDF 转图片」导出需要的页面再识别，裁剪工具和 PDF 转图片支持直接继续 OCR。输出是可编辑纯文本，不还原复杂表格或文档版式；最多 100 万字符，文字框最多显示 1000 行。']],
+    related: ['crop', 'pdfimages', 'diff'],
+  },
 ];
-export const HOME_ORDER = ['image', 'crop', 'collage', 'imagepdf', 'pdforganizer', 'pdfwatermark', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
+export const HOME_ORDER = ['image', 'crop', 'ocr', 'collage', 'imagepdf', 'pdforganizer', 'pdfwatermark', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
 export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'document', name: '文档与 PDF' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }];
 export function toolByKey(key) { return TOOLS.find(tool => tool.key === key); }
 export function pageForPath(pathname) {

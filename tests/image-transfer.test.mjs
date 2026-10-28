@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { sendToCompressor, sendToWatermark, receiveCropFile, receiveProcessedImage } from '../src/image-transfer.js';
+import { sendToCompressor, sendToWatermark, sendToOCR, receiveCropFile, receiveProcessedImage } from '../src/image-transfer.js';
 
 function setup() {
   const old = { window: globalThis.window, location: globalThis.location, history: globalThis.history };
@@ -9,6 +9,18 @@ function setup() {
   globalThis.window = window; globalThis.location = { origin: 'https://tools.sgao.cc', pathname: '/image-compressor/', search: '?from=crop', hash: '' }; globalThis.history = { replaceState() {} };
   return { window, listeners, emit(event) { for (const handler of [...(listeners.get('message') || [])]) handler(event); }, restore() { for (const [key, value] of Object.entries(old)) { if (value === undefined) delete globalThis[key]; else globalThis[key] = value; } } };
 }
+
+test('OCR handoff uses its independent page and the same verified one-use channel', async () => {
+  const env = setup(), popup = { postMessage() {} }; let url;
+  env.window.open = destination => { url = destination; return popup; };
+  try {
+    const pending = sendToOCR(new File(['pixels'], 'page.png', { type: 'image/png' }));
+    assert.ok(url.startsWith('/image-to-text/#crop-transfer=')); const token = url.split('=')[1];
+    env.emit({ origin: location.origin, source: popup, data: { type: 'sgao-crop-transfer:ready', token } });
+    env.emit({ origin: location.origin, source: popup, data: { type: 'sgao-crop-transfer:received', token } }); await pending;
+    assert.equal(env.listeners.get('message').size, 0);
+  } finally { env.restore(); }
+});
 
 test('sender only transfers the requested file to the expected same-origin window and one-use token', async () => {
   const env = setup(), messages = [], popup = { postMessage(data, origin) { messages.push({ data, origin }); } };

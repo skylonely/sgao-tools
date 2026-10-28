@@ -19,6 +19,7 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 | 图片裁剪 & 尺寸调整 | 自由/固定比例、八向控制点、数值与键盘微调、旋转翻转、精确宽高、透明/实色背景、PNG/JPG/WebP 导出，直接继续压缩 | `/image-cropper/` |
 | 图片取色 & 配色板 | 原图像素与放大镜、HEX/RGB/HSL/Alpha、5–8 代表色、CSS 变量、JSON 与 PNG 色卡 | `/image-color-picker/` |
 | 图片水印 & 批量加水印 | 中文文字/Logo、九宫格/拖动定位、相对大小、透明度和旋转、错行平铺、PNG/JPG/WebP、ZIP 与继续压缩 | `/image-watermark/` |
+| 图片文字识别（OCR） | 简体中文 / 英文 / 混合、上传 / 粘贴 / 拖入、旋转与预处理、文字框对照、编辑 / 复制 / TXT、可停止 | `/image-to-text/` |
 | PDF 水印 & 页码 | 中文文字 / Logo 水印、位置 / 透明度 / 旋转 / 平铺、连续页码、指定范围、跳过封面、实际输出预览 | `/pdf-watermark/` |
 | PDF 合并 & 拆分 | 多文档合并、按范围提取/拆分、每页单独导出、拖动与键盘排序、旋转删除、实际结果预览与 ZIP | `/pdf-merge-split/` |
 | PDF 转图片 | 全部或指定页码、DPI/最长边、PNG/JPG/WebP、透明/实色背景、密码、本地预览、ZIP、继续压缩和加水印 | `/pdf-to-images/` |
@@ -31,11 +32,11 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 
 根目录 `/` 是工具导航首页，按「图片与图标 / 文档与 PDF / 开发与文本 / 分享与连接」分类，可组合关键词搜索，支持空结果重置与键盘操作。搜索内容只用于本页筛选，不发送请求。
 
-构建时为首页和 16 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
+构建时为首页和 17 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
 
-旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg`、`/#crop`、`/#color`、`/#watermark`、`/#collage`、`/#imagepdf`、`/#pdfimages`、`/#pdforganizer`、`/#pdfwatermark` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
+旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg`、`/#crop`、`/#color`、`/#watermark`、`/#collage`、`/#imagepdf`、`/#pdfimages`、`/#pdforganizer`、`/#pdfwatermark`、`/#ocr` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
 
-`/sitemap.xml` 由同一份页面目录生成，包含 17 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
+`/sitemap.xml` 由同一份页面目录生成，包含 18 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
 
 新增工具时，在 `src/lib/pages.js` 中填写目录、页面文案、步骤、FAQ 与关联工具，在 `src/index.html` 增加对应 `view-*` 区块，并在 `src/app.js` 注册初始化逻辑。构建会同步生成导航、独立页面与站点地图。
 
@@ -96,6 +97,9 @@ sgao-tools/
 │   ├── pdf-watermark-engine.js # 保留原页面并追加水印图层
 │   ├── pdf-watermark-worker.js # 后台写入与逐页图层协议
 │   ├── pdf-tools.css       # PDF 工具共用的页面布局
+│   ├── ocr-tool.js          # 图片文字识别、校对、停止与 TXT 下载
+│   ├── ocr-task.js          # 可终止的 Tesseract Worker 协议
+│   ├── ocr-engine.js        # 受限尺寸、旋转、灰度与二值预处理
 │   ├── image-transfer.js   # 单次同源窗口消息，接续压缩或水印工具
 │   ├── image-engine.js     # 智能压缩与格式转换
 │   ├── image-worker.js     # 后台压缩线程
@@ -290,3 +294,15 @@ Apple 图标使用 8% 内边距。Maskable 按源图完整矩形的对角线缩�
 - 使用实际 PDF.js viewport 的逆变换写入透明图层，处理 CropBox 非零/负坐标、0/90/180/270 度方向及 UserUnit；同内容图层按 SHA-256 复用，避免重复嵌入。原始文字与矢量内容保留，不重编码原文档图片。
 - PDF 检查与写入在可终止的独立 Worker 中执行，图层按需逐页生成，最长两分钟。停止会丢弃本次未完成结果并保留原文档；修改任何设置会清除旧结果。生成后用 PDF.js 读取实际 PDF 逐页核验，再使用真实 PDF 下载链接。
 - 无新增外部服务、依赖或全局 CSP 放宽，文件、Logo、图层和结果只在当前页面内存中处理。已覆盖编号/封面/范围、变换/尺寸边界、中文和 Logo 绘制、资源释放、原始页面保留、相同图层复用与停止后的迟到消息；用 Poppler 独立渲染了浏览器下载结果与四种旋转 / 裁切 / UserUnit 组合。
+
+
+## 图片文字识别（OCR）
+
+- 独立入口 `/image-to-text/`，兼容 `/#ocr`；导航首页、文档分类、SEO、FAQ、关联工具与站点地图同步更新。裁剪结果与 PDF 导出图片可通过现有一次性同源窗口通道继续 OCR，不使用浏览器存储传递图片。
+- 单张静态 PNG/JPG/WebP，最高 20 MB、3200 万像素、单边 10000 px。支持选择、拖入及真实剪贴板图片粘贴；不读取任意剪贴板内容，普通文本粘贴保留浏览器默认行为。不直接读取 PDF，可先转换为图片。
+- 简体中文、英文与中英混合三种模型选择；整页 / 单段 / 零散文字三种排版。按需顺时针旋转 0/90/180/270 度，原颜色 / 灰度增强 / Otsu 黑白二值三种预处理；透明区域按白底合成。识别用图等比限制到 800 万像素、单边 4096 px，不放大；显示实际尺寸与缩小提示。
+- 原图预览是最长边 1600 px 的白底缩略图，识别用图显示实际传入引擎的 PNG，可放大查看。原始全尺寸位图在预览或预处理后关闭；Canvas、模型 Worker、预览 URL 与私有数据均按生命周期释放。
+- 固定 Tesseract.js 7.0.0 Worker + tesseract.js-core 7.0.0 LSTM，并按设备选择 non-SIMD / SIMD / Relaxed SIMD。本站按需提供官方 English / chi_sim 4.0.0_best_int 模型，中英混合首次约 8–9 MB。归档完整性、所有选中文件 SHA-256 与依赖许可证见 `src/vendor/ocr/v7.0.0/`。
+- 使用固定版本 Worker 协议，启动即拥有 Worker，模型加载期间也可立即停止；最长三分钟。语言缓存显式设为 none，不使用 IndexedDB 保存模型或输入；公开版本化资源可由 HTTP 缓存复用。主页面保留禁止数据请求的 CSP，仅 OCR Worker 可获取同源模型与引擎。图片以本地 PNG 字节传入，绝不作为网络 URL 发送。
+- 原始识别文本与图片文字框可对照，点选识别行定位对应文本；最多显示 1000 行文字框，完整文字不截断。结果可编辑、复制与下载带 BOM 的 UTF-8 TXT，最高 100 万字符。模型评分仅反映原始 OCR 输出，不代表正确率；不还原复杂表格排版。
+- 图片或设置变化会标记旧文本，保留手动校对内容。仅在重新识别成功且有文字时替换文本；停止、失败或空结果保留已有内容。清空全部、刷新或关闭页面后释放当前私有内容，不提供账户、历史或服务器存储。

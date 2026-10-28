@@ -62,3 +62,22 @@ same site inside the dedicated PDF.js Worker; PDF bytes and passwords are local.
 Only that Worker receives a resource-fetch/WASM CSP; HTML documents retain their
 existing no-connect policy. Application code never invokes document JavaScript,
 links, attachments or viewer scripting.
+
+
+## Browser-local OCR
+
+- `ocr/v7.0.0/`: unmodified Tesseract.js **7.0.0** browser Worker, three self-contained
+  tesseract.js-core **7.0.0** LSTM WASM builds, and English / simplified-Chinese
+  `4.0.0_best_int` models from `@tesseract.js-data/eng` and `@tesseract.js-data/chi_sim`
+  **1.0.0**. Official npm archive SHA-512 values were verified before extraction.
+- Full per-file SHA-256 and archive integrity records are in `ocr/v7.0.0/manifest.json`.
+  The worker and core are Apache-2.0. Model package metadata lists MIT; underlying
+  traineddata is Apache-2.0. All upstream runtime, codec, JS dependency, model and
+  Emscripten notices are in `ocr/v7.0.0/licenses/`, with pinned source references.
+- The application uses the pinned Worker protocol to support termination during model
+  initialization. Only selected models and one compatible core load on recognition;
+  other tools do not load OCR assets. Private images are passed as PNG bytes, never URLs.
+  No CDN, external service, language IndexedDB cache or input persistence is used.
+- Only the exact OCR Worker receives same-origin resource-fetch and WASM permissions.
+  HTML pages keep `connect-src 'none'`. The versioned public model/code assets use HTTP
+  caching; a future asset update must use a new version path.

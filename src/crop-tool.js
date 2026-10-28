@@ -1,6 +1,6 @@
 import { orientedSize, fitCrop, moveCrop, resizeCrop, drawCrop, editCrop, defaultOutput, validateOutput, outputPlacement, cropFilename, CROP_INPUT_BYTES } from './lib/crop.js';
 import { decodeCropImage, paintOriented, encodeCrop } from './crop-engine.js';
-import { sendToCompressor } from './image-transfer.js';
+import { sendToCompressor, sendToOCR } from './image-transfer.js';
 
 export function initCrop({ notify }) {
   const $ = id => document.getElementById(id);
@@ -17,7 +17,7 @@ export function initCrop({ notify }) {
     version++; clearTimeout(timer); output = null;
     if (outputURL) URL.revokeObjectURL(outputURL); outputURL = '';
     $('crop-output-image').hidden = true; $('crop-output-image').removeAttribute('src'); $('crop-output-empty').hidden = false;
-    $('crop-download').disabled = $('crop-compress').disabled = true;
+    $('crop-download').disabled = $('crop-compress').disabled = $('crop-ocr').disabled = true;
     $('crop-output-name').textContent = image ? '等待生成当前结果' : '等待图片';
     $('crop-result-meta').textContent = '导出宽高 ≤ 8192 px · 总像素 ≤ 3200 万';
     error('crop-output-error');
@@ -78,7 +78,7 @@ export function initCrop({ notify }) {
       outputURL = URL.createObjectURL(output); $('crop-output-image').src = outputURL; $('crop-output-image').hidden = false; $('crop-output-empty').hidden = true;
       $('crop-output-name').textContent = output.name;
       $('crop-result-meta').textContent = `${options.width} × ${options.height} px · ${options.mime.split('/')[1].toUpperCase()} · ${bytes(output.size)}`;
-      $('crop-download').disabled = false; $('crop-compress').disabled = transferring || output.size > CROP_INPUT_BYTES;
+      $('crop-download').disabled = false; $('crop-compress').disabled = $('crop-ocr').disabled = transferring || output.size > CROP_INPUT_BYTES;
       $('crop-transfer-status').textContent = output.size > CROP_INPUT_BYTES ? '当前结果超过压缩工具的 20 MB 上限；可缩小尺寸或选择 JPG / WebP 后继续压缩。' : '裁剪结果可直接交给压缩工具，无需重复选择文件。';
       setStatus('预览已更新，可以下载或继续压缩。');
     } catch (cause) { if (ticket === version) { error('crop-output-error', cause.message); setStatus('生成失败，请调整设置或重新选择图片。'); } }
@@ -186,13 +186,15 @@ export function initCrop({ notify }) {
     link.href = url; link.download = output.name; document.body.append(link); link.click(); link.remove();
     setTimeout(() => { URL.revokeObjectURL(url); downloads.delete(url); }, 30_000);
   });
-  $('crop-compress').addEventListener('click', async () => {
+  async function transferCrop(kind) {
     if (!output || transferring || output.size > CROP_INPUT_BYTES) return;
-    const file = output; transferring = true; $('crop-compress').disabled = true; $('crop-transfer-status').textContent = '正在打开压缩工具…';
-    try { await sendToCompressor(file); $('crop-transfer-status').textContent = `已发送 ${file.name}，请在新标签页选择压缩策略。`; notify('裁剪结果已送至图片压缩工具'); }
+    const file = output; transferring = true; $('crop-compress').disabled = $('crop-ocr').disabled = true; $('crop-transfer-status').textContent = '正在打开后续工具…';
+    try { await (kind === 'ocr' ? sendToOCR(file) : sendToCompressor(file)); $('crop-transfer-status').textContent = `已发送 ${file.name}，请在新标签页继续处理。`; notify('裁剪结果已送至后续工具'); }
     catch (cause) { $('crop-transfer-status').textContent = cause.message; }
-    finally { transferring = false; $('crop-compress').disabled = !output || output.size > CROP_INPUT_BYTES; }
-  });
+    finally { transferring = false; $('crop-compress').disabled = $('crop-ocr').disabled = !output || output.size > CROP_INPUT_BYTES; }
+  }
+  $('crop-compress').addEventListener('click', () => transferCrop('compress'));
+  $('crop-ocr').addEventListener('click', () => transferCrop('ocr'));
   $('crop-sample').addEventListener('click', async () => {
     const ticket = ++loadVersion; $('crop-clear').disabled = false; $('crop-load-status').textContent = '正在准备示例图片…';
     const canvas = document.createElement('canvas'); canvas.width = 1200; canvas.height = 800; const ctx = canvas.getContext('2d');

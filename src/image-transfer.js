@@ -20,6 +20,7 @@ function sendProcessedImage(file, path) {
 }
 export const sendToCompressor = file => sendProcessedImage(file, '/image-compressor/');
 export const sendToWatermark = file => sendProcessedImage(file, '/image-watermark/');
+export const sendToOCR = file => sendProcessedImage(file, '/image-to-text/');
 
 export function receiveProcessedImage(onFile, onError) {
   if (!location.hash.startsWith('#crop-transfer=')) return;

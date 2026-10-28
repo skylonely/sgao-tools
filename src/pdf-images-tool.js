@@ -1,7 +1,7 @@
 import { PDF_IMAGE_LIMITS, selectedPDFPages, validatePDFImages, pdfImageSize, pdfImageFilename, pdfImageStem } from './lib/pdf-images.js';
 import { openLocalPDF, renderPDFImage, convertPDFPages, pdfLoadError } from './pdf-images-engine.js';
 import { createZIP } from './lib/zip.js';
-import { sendToCompressor, sendToWatermark } from './image-transfer.js';
+import { sendToCompressor, sendToWatermark, sendToOCR } from './image-transfer.js';
 
 export function initPDFImages({ notify }) {
   const $ = id => document.getElementById(id), results = new Map(), downloads = new Set();
@@ -64,8 +64,8 @@ export function initPDFImages({ notify }) {
     const link = $('pi-download'); link.setAttribute('aria-disabled', String(!result || running)); link.tabIndex = !result || running ? -1 : 0;
     if (result && !running) { link.href = result.url; link.download = result.file.name; } else { link.removeAttribute('href'); link.removeAttribute('download'); }
     const transfer = !!result && result.file.size <= PDF_IMAGE_LIMITS.transferBytes && !busy && !transferring;
-    $('pi-compress').disabled = $('pi-watermark').disabled = !transfer;
-    $('pi-transfer-note').textContent = result?.file.size > PDF_IMAGE_LIMITS.transferBytes ? '当前图片超过后续工具的 20 MB 上限，可降低尺寸或改用 JPG / WebP 后再转换。' : '当前导出页可直接送至压缩或水印工具，无需重复选择图片。';
+    $('pi-compress').disabled = $('pi-watermark').disabled = $('pi-ocr').disabled = !transfer;
+    $('pi-transfer-note').textContent = result?.file.size > PDF_IMAGE_LIMITS.transferBytes ? '当前图片超过后续工具的 20 MB 上限，可降低尺寸或改用 JPG / WebP 后再转换。' : '当前导出页可直接送至压缩、水印或 OCR 工具，无需重复选择图片。';
     const total = [...results.values()].reduce((sum, item) => sum + item.file.size, 0);
     $('pi-results-count').textContent = `${results.size} 张 · ${bytes(total)}`;
     $('pi-results-empty').hidden = !!results.size;
@@ -163,9 +163,9 @@ export function initPDFImages({ notify }) {
   async function transfer(type) {
     const result = results.get(current); if (!result || running || zipping || transferring || result.file.size > PDF_IMAGE_LIMITS.transferBytes) return;
     const ticket = version; transferring = true; update(); $('pi-transfer-note').textContent = '正在打开后续工具…';
-    try { await (type === 'compress' ? sendToCompressor(result.file) : sendToWatermark(result.file)); if (!disposed && ticket === version) { $('pi-transfer-note').textContent = `已发送 ${result.file.name}，请在新标签页继续处理。`; notify('图片已送至后续工具'); } }
+    try { await (type === 'compress' ? sendToCompressor(result.file) : type === 'ocr' ? sendToOCR(result.file) : sendToWatermark(result.file)); if (!disposed && ticket === version) { $('pi-transfer-note').textContent = `已发送 ${result.file.name}，请在新标签页继续处理。`; notify('图片已送至后续工具'); } }
     catch (cause) { if (!disposed && ticket === version) $('pi-transfer-note').textContent = cause.message; }
-    finally { transferring = false; if (!disposed) { const item = results.get(current), disabled = running || zipping || !item || item.file.size > PDF_IMAGE_LIMITS.transferBytes; $('pi-compress').disabled = $('pi-watermark').disabled = disabled; } }
+    finally { transferring = false; if (!disposed) { const item = results.get(current), disabled = running || zipping || !item || item.file.size > PDF_IMAGE_LIMITS.transferBytes; $('pi-compress').disabled = $('pi-watermark').disabled = $('pi-ocr').disabled = disabled; } }
   }
   $('pi-file').addEventListener('change', event => { load(event.target.files[0]); event.target.value = ''; });
   let depth = 0;
@@ -183,7 +183,7 @@ export function initPDFImages({ notify }) {
   for (const mode of ['document', 'output']) $(`pi-view-${mode}`).addEventListener('click', () => { view = mode; update(); showPage(); });
   $('pi-zoom').addEventListener('change', () => { $('pi-viewport').scrollLeft = $('pi-viewport').scrollTop = 0; paintSize(); });
   $('pi-download').addEventListener('click', event => { if ($('pi-download').getAttribute('aria-disabled') === 'true') event.preventDefault(); });
-  $('pi-zip').addEventListener('click', zip); $('pi-compress').addEventListener('click', () => transfer('compress')); $('pi-watermark').addEventListener('click', () => transfer('watermark'));
+  $('pi-zip').addEventListener('click', zip); $('pi-compress').addEventListener('click', () => transfer('compress')); $('pi-watermark').addEventListener('click', () => transfer('watermark')); $('pi-ocr').addEventListener('click', () => transfer('ocr'));
   $('pi-sample').addEventListener('click', async () => { if (loading || running || zipping) return; const ticket = loadVersion; try { const { samplePDF } = await import('./pdf-images-sample.js'); if (ticket === loadVersion && !disposed) load(samplePDF()); } catch { message('pi-error', '示例暂时无法读取，请选择本地 PDF。'); } });
   const observer = new ResizeObserver(paintSize); observer.observe($('pi-viewport'));
   window.addEventListener('pagehide', event => { stopPreview(); runController?.abort(); if (event.persisted) return; disposed = true; loadVersion++; version++; clearTimeout(loadTimer); passwordReply = null; $('pi-password').value = ''; releaseDocument(); clearPreview(); clearResults(); downloads.forEach(url => URL.revokeObjectURL(url)); observer.disconnect(); });
