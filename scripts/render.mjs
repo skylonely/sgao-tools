@@ -70,16 +70,16 @@ export function renderPage(template, page = HOME) {
     content = `<div class="page-heading"><div><div class="eyebrow"><span></span> YOUR EVERYDAY TOOLKIT <span id="tool-number">/ ${String(TOOLS.indexOf(page) + 1).padStart(2, '0')}</span></div><h1 id="page-title">${escapeHTML(page.name)}<span class="title-dot">.</span></h1><p id="page-description">${escapeHTML(page.tagline)}</p></div><span class="local-badge">${icon('shield')}浏览器本地处理</span></div>\n${section[0].replace(' hidden>', '>')}\n${guideContent(page)}`;
   }
   let html = template
-    .replace(/<title>[\s\S]*?<meta name="description"[^>]*>/, metadata(page))
+    .replace(/<title>[\s\S]*?<meta name="description"[^>]*>/, () => metadata(page))
     .replace('<body>', `<body data-page="${page.key}">`)
     .replace('href="#json" aria-label="SGAO 工具箱首页"', 'href="/" aria-label="SGAO 工具箱首页"')
-    .replace(/      <div class="nav-heading">[\s\S]*?<\/nav>/, `      ${navigation(page)}`)
+    .replace(/      <div class="nav-heading">[\s\S]*?<\/nav>/, () => `      ${navigation(page)}`)
     .replace('<div class="breadcrumb"><span>工具箱</span>', `<nav class="breadcrumb" aria-label="面包屑"><a href="/">${page.key === 'home' ? 'SGAO' : '工具导航'}</a>`)
     .replace('<span id="breadcrumb-current">JSON 格式化</span></div>', `<span id="breadcrumb-current" aria-current="page">${escapeHTML(page.name)}</span></nav>`)
-    .replace(/        <div class="page-heading">[\s\S]*?(?=        <footer class="page-footer">)/, `${content}\n`)
+    .replace(/        <div class="page-heading">[\s\S]*?(?=        <footer class="page-footer">)/, () => `${content}\n`)
     .replace('<link rel="stylesheet" href="/styles.css">', '<link rel="stylesheet" href="/styles.css">\n  <link rel="stylesheet" href="/portal.css">');
-  const stylesheet = { image: 'image-tool', qrcode: 'qr-tool', svg: 'svg-tool', ico: 'favicon-tool', crop: 'crop-tool', color: 'color-tool', watermark: 'watermark-tool', collage: 'collage-tool', imagepdf: 'image-pdf-tool', pdfimages: 'pdf-images-tool', pdforganizer: 'pdf-organizer-tool', pdfwatermark: 'pdf-watermark-tool', ocr: 'ocr-tool', metadata: 'metadata-tool' }[page.key];
-  html = html.replace(/  <link rel="stylesheet" href="\/(image-tool|qr-tool|svg-tool|favicon-tool|crop-tool|color-tool|watermark-tool|collage-tool|image-pdf-tool|pdf-images-tool|pdf-organizer-tool|pdf-watermark-tool|ocr-tool|metadata-tool)\.css">\n/g, (match, name) => name === stylesheet ? match : '');
+  const stylesheet = { image: 'image-tool', qrcode: 'qr-tool', svg: 'svg-tool', ico: 'favicon-tool', crop: 'crop-tool', color: 'color-tool', watermark: 'watermark-tool', collage: 'collage-tool', imagepdf: 'image-pdf-tool', pdfimages: 'pdf-images-tool', pdforganizer: 'pdf-organizer-tool', pdfwatermark: 'pdf-watermark-tool', ocr: 'ocr-tool', metadata: 'metadata-tool', cleanup: 'text-cleanup-tool' }[page.key];
+  html = html.replace(/  <link rel="stylesheet" href="\/(image-tool|qr-tool|svg-tool|favicon-tool|crop-tool|color-tool|watermark-tool|collage-tool|image-pdf-tool|pdf-images-tool|pdf-organizer-tool|pdf-watermark-tool|ocr-tool|metadata-tool|text-cleanup-tool)\.css">\n/g, (match, name) => name === stylesheet ? match : '');
   if (page.key !== 'image') html = html.replace(/  <dialog id="image-compare-dialog"[\s\S]*?<\/dialog>\n/, '');
   return html;
 }

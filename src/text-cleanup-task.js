@@ -1,0 +1,5 @@
+export function runTextCleanup(text,options,{signal,workerFactory=url=>new Worker(url,{type:'module'}),onProgress=()=>{},timeout=10_000}={}) {
+  return new Promise((resolve,reject)=>{let worker,timer,done=false;const finish=(error,result)=>{if(done)return;done=true;clearTimeout(timer);signal?.removeEventListener('abort',stop);worker?.terminate();error?reject(error):resolve(result);};const stop=()=>finish(new DOMException('处理已停止','AbortError'));if(signal?.aborted){stop();return;}
+    try{worker=workerFactory(new URL('./text-cleanup-worker.js',import.meta.url));signal?.addEventListener('abort',stop,{once:true});worker.onmessage=({data})=>{if(done)return;if(data.error)finish(new Error(data.error));else if(data.result)finish(null,data.result);else if(Number.isFinite(data.progress))onProgress(Math.max(0,Math.min(1,data.progress)),String(data.label||''));};worker.onerror=event=>{event.preventDefault?.();finish(new Error('文本处理线程加载失败，请刷新或使用新版浏览器。'));};worker.onmessageerror=()=>finish(new Error('文本结果读取失败，请重试。'));timer=setTimeout(()=>finish(new Error('处理超过 10 秒，已有结果保留，请缩小文本后重试。')),timeout);worker.postMessage({text,options});}catch(error){finish(error);}
+  });
+}

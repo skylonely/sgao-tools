@@ -1,0 +1,62 @@
+import {DEFAULT_CLEANUP,TEXT_LIMITS,validateText,validateCleanup,textStats,readTextFile,cleanupFilename,textBlob} from './lib/text-cleanup.js';
+import {runTextCleanup} from './text-cleanup-task.js';
+import {receiveTextTransfer,sendTextToDiff} from './text-transfer.js';
+
+export function initTextCleanup({notify}) {
+  const $=id=>document.getElementById(id);let result=null,revision=0,operation=0,busy=false,controller,disposed=false,name='text.txt',downloadURL,downloadTimer,statsTimer,transferring=false,transferController,transferVersion=0;
+  const input=()=>$('tc-input').value,output=()=>$('tc-output').value,stale=()=>!!result&&result.revision!==revision;
+  const message=(id,text='')=>{$(id).textContent=text;$(id).hidden=!text;};
+  const size=n=>n<1024?`${n} B`:`${(n/1024).toFixed(1)} KB`;
+  const count=text=>{const value=textStats(text);return `${value.characters.toLocaleString()} 字符 · ${value.lines.toLocaleString()} 行 · ${size(value.bytes)}`;};
+  function options(){return {trimLines:$('tc-trim-lines').checked,collapseSpaces:$('tc-spaces').checked,trimOuter:$('tc-trim-outer').checked,dedupe:$('tc-dedupe').checked,blankLines:$('tc-blank-lines').value,joinLines:$('tc-join-lines').value,rules:[...$('tc-rules').children].map(row=>({enabled:row.querySelector('.tc-rule-enabled').checked,find:row.querySelector('.tc-find').value,replace:row.querySelector('.tc-replace').value}))};}
+  function refreshDownload(){clearTimeout(downloadTimer);if(downloadURL)URL.revokeObjectURL(downloadURL);downloadURL=null;$('tc-download').removeAttribute('href');if(!result)return false;try{downloadURL=URL.createObjectURL(textBlob(output()));$('tc-download').href=downloadURL;$('tc-download').download=cleanupFilename(result.name||name);return true;}catch(error){message('tc-error',error.message);return false;}}
+  function refreshStats(){$('tc-input-meta').textContent=count(input());$('tc-output-meta').textContent=count(output());}
+  function update(){
+    const hasOutput=output().length>0;$('tc-run').disabled=busy||!input().length;$('tc-run').textContent=busy?'正在处理…':result?'重新整理并替换结果':'开始整理';
+    $('tc-stop').hidden=!busy;$('tc-stop').disabled=!!controller?.signal.aborted;$('tc-settings').disabled=$('tc-file').disabled=$('tc-sample').disabled=busy;$('tc-input').readOnly=$('tc-output').readOnly=busy;
+    $('tc-copy').disabled=busy||!result;$('tc-download').setAttribute('aria-disabled',String(busy||!result));$('tc-download').tabIndex=busy||!result?-1:0;$('tc-restore').disabled=busy||!input().length;$('tc-to-diff').disabled=busy||transferring||!result||stale()||!result.input.length&&!hasOutput;
+    $('tc-add-rule').disabled=busy||$('tc-rules').children.length>=TEXT_LIMITS.rules;$('tc-rules-count').textContent=`${$('tc-rules').children.length} / ${TEXT_LIMITS.rules}`;
+    $('tc-output-state').textContent=!result?'等待整理':stale()?'结果待更新':result.manual?'已手动编辑':'整理完成';
+    message('tc-stale',stale()?'输入或规则已变化，当前保留上次结果。重新整理后可继续对比；复制和下载以右侧当前文本为准。':'');
+    $('tc-result-note').textContent=!result?'整理结果可继续编辑，复制与下载以右侧当前文本为准。':result.manual?'结果已手动编辑或恢复；原始处理统计不随手动修改更新。':'原文保留在左侧，结果可直接校对。字符数按 Unicode 码点统计，换行和空格也计入。';
+  }
+  function changed(){revision++;message('tc-error');$('tc-progress').value=0;clearTimeout(statsTimer);statsTimer=setTimeout(refreshStats,120);update();}
+  function ruleRow(values={enabled:true,find:'',replace:''}){
+    const row=document.createElement('div');row.className='tc-rule';const heading=document.createElement('div');heading.className='tc-rule-heading';
+    const label=document.createElement('label'),enabled=document.createElement('input');enabled.type='checkbox';enabled.className='tc-rule-enabled';enabled.checked=values.enabled;const number=document.createElement('span');number.className='tc-rule-number';label.append(enabled,number);
+    const remove=document.createElement('button');remove.type='button';remove.className='text-button muted';remove.textContent='移除';remove.addEventListener('click',()=>{row.remove();renumber();changed();});heading.append(label,remove);
+    const fields=document.createElement('div');fields.className='tc-rule-fields';for(const [key,title,placeholder] of [['find','查找','输入要查找的普通文本'],['replace','替换为','留空表示删除匹配内容']]){const field=document.createElement('label'),caption=document.createElement('span'),area=document.createElement('textarea');caption.textContent=title;area.className=`tc-${key}`;area.rows=2;area.maxLength=TEXT_LIMITS.field;area.spellcheck=false;area.placeholder=placeholder;area.value=values[key];area.addEventListener('input',changed);field.append(caption,area);fields.append(field);}
+    enabled.addEventListener('change',changed);row.append(heading,fields);$('tc-rules').append(row);renumber();
+  }
+  function renumber(){[...$('tc-rules').children].forEach((row,index)=>{row.querySelector('.tc-rule-number').textContent=`规则 ${index+1}`;row.querySelector('.tc-rule-enabled').setAttribute('aria-label',`启用规则 ${index+1}`);row.querySelector('.tc-find').setAttribute('aria-label',`规则 ${index+1} 查找内容`);row.querySelector('.tc-replace').setAttribute('aria-label',`规则 ${index+1} 替换内容`);row.querySelector('button').setAttribute('aria-label',`移除规则 ${index+1}`);});update();}
+  function renderSummary(stats){$('tc-summary').replaceChildren();if(!stats)return;for(const [label,value] of [['统一换行',stats.lineEndings],['整理行首尾',stats.trimmedLines],['整理空白段',stats.spaceRuns],['删除重复行',stats.duplicates],['合并断行',stats.joinedBreaks],['删除空行',stats.blankLines+stats.outerLines],...stats.rules.map(row=>[`规则 ${row.index} 匹配`,row.matches])]){if(!value)continue;const span=document.createElement('span');span.textContent=`${label} ${value.toLocaleString()}`;$('tc-summary').append(span);}}
+  async function run(){
+    if(busy)return;const settings=options();try{validateText(input());validateCleanup(settings);}catch(error){message('tc-error',error.message);return;}
+    const ticket=++operation,source=input(),sourceName=name,sourceRevision=revision,abort=new AbortController();controller=abort;busy=true;message('tc-error');$('tc-progress').value=0;update();
+    // Pass original rule rows: validation retains their displayed indices even when some are disabled.
+    try{const processed=await runTextCleanup(source,settings,{signal:abort.signal,onProgress:(progress,label)=>{if(ticket===operation&&!disposed){$('tc-progress').value=progress;$('tc-status').textContent=label;}}});if(disposed||ticket!==operation||abort.signal.aborted)return;$('tc-output').value=processed.text;result={input:source,name:sourceName,revision:sourceRevision,manual:false};renderSummary(processed.stats);refreshStats();refreshDownload();$('tc-status').textContent=processed.text.length?(processed.changed?'整理完成，请对照原文检查，再复制、下载或继续对比。':'整理完成，文本与原文相同。'):'整理完成，结果为空。原文仍在左侧，可恢复或对比删除内容。';notify('文本整理完成');}
+    catch(error){if(ticket===operation&&!disposed){if(error.name!=='AbortError')message('tc-error',error.message);$('tc-status').textContent=error.name==='AbortError'?'处理已停止，原文与已有结果保留。':'本次未完成，原文与已有结果保留。';}}
+    finally{if(ticket===operation&&!disposed){busy=false;controller=null;update();}}
+  }
+  async function load(file){
+    if(!file||busy)return;const ticket=++operation,abort=new AbortController();controller=abort;busy=true;message('tc-error');$('tc-status').textContent='正在本地读取 UTF-8 TXT…';update();
+    try{const text=await readTextFile(file,{signal:abort.signal});if(disposed||ticket!==operation)return;$('tc-input').value=text;name=file.name;revision++;refreshStats();$('tc-status').textContent=`已导入 ${file.name}。选择整理选项后开始处理，原文件不变。`;}
+    catch(error){if(ticket===operation&&!disposed){if(error.name!=='AbortError')message('tc-error',error.message);$('tc-status').textContent=error.name==='AbortError'?'读取已停止，已有内容保留。':'文件未导入，已有内容保留。';}}
+    finally{if(ticket===operation&&!disposed){busy=false;controller=null;update();}}
+  }
+  function defaults(){for(const [id,value] of [['tc-trim-lines',DEFAULT_CLEANUP.trimLines],['tc-spaces',DEFAULT_CLEANUP.collapseSpaces],['tc-trim-outer',DEFAULT_CLEANUP.trimOuter],['tc-dedupe',DEFAULT_CLEANUP.dedupe]])$(id).checked=value;$('tc-blank-lines').value=DEFAULT_CLEANUP.blankLines;$('tc-join-lines').value=DEFAULT_CLEANUP.joinLines;}
+  function clear(){transferController?.abort();transferController=null;transferVersion++;transferring=false;controller?.abort();operation++;revision++;busy=false;controller=null;result=null;name='text.txt';clearTimeout(statsTimer);clearTimeout(downloadTimer);if(downloadURL)URL.revokeObjectURL(downloadURL);downloadURL=null;$('tc-input').value=$('tc-output').value=$('tc-file').value='';$('tc-download').removeAttribute('href');$('tc-download').removeAttribute('download');$('tc-rules').replaceChildren();defaults();ruleRow();renderSummary();message('tc-error');$('tc-progress').value=0;$('tc-status').textContent='原文、结果与替换规则已清空，内容未上传或保存。';refreshStats();update();}
+  $('tc-run').addEventListener('click',run);$('tc-stop').addEventListener('click',()=>{controller?.abort();update();});$('tc-clear').addEventListener('click',clear);
+  $('tc-input').addEventListener('input',changed);$('tc-output').addEventListener('input',()=>{if(!result)result={input:input(),name,revision,manual:true};else result.manual=true;clearTimeout(statsTimer);statsTimer=setTimeout(refreshStats,120);clearTimeout(downloadTimer);downloadTimer=setTimeout(refreshDownload,180);update();});
+  for(const id of ['tc-trim-lines','tc-spaces','tc-trim-outer','tc-dedupe','tc-blank-lines','tc-join-lines'])$(id).addEventListener('change',changed);
+  $('tc-add-rule').addEventListener('click',()=>{if(!busy&&$('tc-rules').children.length<TEXT_LIMITS.rules){ruleRow();changed();}});
+  $('tc-copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(output());notify('整理结果已复制');}catch{notify('无法访问剪贴板，请选中结果后手动复制');}});
+  $('tc-download').addEventListener('click',event=>{if(busy||!refreshDownload())event.preventDefault();});
+  $('tc-restore').addEventListener('click',()=>{if(busy)return;$('tc-output').value=input();result={input:input(),name,revision,manual:true};renderSummary();refreshStats();refreshDownload();$('tc-status').textContent='右侧已恢复为当前原文，左侧原始输入未修改。';update();});
+  $('tc-to-diff').addEventListener('click',async()=>{if(!result||busy||stale()||transferring)return;const ticket=++transferVersion,abort=new AbortController();transferController=abort;transferring=true;update();try{await sendTextToDiff(result.input,output(),{signal:abort.signal});if(!disposed&&ticket===transferVersion)notify('原文与结果已送至文本对比');}catch(error){if(!disposed&&ticket===transferVersion&&error.name!=='AbortError')message('tc-error',error.message);}finally{if(!disposed&&ticket===transferVersion){transferring=false;transferController=null;update();}}});
+  $('tc-file').addEventListener('change',event=>{load(event.target.files[0]);event.target.value='';});
+  $('view-cleanup').addEventListener('dragover',event=>{if(event.dataTransfer?.types.includes('Files'))event.preventDefault();});$('view-cleanup').addEventListener('drop',event=>{if(!event.dataTransfer?.files.length)return;event.preventDefault();if(event.dataTransfer.files.length!==1)message('tc-error','请一次导入一份 UTF-8 TXT。');else load(event.dataTransfer.files[0]);});
+  $('tc-sample').addEventListener('click',()=>{if(busy)return;$('tc-input').value='  SGAO  Tools  \n\n  文本清理示例  \n同一条内容\n同一条内容\n\nOCR 识别后的文字，\n可以继续整理。\n\nHello   world! 😀\n旧名称：SGAO Tools\n';name='sample.txt';defaults();$('tc-spaces').checked=$('tc-dedupe').checked=true;$('tc-rules').replaceChildren();ruleRow({enabled:true,find:'SGAO Tools',replace:'SGAO 工具箱'});changed();refreshStats();$('tc-status').textContent='示例已放入，点击「开始整理」预览实际变化。';});
+  receiveTextTransfer('cleanup',payload=>{if(input().length||result)throw new Error('页面已有内容，未覆盖；请重新打开工具或手动粘贴。');$('tc-input').value=payload.text;name=payload.name;revision++;refreshStats();update();$('tc-status').textContent='已接收 OCR 文字。选择整理选项和替换规则后开始处理。';},error=>message('tc-error',error));
+  window.addEventListener('pagehide',event=>{controller?.abort();if(!event.persisted){disposed=true;clear();}});window.addEventListener('pageshow',event=>{if(event.persisted)update();});defaults();ruleRow();refreshStats();update();
+}

@@ -1,11 +1,12 @@
 import { validateOCR, OCR_LIMITS, ocrDimensions, ocrFilename, ocrTextBlob } from './lib/ocr.js';
 import { decodeOCRImage, ocrThumbnail, prepareOCR } from './ocr-engine.js';
 import { recognizeOCR } from './ocr-task.js';
+import { sendTextToCleanup } from './text-transfer.js';
 import { receiveProcessedImage } from './image-transfer.js';
 
 export function initOCR({ notify }) {
   const $ = id => document.getElementById(id);
-  let source, prepared, result, revision = 0, sourceVersion = 0, operation = 0, working = null, controller, disposed = false, view = 'original', selectedLine = -1, manual = false, downloadURL, downloadTimer;
+  let source, prepared, result, revision = 0, sourceVersion = 0, operation = 0, working = null, controller, disposed = false, view = 'original', selectedLine = -1, manual = false, downloadURL, downloadTimer, textTransferring = false, textTransferController, textTransferVersion = 0;
   const bytes = value => value < 1024 ** 2 ? `${(value / 1024).toFixed(1)} KB` : `${(value / 1024 ** 2).toFixed(2)} MB`;
   const message = (id, text = '') => { $(id).textContent = text; $(id).hidden = !text; };
   const options = () => ({ language: $('ocr-language').value, segmentation: $('ocr-layout').value, turns: Number($('ocr-turns').value), filter: $('ocr-filter').value });
@@ -36,7 +37,7 @@ export function initOCR({ notify }) {
     viewport.classList.toggle('is-zoomed', multiplier > 1);
   }
   function updateText() {
-    const hasText = !!text().trim(); $('ocr-copy').disabled = !hasText; $('ocr-download').setAttribute('aria-disabled', String(!hasText)); $('ocr-download').tabIndex = hasText ? 0 : -1;
+    const hasText = !!text().trim(); $('ocr-cleanup').disabled = !hasText || !!working || textTransferring; $('ocr-copy').disabled = !hasText; $('ocr-download').setAttribute('aria-disabled', String(!hasText)); $('ocr-download').tabIndex = hasText ? 0 : -1;
     $('ocr-text-meta').textContent = `${Array.from(text()).length.toLocaleString()} 字符 · ${bytes(new TextEncoder().encode(text()).length)}`;
     $('ocr-text-note').textContent = !result ? '识别结果可直接编辑；复制与下载以当前文本为准。' : `${manual ? '已手动编辑；' : ''}${stale() ? '图片或设置已变化，当前保留上次文本；' : ''}原始识别评分${result.confidence === null ? '未提供' : ` ${result.confidence.toFixed(0)} / 100`}，不代表正确率，请对照图片校对。`;
     message('ocr-stale', stale() && hasText ? '当前文字来自上次识别。重新识别成功后会替换文本，停止或失败会保留现有内容。' : '');
@@ -116,6 +117,7 @@ export function initOCR({ notify }) {
     finally { if (token === operation && !disposed) { working = null; controller = null; update(); } }
   }
   function clear() {
+    textTransferController?.abort(); textTransferController = null; textTransferVersion++; textTransferring = false;
     controller?.abort(); operation++; revision++; sourceVersion++; clearTimeout(downloadTimer);
     if (source) URL.revokeObjectURL(source.url); releasePrepared(); if (downloadURL) URL.revokeObjectURL(downloadURL);
     source = result = null; downloadURL = null; working = null; controller = null; manual = false; selectedLine = -1; view = 'original';
@@ -138,6 +140,7 @@ export function initOCR({ notify }) {
   $('ocr-text').addEventListener('input', () => { manual = true; selectedLine = -1; updateText(); clearTimeout(downloadTimer); downloadTimer = setTimeout(refreshDownload, 180); });
   $('ocr-copy').addEventListener('click', async () => { try { await navigator.clipboard.writeText(text()); notify('文字已复制'); } catch { notify('无法访问剪贴板，请选中文字后手动复制'); } });
   $('ocr-download').addEventListener('click', event => { if (!text().trim()) event.preventDefault(); else refreshDownload(); });
+  $('ocr-cleanup').addEventListener('click', async () => { if (!text().trim() || working || textTransferring) return; const ticket = ++textTransferVersion, abort = new AbortController(); textTransferController = abort; textTransferring = true; updateText(); try { await sendTextToCleanup(text(), ocrFilename(result?.name || source?.file.name), { signal: abort.signal }); if (!disposed && ticket === textTransferVersion) notify('当前文字已送至文本整理工具'); } catch (cause) { if (!disposed && ticket === textTransferVersion && cause.name !== 'AbortError') notify(cause.message); } finally { if (!disposed && ticket === textTransferVersion) { textTransferring = false; textTransferController = null; updateText(); } } });
   const resize = new ResizeObserver(fit); resize.observe($('ocr-viewport'));
   receiveProcessedImage(file => { load(file); }, error => message('ocr-error', error));
   window.addEventListener('pagehide', event => { controller?.abort(); if (!event.persisted) { disposed = true; clear(); document.removeEventListener('paste', paste); resize.disconnect(); } });

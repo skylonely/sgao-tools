@@ -20,6 +20,7 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 | 图片取色 & 配色板 | 原图像素与放大镜、HEX/RGB/HSL/Alpha、5–8 代表色、CSS 变量、JSON 与 PNG 色卡 | `/image-color-picker/` |
 | 图片水印 & 批量加水印 | 中文文字/Logo、九宫格/拖动定位、相对大小、透明度和旋转、错行平铺、PNG/JPG/WebP、ZIP 与继续压缩 | `/image-watermark/` |
 | 图片元数据 & 隐私清理 | PNG/JPG/JPEG 文本与 EXIF 查看、批量清理、方向与色彩保留、前后对照、单张 / ZIP、中性文件名 | `/image-metadata/` |
+| 文本清理 & 批量替换 | 空白整理、非空行去重、段内断行合并、多规则字面替换、原文对照 / 恢复、UTF-8 TXT、OCR / 对比接续 | `/text-cleaner/` |
 | 图片文字识别（OCR） | 简体中文 / 英文 / 混合、上传 / 粘贴 / 拖入、旋转与预处理、文字框对照、编辑 / 复制 / TXT、可停止 | `/image-to-text/` |
 | PDF 水印 & 页码 | 中文文字 / Logo 水印、位置 / 透明度 / 旋转 / 平铺、连续页码、指定范围、跳过封面、实际输出预览 | `/pdf-watermark/` |
 | PDF 合并 & 拆分 | 多文档合并、按范围提取/拆分、每页单独导出、拖动与键盘排序、旋转删除、实际结果预览与 ZIP | `/pdf-merge-split/` |
@@ -33,11 +34,11 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 
 根目录 `/` 是工具导航首页，按「图片与图标 / 文档与 PDF / 开发与文本 / 分享与连接」分类，可组合关键词搜索，支持空结果重置与键盘操作。搜索内容只用于本页筛选，不发送请求。
 
-构建时为首页和 18 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
+构建时为首页和 19 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
 
-旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg`、`/#crop`、`/#color`、`/#watermark`、`/#collage`、`/#imagepdf`、`/#pdfimages`、`/#pdforganizer`、`/#pdfwatermark`、`/#ocr`、`/#metadata` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
+旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg`、`/#crop`、`/#color`、`/#watermark`、`/#collage`、`/#imagepdf`、`/#pdfimages`、`/#pdforganizer`、`/#pdfwatermark`、`/#ocr`、`/#metadata`、`/#cleanup` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
 
-`/sitemap.xml` 由同一份页面目录生成，包含 19 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
+`/sitemap.xml` 由同一份页面目录生成，包含 20 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
 
 新增工具时，在 `src/lib/pages.js` 中填写目录、页面文案、步骤、FAQ 与关联工具，在 `src/index.html` 增加对应 `view-*` 区块，并在 `src/app.js` 注册初始化逻辑。构建会同步生成导航、独立页面与站点地图。
 
@@ -103,6 +104,9 @@ sgao-tools/
 │   ├── png-profile.js       # PNG ICC 流式有界校验
 │   ├── lib/png-metadata.js  # PNG CRC、元数据清理与透明度 / 色彩保留
 │   ├── lib/jpeg-metadata.js # JPEG 多扫描解析、EXIF 白名单与清理后校验
+│   ├── text-cleanup-tool.js # 文本整理、规则编辑、结果与 TXT
+│   ├── text-cleanup-task.js # 可终止的文本 Worker
+│   ├── text-transfer.js     # OCR → 整理 → 对比的一次性同源文本通道
 │   ├── ocr-tool.js          # 图片文字识别、校对、停止与 TXT 下载
 │   ├── ocr-task.js          # 可终止的 Tesseract Worker 协议
 │   ├── ocr-engine.js        # 受限尺寸、旋转、灰度与二值预处理
@@ -332,3 +336,14 @@ Apple 图标使用 8% 内边距。Maskable 按源图完整矩形的对角线缩�
 - IHDR、PLTE、IDAT、IEND 和 tRNS、sBIT、iCCP、sRGB、gAMA、cHRM、cICP、mDCV、cLLI、bKGD、pHYs 原样保留。eXIf 使用同一受限 TIFF 读取器，仅重建方向与 ColorSpace；文本 tEXt/zTXt/iTXt、时间 tIME、其他附加块与 IEND 后尾随数据移除，不重新编码像素。
 - 展开未压缩文本（每字段预览最多 1024 字节、最多 200 个文本字段）；压缩文本只显示字段名，不解压。原图画面预览在本地剔除文本等附加块后再解码，保留原始 eXIf 与显示块；不改变原始文件。ICC 流式解压验证最多 4 MB，检查声明长度、签名、颜色类型及标签表范围，防止无界展开；iCCP 名称与配置描述仍随颜色信息保留。
 - 透明 PNG 虚构示例包含 EXIF、GPS、普通 / Unicode 文本和时间，可直接对照清理。格式依据 [W3C PNG 第三版](https://www.w3.org/TR/png-3/)。
+
+
+## 文本清理 & 批量替换
+
+- 独立入口 `/text-cleaner/`，兼容 `/#cleanup`；首页开发与文本分类、SEO、FAQ、相关工具、19 工具与20个规范地址同步更新。OCR 的「继续整理」传递当前编辑后的文本；整理结果可将原文快照与当前结果送至文本对比。
+- 原文与可编辑结果并排；默认去行首尾空白、开头结尾空白行、连续空白行保留一行。行内空白归并、精确非空行去重和 OCR 段内断行合并可主动开启。空白包括普通空格、Tab、NBSP、全角空格，不自动删除 Unicode 零宽连接符或做归一化。
+- 固定顺序：CRLF/CR → LF、行首尾 / 行内空白、非空行去重、按原有空行分段合并、空行整理、替换规则。中文直接连接或英文空格连接，不自动去连字符或修正 OCR。行去重保留第一次、区分大小写并跳过空白行。
+- 20 条普通文本规则，每个字段最高 1 万 UTF-16 单元；禁用和完全空白的规则忽略，空查找且有替换内容时报错，空替换合法。按规则顺序级联，同条不递归，不重叠匹配；分段构建时执行长度上限，$& / $$ / $` / $' / 反斜杠 / 字面 \n 不作替换模板、正则或转义解析，实际换行可直接粘贴。
+- 每侧最高100万 UTF-16 单元、10万行（按规范化换行计）；每个中间结果也限制长度。module Worker 最长10秒，可立即终止，失败 / 停止保留原文和旧结果。输入或规则变化会标记结果待更新，重新处理成功才替换；继续对比仅允许当前有效结果，且两侧合计最高20,000行。
+- UTF-8 TXT 导入最高4MB，fatal解码，接受BOM、拒绝错误UTF8 / NUL。复制 / 带BOM UTF-8 TXT下载以当前结果为准，空结果也可导出，下载点击前同步刷新Blob，支持恢复为当前原文；清空会删除原文、结果、规则、统计与下载引用。无新增依赖。
+- 文本交接使用固定同源目标、一次性随机token、精确origin/source验证、字段 / 长度 / 行数验证和ACK；文本不出现在URL、不写入浏览器存储，不上传。页面展示仅用value/textContent。静态渲染改用替换回调，避免说明文字中的$&被HTML拼装误当替换模板。

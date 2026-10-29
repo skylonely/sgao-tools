@@ -2,7 +2,7 @@ export const SITE_URL = 'https://tools.sgao.cc';
 export const HOME = {
   key: 'home', path: '/', name: '工具导航',
   title: 'SGAO 工具箱 · 免费在线图片与开发工具',
-  description: '免费的在线图片与开发工具箱：图片元数据查看与 EXIF 隐私清理、图片文字识别 OCR、图片与 PDF 双向转换、PDF 合并拆分、PDF 水印与页码、图片拼接与拼图、批量加水印、图片取色、图片裁剪、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
+  description: '免费的在线图片与开发工具箱：图片元数据查看与 EXIF 隐私清理、图片文字识别 OCR、图片与 PDF 双向转换、PDF 合并拆分、PDF 水印与页码、图片拼接与拼图、批量加水印、图片取色、图片裁剪、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码、文本清理与批量替换、文本对比。无需登录，内容在浏览器本地处理。',
 };
 
 // Shared by the static build, local server and legacy-link compatibility.
@@ -48,8 +48,8 @@ export const TOOLS = [
     card: '并排比较两个版本，高亮新增、删除与细微变化。', tags: ['逐行比较', '忽略空白'], keywords: 'diff 文本 对比 比较 差异 文档 版本',
     intro: '适合检查配置修改、接口响应变化和文本版本差异。工具按行比较，并统一 Windows 与 Unix 换行符，避免只因换行方式不同产生差异。',
     steps: ['把旧版和新版文本分别放入两侧输入框。', '按需启用「忽略空白字符」或「忽略大小写」，点击「开始对比」。', '查看新增与删除行，或选择「仅看差异」集中检查修改处。'],
-    faqs: [['对比的是字符还是整行？', '当前按行标记新增和删除，并显示对应行号。被修改的一行通常表现为删除旧行、添加新行。'], ['支持多长的文本？', '两侧合计最多 200 万字符。复杂的大规模差异可能采用近似结果，并在界面提示，以限制处理时间。'], ['忽略空白会忽略哪些内容？', '启用后，对比时忽略行内空白字符；原始文本仍用于展示。结果中的换行符统一为 LF。']],
-    related: ['json', 'url', 'timestamp'],
+    faqs: [['对比的是字符还是整行？', '当前按行标记新增和删除，并显示对应行号。被修改的一行通常表现为删除旧行、添加新行。'], ['支持多长的文本？', '两侧合计最多 200 万 UTF-16 单元、20,000 行。复杂的大规模差异可能采用近似结果，并在界面提示，以限制处理时间。'], ['忽略空白会忽略哪些内容？', '启用后，对比时忽略行内空白字符；原始文本仍用于展示。结果中的换行符统一为 LF。']],
+    related: ['cleanup', 'json', 'url'],
   },
   {
     key: 'ico', path: '/favicon-generator/', name: '网站图标整包生成', icon: 'image', category: 'image',
@@ -192,7 +192,7 @@ export const TOOLS = [
     intro: '从清晰截图、扫描件图片和印刷体素材中提取文字。按需旋转或预处理，在图片与识别文字之间对照校对；模型评分用于提示，不代表识别正确率。',
     steps: ['上传或拖入一张静态 PNG/JPG/WebP，也可用 ⌘ / Ctrl + V 粘贴截图；单张最高 20 MB。', '选择简体中文、中英混合或英文，以及文字排版、旋转和预处理。可先查看实际识别用图，再开始识别。', '对照文字框校对结果，编辑后复制或下载 UTF-8 TXT。停止或失败会保留已有文本，重新识别成功后替换文本。'],
     faqs: [['图片和模型会上传或保存吗？', '图片、识别文字和手动修改只留在当前页面内存，不上传、不写入浏览器存储。识别引擎与语言模型从本站按需加载，中英混合首次约 8–9 MB；公开静态资源可由浏览器缓存。'], ['支持多大图片，识别不准怎么办？', '静态 PNG/JPG/WebP 单张最高 20 MB，源图最高 3200 万像素、单边 10000 px；识别用图等比限制到 800 万像素、单边 4096 px。小字建议先裁剪需要区域，调整方向、语言和预处理。清晰印刷体较适合，手写、模糊、倾斜、复杂表格和排版的效果需人工核对。'], ['可以直接识别 PDF，或保留原来的表格排版吗？', '首版输入为图片，PDF 可先用「PDF 转图片」导出需要的页面再识别，裁剪工具和 PDF 转图片支持直接继续 OCR。输出是可编辑纯文本，不还原复杂表格或文档版式；最多 100 万字符，文字框最多显示 1000 行。']],
-    related: ['crop', 'pdfimages', 'diff'],
+    related: ['cleanup', 'crop', 'pdfimages'],
   },
   {
     key: 'metadata', path: '/image-metadata/', name: '图片元数据 & 隐私清理', icon: 'shield', category: 'image',
@@ -205,8 +205,19 @@ export const TOOLS = [
     faqs: [['会压缩画面、改变方向或修改原文件吗？', '清理不重新编码画面，PNG/JPEG 压缩图像数据保持不变，原文件不修改。重建最小 EXIF 方向与色彩空间，保留 PNG 透明度、调色板、颜色块，以及 ICC 和必要 JPEG 色彩标记。请对照实际副本检查；多 EXIF 段、扫描后的 EXIF/ICC、方向冲突、损坏、多画面、HDR、Gamma 扩展或无法可靠保留色彩的文件不生成副本。'], ['清理后是否完全没有隐私信息？', '会移除拍摄 EXIF、PNG 文本与时间、XMP、IPTC、注释、嵌入缩略图、其他附加数据与文件尾随内容，仅保留方向、色彩配置和必要格式信息。ICC 名称和配置内部可能带描述信息；画面中的人脸、文字和文件名也可能包含隐私，需要自行检查。未列出某个字段不代表原图没有该类信息；清理也会移除附加版权和内容凭证，请保留原件。'], ['支持哪些 PNG 和 JPEG？', '支持静态 PNG（包括透明、索引色、灰度、16 位与交错编码），以及 8 位普通或渐进式单画面 JPEG。单边最高 10000 px、总像素最高 3200 万；不处理 APNG 动图、WebP/HEIC、RAW、多画面或 HDR JPEG。PNG 文本与常用 EXIF 可查看；压缩文本不解压展示，清理时整块移除。ICC 解压后最高 4 MB，异常 CRC、数据块顺序或配置会提示。全部处理在浏览器本地完成。']],
     related: ['crop', 'image', 'ocr'],
   },
+  {
+    key:'cleanup',path:'/text-cleaner/',name:'文本清理 & 批量替换',icon:'file',category:'dev',
+    title:'文本清理与批量替换 · 去空白、行去重、OCR 断行整理 - SGAO 工具箱',
+    tagline:'留下有用的文字，整理多余的空白。',
+    description:'免费在线文本清理与批量替换：去行首尾空白、整理空行、非空行去重、可选合并 OCR 段内断行，按顺序执行多条普通文本替换。支持前后对照、恢复原文、编辑、UTF-8 TXT 导入下载及继续文本对比，内容在浏览器本地处理。',
+    card:'去空白、去重行、合并段内断行，按顺序替换文字，前后对照并下载 TXT。',tags:['空白整理','批量替换'],keywords:'文本 整理 清理 替换 去重 空行 空格 断行 TXT UTF8 unicode text cleaner cleanup replace OCR',
+    intro:'整理 OCR 识别结果、复制来的段落或普通文本。每项整理都可选择，原文保留供校对；替换按规则顺序执行，内容不上传、不写入浏览器存储。',
+    steps:['粘贴原文、导入或拖入一份 UTF-8 TXT，也可从 OCR 结果直接继续整理。','选择空白、空行、非空行去重与段内合并方式；按需添加多条普通文本替换规则，区分大小写。','开始整理，前后校对并编辑结果，复制或下载 TXT；可恢复原文，或将本次原文与当前结果送至文本对比。'],
+    faqs:[['替换规则如何执行，支持正则表达式吗？','首版使用普通文本精确匹配，区分大小写、不解析正则。规则从上到下依次执行，后一条会处理前一条生成的结果；同一条不会反复扫描自己刚生成的内容。查找内容不能为空（完全空白的规则忽略），替换内容可为空以删除匹配。$&、\\n 等按字面处理，实际换行请直接粘贴。'],['合并断行会把段落混在一起吗？','默认不合并。开启后先按空行划分段落，再将段内分行用空格或直接连接；之后才执行空行整理。不会自动判断词义、去除连字符或修正 OCR 错字。去重只处理非空行、保留第一次出现，默认不启用。CRLF / CR 统一为 LF，不自动做 Unicode 归一化、大小写或不可见字符清理。'],['支持多大的文本，停止或出错会丢内容吗？','每侧最高 100 万 UTF-16 单元、10 万行；最多 20 条规则，每个查找或替换字段最高 1 万单元。UTF-8 TXT 最高 4 MB，拒绝无效 UTF-8 或含 NUL 的文件。每一步都限制中间结果大小，处理最长 10 秒且可停止，失败或停止保留原文和已有结果；空结果也算成功，可下载带 BOM 的 UTF-8 TXT。文本对比两侧合计最多 20,000 行。字符统计按 Unicode 码点计，组合 Emoji 可能计多个字符。']],
+    related:['ocr','diff','json'],
+  },
 ];
-export const HOME_ORDER = ['image', 'crop', 'metadata', 'ocr', 'collage', 'imagepdf', 'pdforganizer', 'pdfwatermark', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
+export const HOME_ORDER = ['image', 'crop', 'metadata', 'ocr', 'cleanup', 'collage', 'imagepdf', 'pdforganizer', 'pdfwatermark', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
 export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'document', name: '文档与 PDF' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }];
 export function toolByKey(key) { return TOOLS.find(tool => tool.key === key); }
 export function pageForPath(pathname) {

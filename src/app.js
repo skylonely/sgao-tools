@@ -298,12 +298,13 @@ function initDiff() {
     $('diff-after').value = '{\n  "name": "SGAO Tools",\n  "version": "1.0.0",\n  "tools": ["JSON", "URL", "Timestamp", "Diff"],\n  "localOnly": true,\n  "needLogin": false\n}';
     updateDiffInput(); runDiff();
   });
+  if(location.hash.startsWith('#text-transfer='))import('./text-transfer.js').then(({receiveTextTransfer})=>receiveTextTransfer('diff',payload=>{if($('diff-before').value||$('diff-after').value)throw new Error('页面已有文本，未覆盖；请重新打开或手动粘贴。');$('diff-before').value=payload.before;$('diff-after').value=payload.after;updateDiffInput();emptyDiff('已接收整理前的原文与当前结果，点击「开始对比」。');},error=>showError('diff-error',error))).catch(()=>showError('diff-error','文本接续加载失败，请手动粘贴。'));
   window.addEventListener('pagehide', stopDiff);
 }
 
 if (!redirectLegacyHash()) {
   const initializers = { home: initDirectory, json: initJSON, timestamp: initTimestamp, url: initURL, diff: initDiff };
-  const modules = { ico: ['./ico-tool.js', 'initICO'], image: ['./image-tool.js', 'initImageTool'], qrcode: ['./qr-tool.js', 'initQRCode'], svg: ['./svg-tool.js', 'initSVG'], crop: ['./crop-tool.js', 'initCrop'], color: ['./color-tool.js', 'initColor'], watermark: ['./watermark-tool.js', 'initWatermark'], collage: ['./collage-tool.js', 'initCollage'], imagepdf: ['./image-pdf-tool.js', 'initImagePDF'], pdfimages: ['./pdf-images-tool.js', 'initPDFImages'], pdforganizer: ['./pdf-organizer-tool.js', 'initPDFOrganizer'], pdfwatermark: ['./pdf-watermark-tool.js', 'initPDFWatermark'], ocr: ['./ocr-tool.js', 'initOCR'], metadata: ['./metadata-tool.js', 'initMetadata'] };
+  const modules = { ico: ['./ico-tool.js', 'initICO'], image: ['./image-tool.js', 'initImageTool'], qrcode: ['./qr-tool.js', 'initQRCode'], svg: ['./svg-tool.js', 'initSVG'], crop: ['./crop-tool.js', 'initCrop'], color: ['./color-tool.js', 'initColor'], watermark: ['./watermark-tool.js', 'initWatermark'], collage: ['./collage-tool.js', 'initCollage'], imagepdf: ['./image-pdf-tool.js', 'initImagePDF'], pdfimages: ['./pdf-images-tool.js', 'initPDFImages'], pdforganizer: ['./pdf-organizer-tool.js', 'initPDFOrganizer'], pdfwatermark: ['./pdf-watermark-tool.js', 'initPDFWatermark'], ocr: ['./ocr-tool.js', 'initOCR'], metadata: ['./metadata-tool.js', 'initMetadata'], cleanup: ['./text-cleanup-tool.js', 'initTextCleanup'] };
   if (initializers[currentTool]) initializers[currentTool]();
   else if (modules[currentTool]) {
     const [path, name] = modules[currentTool];
