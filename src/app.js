@@ -65,6 +65,11 @@ function setLineNumbers(id, value) { $(id).textContent = Array.from({ length: Ma
 function initJSON() {
   let jsonResult = '';
   let jsonOperation = 'format';
+  let sendTable,tableSending=false,tableTransferController,tableTransferVersion=0;
+  function resetTableTransfer(){tableTransferController?.abort();tableTransferController=null;tableTransferVersion++;tableSending=false;}
+  import('./text-transfer.js').then(module=>{sendTable=module.sendTextToTable;$('json-to-table').disabled=!jsonResult;}).catch(()=>{});
+  window.addEventListener('pagehide',resetTableTransfer);
+  window.addEventListener('pageshow',()=>{$('json-to-table').disabled=!jsonResult||!sendTable||tableSending;});
   const jsonSample = '{"name":"SGAO 工具箱","version":"1.0.0","description":"让日常开发，顺手一点","tools":["JSON 格式化","时间戳转换","URL 编解码","文本对比"],"settings":{"localOnly":true,"needLogin":false},"id":9007199254740993}';
   function highlightJSON(value) {
     const output = $('json-output'); output.replaceChildren(); output.classList.remove('placeholder');
@@ -81,12 +86,13 @@ function initJSON() {
     fragment.append(document.createTextNode(value.slice(end))); output.append(fragment);
   }
   function clearJSONOutput() {
+    resetTableTransfer();
     jsonResult = '';
     $('json-output').classList.add('placeholder');
     $('json-output').textContent = '整理后的 JSON 会出现在这里';
     $('json-output-status').textContent = $('json-input').value ? '输入已变更，请重新处理' : '等待输入';
     $('json-output-count').textContent = '0 字符';
-    $('json-copy').disabled = $('json-download').disabled = true;
+    $('json-copy').disabled = $('json-download').disabled = $('json-to-table').disabled = true;
     setLineNumbers('json-output-lines', ''); showError('json-error');
   }
   function updateJSONInput() {
@@ -95,6 +101,7 @@ function initJSON() {
     clearJSONOutput();
   }
   function runJSON(compact = false) {
+    resetTableTransfer();
     showError('json-error');
     try {
       jsonResult = formatJSON($('json-input').value, { compact, indent: $('json-indent').value, sortKeys: $('json-sort').checked });
@@ -103,7 +110,7 @@ function initJSON() {
       $('json-output-scroll').scrollTop = $('json-output-scroll').scrollLeft = 0;
       $('json-output-count').textContent = charCount(jsonResult);
       $('json-output-status').textContent = compact ? '✓ 已压缩 · JSON 有效' : '✓ 已格式化 · JSON 有效';
-      $('json-copy').disabled = $('json-download').disabled = false;
+      $('json-copy').disabled = $('json-download').disabled = false; $('json-to-table').disabled=!sendTable;
     } catch (error) { clearJSONOutput(); $('json-output-status').textContent = '格式校验失败'; showError('json-error', error.message); }
   }
   on('json-input', 'input', updateJSONInput);
@@ -114,6 +121,7 @@ function initJSON() {
   on('json-clear', 'click', () => { $('json-input').value = ''; updateJSONInput(); $('json-input').focus(); });
   on('json-sample', 'click', () => { $('json-input').value = jsonSample; updateJSONInput(); runJSON(); });
   on('json-copy', 'click', () => { if (jsonResult) copy(jsonResult); });
+  on('json-to-table','click',async()=>{if(!jsonResult||!sendTable||tableSending)return;const ticket=++tableTransferVersion,abort=new AbortController();tableTransferController=abort;tableSending=true;$('json-to-table').disabled=true;try{await sendTable(jsonResult,'formatted.json',{signal:abort.signal});if(ticket===tableTransferVersion)toast('JSON 结果已送至表格转换工具');}catch(error){if(ticket===tableTransferVersion&&error.name!=='AbortError')toast(error.message);}finally{if(ticket===tableTransferVersion){tableSending=false;tableTransferController=null;$('json-to-table').disabled=!jsonResult;}}});
   on('json-download', 'click', () => {
     if (!jsonResult) return;
     const url = URL.createObjectURL(new Blob([jsonResult], { type: 'application/json;charset=utf-8' }));
@@ -304,7 +312,7 @@ function initDiff() {
 
 if (!redirectLegacyHash()) {
   const initializers = { home: initDirectory, json: initJSON, timestamp: initTimestamp, url: initURL, diff: initDiff };
-  const modules = { ico: ['./ico-tool.js', 'initICO'], image: ['./image-tool.js', 'initImageTool'], qrcode: ['./qr-tool.js', 'initQRCode'], svg: ['./svg-tool.js', 'initSVG'], crop: ['./crop-tool.js', 'initCrop'], color: ['./color-tool.js', 'initColor'], watermark: ['./watermark-tool.js', 'initWatermark'], collage: ['./collage-tool.js', 'initCollage'], imagepdf: ['./image-pdf-tool.js', 'initImagePDF'], pdfimages: ['./pdf-images-tool.js', 'initPDFImages'], pdforganizer: ['./pdf-organizer-tool.js', 'initPDFOrganizer'], pdfwatermark: ['./pdf-watermark-tool.js', 'initPDFWatermark'], ocr: ['./ocr-tool.js', 'initOCR'], metadata: ['./metadata-tool.js', 'initMetadata'], cleanup: ['./text-cleanup-tool.js', 'initTextCleanup'], markdown: ['./markdown-tool.js', 'initMarkdown'] };
+  const modules = { ico: ['./ico-tool.js', 'initICO'], image: ['./image-tool.js', 'initImageTool'], qrcode: ['./qr-tool.js', 'initQRCode'], svg: ['./svg-tool.js', 'initSVG'], crop: ['./crop-tool.js', 'initCrop'], color: ['./color-tool.js', 'initColor'], watermark: ['./watermark-tool.js', 'initWatermark'], collage: ['./collage-tool.js', 'initCollage'], imagepdf: ['./image-pdf-tool.js', 'initImagePDF'], pdfimages: ['./pdf-images-tool.js', 'initPDFImages'], pdforganizer: ['./pdf-organizer-tool.js', 'initPDFOrganizer'], pdfwatermark: ['./pdf-watermark-tool.js', 'initPDFWatermark'], ocr: ['./ocr-tool.js', 'initOCR'], metadata: ['./metadata-tool.js', 'initMetadata'], cleanup: ['./text-cleanup-tool.js', 'initTextCleanup'], markdown: ['./markdown-tool.js', 'initMarkdown'], csvjson: ['./csv-json-tool.js', 'initCSVJSON'] };
   if (initializers[currentTool]) initializers[currentTool]();
   else if (modules[currentTool]) {
     const [path, name] = modules[currentTool];

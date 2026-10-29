@@ -1,0 +1,3 @@
+export const TABLE_LIMITS=Object.freeze({units:1_000_000,fileBytes:4*1024**2,rows:10_000,columns:100,cells:200_000,field:100_000,output:2_000_000,markdown:200_000});
+export function validateUnicode(value){for(let i=0;i<value.length;i++){const code=value.charCodeAt(i);if(code>=0xd800&&code<=0xdbff){const next=value.charCodeAt(++i);if(!(next>=0xdc00&&next<=0xdfff))throw new Error('文本含孤立 Unicode 代理字符，请修正后重试，避免导出时被替换。');}else if(code>=0xdc00&&code<=0xdfff)throw new Error('文本含孤立 Unicode 代理字符，请修正后重试，避免导出时被替换。');}return value;}
+export function validateTableText(text){if(typeof text!=='string'||text.length>TABLE_LIMITS.units)throw new Error('输入最高 100 万 UTF-16 单元，请缩小文件后重试。');if(text.includes('\0'))throw new Error('内容包含 NUL 字符，请导入普通 UTF-8 文本。');return validateUnicode(text);}

@@ -2,7 +2,7 @@ export const SITE_URL = 'https://tools.sgao.cc';
 export const HOME = {
   key: 'home', path: '/', name: '工具导航',
   title: 'SGAO 工具箱 · 免费在线图片与开发工具',
-  description: '免费的在线图片与开发工具箱：图片元数据查看与 EXIF 隐私清理、图片文字识别 OCR、图片与 PDF 双向转换、PDF 合并拆分、PDF 水印与页码、图片拼接与拼图、批量加水印、图片取色、图片裁剪、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码、文本清理与批量替换、Markdown 编辑预览、文本对比。无需登录，内容在浏览器本地处理。',
+  description: '免费的在线图片与开发工具箱：图片元数据查看与 EXIF 隐私清理、图片文字识别 OCR、图片与 PDF 双向转换、PDF 合并拆分、PDF 水印与页码、图片拼接与拼图、批量加水印、图片取色、图片裁剪、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码、文本清理与批量替换、Markdown 编辑预览、CSV 与 JSON 互转、文本对比。无需登录，内容在浏览器本地处理。',
 };
 
 // Shared by the static build, local server and legacy-link compatibility.
@@ -16,7 +16,7 @@ export const TOOLS = [
     intro: '适合整理接口响应、检查配置文件和压缩 JSON 数据。支持对象、数组及基础类型；格式化只调整布局，不把大整数转成浮点数。',
     steps: ['粘贴 JSON，或点击「试试示例」了解输入格式。', '选择缩进与键名排序，点击「格式化」或「压缩 JSON」。', '检查结果与错误提示，复制内容或下载 JSON 文件。'],
     faqs: [['会丢失长整数的精度吗？', '工具保留原始数值文本，包括超出 JavaScript 安全整数范围的数字、指数写法和负零；不会先转成普通浮点数再输出。'], ['支持多大的 JSON？', '最多输入 200 万字符，嵌套深度上限为 200 层。较长结果会关闭语法高亮，以减少浏览器负担。'], ['可以处理注释和末尾逗号吗？', '目前按标准 JSON 校验，不接受注释、未加引号的键名和末尾逗号。遇到错误会提示位置。']],
-    related: ['diff', 'url', 'timestamp'],
+    related: ['csvjson', 'diff', 'markdown'],
   },
   {
     key: 'timestamp', path: '/timestamp-converter/', name: '时间戳转换', icon: 'clock', category: 'dev',
@@ -226,11 +226,24 @@ export const TOOLS = [
     intro:'用 Markdown 编写 README、博客草稿与产品说明。可从文本整理结果继续排版，切换编辑或预览视图，在标题目录中定位内容，下载后自行保存。',
     steps:['粘贴 Markdown，导入或拖入 UTF-8 MD / TXT，也可从文本整理结果继续排版。','使用快捷按钮或 ⌘ / Ctrl + B、I、K 插入粗体、斜体与链接；查看实时排版、字符统计和标题目录。','复制 Markdown 或 HTML 片段；下载 .md 或包含固定浅色样式的独立 HTML，关闭页面前请自行保存。'],
     faqs:[['支持哪些 Markdown 语法？','支持标准 Markdown，以及常用 GFM 表格、任务列表和删除线。包含标题、列表、引用、链接、行内代码和代码块；代码按原文显示。可选择单换行是否生成换行。不支持公式、Mermaid 图、脚注或执行原始 HTML；原始 HTML 按文字显示。'],['图片、链接和导出的 HTML 如何处理？','图片只显示替代文字占位，不自动加载远程资源，也不会嵌入导出的 HTML。链接仅保留 HTTP、HTTPS、mailto 和文档标题锚点；相对地址及其他协议仅保留文字。外链点击时打开新标签页。复制 HTML 是排版片段，下载 HTML 包含固定浅色样式和禁止脚本、自动资源请求的策略，可独立打开。'],['文档会自动保存吗，支持多大？','文档、预览和导出只留在当前页面内存，不上传、不自动持久保存；关闭或刷新前请下载。UTF-8 MD / TXT 最高 1 MB、20 万 UTF-16 单元、10,000 行；无效 UTF-8 和 NUL 字符会提示。结构或预览过大也会停止，解析最长 5 秒。失败、暂停或停止保留原文与旧预览；源文变化后，需要更新成功才能导出 HTML。字符数按 Unicode 码点计，包含 Markdown 符号、空格和换行。']],
-    related:['cleanup','ocr','diff'],
+    related:['csvjson','cleanup','ocr'],
+  },
+
+
+  {
+    key:'csvjson',path:'/csv-json-converter/',name:'CSV / JSON 互转 & 表格预览',icon:'grid',category:'dev',
+    title:'CSV 与 JSON 在线互转 · TSV 转换、表格预览与 Markdown - SGAO 工具箱',
+    tagline:'让数据，换一种顺手的表达。',
+    description:'免费在线 CSV / TSV 与 JSON 互转，支持自动分隔符、表头设置、导出字段选择与排序、分页表格预览、CSV / JSON 下载及 Markdown 表格复制。保留 JSON 数值原文，CSV 转 JSON 默认字符串，数据在浏览器本地处理、不上传。',
+    card:'CSV、TSV 与 JSON 对象数组互转，选择导出字段、预览表格，一键复制 Markdown。',tags:['CSV / TSV / JSON','表格预览'],keywords:'CSV TSV JSON 互转 转换 表格 预览 数据 导出 分隔符 表头 字段 Markdown table converter spreadsheet',
+    intro:'将平面 JSON 接口数据转成 CSV，或把 CSV / TSV 整理为 JSON 对象数组。按需选择与排列字段，在分页表格中检查数据，再下载或继续 Markdown 排版。',
+    steps:['粘贴数据，导入 UTF-8 CSV / TSV / JSON，或从 JSON 格式化结果继续；选择输入格式、分隔符和表头方式。','点击「转换并预览」，检查提示；勾选导出字段、用箭头调整顺序，选择 CSV 分隔符、是否包含表头与公式文本保护。','切换 JSON、CSV / TSV 或 Markdown 结果，复制或下载完整内容；也可直接继续 Markdown 排版。'],
+    faqs:[['支持哪些 CSV / TSV，自动识别失败怎么办？','支持逗号、Tab、分号和竖线，兼容 CRLF、LF 与 CR 记录换行，双引号字段可包含分隔符和换行，内部双引号用两个双引号转义。裸引号、闭引号后的额外字符、列数不齐、重复或空白表头会提示。自动识别存在多个合理分隔符时需手动选择。默认不跳过物理空行；无表头时生成 column_1 等字段名，带引号的空值行会保留。'],['数字、空值和嵌套 JSON 会怎样处理？','首版只支持由平面对象组成的 JSON 数组，字段值为字符串、数值、布尔值或 null，不自动展开嵌套对象和数组。JSON 数值不经过 JavaScript Number，保留大整数、小数、指数和负零的原始词元；缺字段与 null 在 CSV 中成为空单元格。CSV 转 JSON 全部按字符串处理，保留前导零，不推断数字和布尔值。导出 CSV 后，表格软件仍可能自行解释数字，使用时请检查导入类型。'],['会修改公式或保存数据吗，有什么限制？','数据只留在本页内存，不上传、不自动保存。CSV / TSV 默认为可能被当作公式的字符串和表头添加前置单引号，界面显示修改数量；可关闭以按原文导出。此设置只影响 CSV / TSV，不能保证所有表格软件和二次保存行为一致。UTF-8 文件最高 4 MB、输入 100 万 UTF-16 单元、10,000 条数据、100 列、20 万单元格（CSV 含表头），单字段 10 万单元，CSV / JSON 输出各最高 200 万单元。解析和导出最长 10 秒，可停止；失败或停止保留旧结果，但设置不匹配时不能导出。Markdown 最高 20 万单元，换行 / Tab 用可见标记替代、边缘空白可能按 Markdown 语法折叠，适合文档展示。预览每页 20 行、每格最多 500 字符，完整输出不截断。']],
+    related:['json','markdown','cleanup'],
   },
 
 ];
-export const HOME_ORDER = ['image', 'crop', 'metadata', 'ocr', 'cleanup', 'markdown', 'collage', 'imagepdf', 'pdforganizer', 'pdfwatermark', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
+export const HOME_ORDER = ['image', 'crop', 'metadata', 'ocr', 'cleanup', 'markdown', 'collage', 'imagepdf', 'pdforganizer', 'pdfwatermark', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'csvjson', 'timestamp', 'url', 'diff'];
 export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'document', name: '文档与 PDF' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }];
 export function toolByKey(key) { return TOOLS.find(tool => tool.key === key); }
 export function pageForPath(pathname) {

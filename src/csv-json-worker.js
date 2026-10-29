@@ -1,0 +1,2 @@
+import {parseTable,exportTable} from './lib/csv-json.js';
+self.onmessage=({data})=>{try{if(data.action==='parse'){const table=parseTable(data.text,data.options);self.postMessage({result:{table,output:exportTable(table,data.exportOptions)}});}else if(data.action==='export')self.postMessage({result:{output:exportTable(data.table,data.exportOptions)}});else throw new Error('表格处理操作无效。');}catch(error){self.postMessage({error:error.message||'表格处理失败。'});}};

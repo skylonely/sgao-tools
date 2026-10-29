@@ -1,0 +1,5 @@
+export function runCSVJSON(request,{signal,workerFactory=url=>new Worker(url,{type:'module'}),timeout=10_000}={}){
+  return new Promise((resolve,reject)=>{let worker,timer,done=false;const finish=(error,result)=>{if(done)return;done=true;clearTimeout(timer);signal?.removeEventListener('abort',stop);worker?.terminate();error?reject(error):resolve(result);};const stop=()=>finish(new DOMException('表格处理已停止','AbortError'));if(signal?.aborted){stop();return;}
+    try{worker=workerFactory(new URL('./csv-json-worker.js',import.meta.url));signal?.addEventListener('abort',stop,{once:true});worker.onmessage=({data})=>{if(done)return;if(data.error)finish(new Error(data.error));else if(data.result)finish(null,data.result);};worker.onerror=event=>{event.preventDefault?.();finish(new Error('表格处理线程加载失败，请刷新后重试。'));};worker.onmessageerror=()=>finish(new Error('表格结果读取失败，请重试。'));timer=setTimeout(()=>finish(new Error('处理超过 10 秒，原文与旧结果保留。请缩小数据后重试。')),timeout);worker.postMessage(request);}catch(error){finish(error);}
+  });
+}
