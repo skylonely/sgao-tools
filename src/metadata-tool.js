@@ -1,4 +1,4 @@
-import { METADATA_LIMITS, ORIENTATIONS, metadataFilename } from './lib/jpeg-metadata.js';
+import { METADATA_LIMITS, ORIENTATIONS, metadataFilename } from './lib/image-metadata.js';
 import { metadataTask } from './metadata-task.js';
 import { createZIP } from './lib/zip.js';
 import { sendToCompressor, sendToOCR } from './image-transfer.js';
@@ -8,18 +8,20 @@ export function initMetadata({notify}) {
   const bytes=n=>n>=1024**2?`${(n/1024**2).toFixed(2)} MB`:`${(n/1024).toFixed(1)} KB`;
   const message=(id,text='')=>{$(id).textContent=text;$(id).hidden=!text;};
   const current=()=>items[selected];
-  const filename=item=>$('md-neutral').checked?`photo-${String(items.indexOf(item)+1).padStart(3,'0')}-clean.jpg`:metadataFilename(item.file.name);
+  const filename=item=>{const mime=item.info?.mime||'image/jpeg',ext=mime==='image/png'?'png':'jpg';return $('md-neutral').checked?`photo-${String(items.indexOf(item)+1).padStart(3,'0')}-clean.${ext}`:metadataFilename(item.file.name,mime);};
   function releasePreview(){previewURLs.forEach(url=>URL.revokeObjectURL(url));previewURLs=[];if(downloadURL)URL.revokeObjectURL(downloadURL);downloadURL=null;}
   function pairTable(target,rows) { target.replaceChildren(); for(const row of rows){const tr=document.createElement('tr');for(const value of row){const td=document.createElement('td');td.textContent=value;tr.append(td);}target.append(tr);} }
   function renderDetails(){
     const item=current();releasePreview();for(const id of ['md-original','md-cleaned'])$(id).removeAttribute('src');
     $('md-workspace').hidden=!items.length; if(!item){$('md-name').textContent=$('md-size').textContent=$('md-result-note').textContent='';$('md-fields').replaceChildren();$('md-blocks').replaceChildren();message('md-item-error');message('md-warnings');return;}
     $('md-name').textContent=item.file.name;$('md-size').textContent=item.info?`${item.info.width} × ${item.info.height} px · ${bytes(item.file.size)}`:bytes(item.file.size);
-    $('md-original-empty').hidden=!!item.info;$('md-cleaned-empty').hidden=!!item.output;
-    if(item.info){const url=URL.createObjectURL(item.file);previewURLs.push(url);$('md-original').src=url;}
+    const originalPreview=item.info?.mime==='image/png'?item.info.preview:item.file;$('md-original-empty').hidden=!!item.info&&!!originalPreview;$('md-cleaned-empty').hidden=!!item.output;
+    if(item.info&&originalPreview){const url=URL.createObjectURL(originalPreview);previewURLs.push(url);$('md-original').src=url;}
     if(item.output){const url=URL.createObjectURL(item.output);previewURLs.push(url);$('md-cleaned').src=url;downloadURL=url;}
-    const info=item.info, after=item.after;
+    const info=item.info, after=item.after;$('md-original').closest('.md-images').classList.toggle('is-transparent',!!info?.alpha);
     pairTable($('md-fields'),info?[
+      ['格式',info.format,after?after.format:'保持原格式'],
+      ['透明度',info.alpha?'包含透明通道 / 透明色':'无透明通道',after?(after.alpha?'保留':'无透明通道'):'保留'],
       ['尺寸',`${info.width} × ${info.height} px`,after?`${after.width} × ${after.height} px`:'待清理'],
       ['EXIF 方向',ORIENTATIONS[info.orientation||0],after?ORIENTATIONS[after.orientation||0]:'保留'],
       ['ICC 配置',info.icc?'包含（配置内部描述也会保留）':'未发现',after?(after.icc?'原样保留':'未发现'):'保留'],
@@ -33,7 +35,7 @@ export function initMetadata({notify}) {
   }
   function update(){
     const working=!!busy, item=current(), done=items.filter(i=>i.output).length, eligible=items.filter(i=>i.info&&!i.info.blocked&&!i.output).length;
-    $('md-file').disabled=$('md-sample').disabled=working;$('md-clear').disabled=!items.length&&!working;$('md-run').disabled=working||!eligible;$('md-zip').disabled=working||!done;
+    $('md-file').disabled=$('md-sample').disabled=$('md-png-sample').disabled=working;$('md-clear').disabled=!items.length&&!working;$('md-run').disabled=working||!eligible;$('md-zip').disabled=working||!done;
     $('md-stop').hidden=!working;$('md-stop').disabled=!!controller?.signal.aborted;$('md-neutral').disabled=working;
     $('md-run').textContent=working?'处理中…':done&&eligible?'清理剩余图片':'批量清理';
     $('md-count').textContent=`${items.length} 张 · ${done} 张已清理 · 源文件合计 ${bytes(items.reduce((n,i)=>n+i.file.size,0))}`;
@@ -51,8 +53,8 @@ export function initMetadata({notify}) {
   }
   async function clean(){
     if(busy)return;const pending=items.filter(i=>i.info&&!i.info.blocked&&!i.output);if(!pending.length)return;
-    const ticket=++version;controller=new AbortController();busy='clean';message('md-error');update();let completed=0;
-    try{for(const item of pending){if(controller.signal.aborted)break;$('md-status').textContent=`正在清理 ${completed+1} / ${pending.length}…`;try{const result=await metadataTask(item.file,'clean',{signal:controller.signal});if(disposed||ticket!==version)return;item.output=new File([result.output],filename(item),{type:'image/jpeg'});item.after=result.after;item.error='';}catch(error){if(error.name==='AbortError')break;item.error=error.message;}completed++;$('md-progress').value=completed/pending.length;renderDetails();}}
+    const ticket=++version,abort=new AbortController();controller=abort;busy='clean';message('md-error');update();let completed=0;
+    try{for(const item of pending){if(abort.signal.aborted||disposed||ticket!==version)break;$('md-status').textContent=`正在清理 ${completed+1} / ${pending.length}…`;try{const result=item.info.prepared?{output:item.info.prepared,after:item.info.preparedInfo}:await metadataTask(item.file,'clean',{signal:abort.signal});if(disposed||ticket!==version)return;item.output=new File([result.output],filename(item),{type:result.after.mime});item.after=result.after;item.info.prepared=null;item.error='';}catch(error){if(error.name==='AbortError')break;item.error=error.message;}completed++;$('md-progress').value=completed/pending.length;renderDetails();}}
     finally{if(!disposed&&ticket===version){const stopped=controller.signal.aborted;busy='';controller=null;$('md-status').textContent=stopped?'清理已停止，已完成的副本可下载，原文件不变。':`本批处理完成，${items.filter(i=>i.output).length} 张副本可下载；请对照预览后分享。`;renderDetails();}}
   }
   async function zip(){
@@ -71,12 +73,13 @@ export function initMetadata({notify}) {
   }
   function invalidateZip(){const link=$('md-zip-download');if(link.dataset.url)URL.revokeObjectURL(link.dataset.url);delete link.dataset.url;link.removeAttribute('href');link.hidden=true;message('md-zip-note');}
   function clear(){controller?.abort();version++;items=[];selected=0;busy='';controller=null;releasePreview();invalidateZip();$('md-progress').value=0;message('md-error');$('md-status').textContent='图片与元数据已清空，原文件未修改。';renderDetails();update();}
-  async function transfer(kind){const file=current()?.output;if(!file||busy||transferring)return;transferring=true;update();try{const outgoing=new File([file],filename(current()),{type:'image/jpeg'});await(kind==='ocr'?sendToOCR(outgoing):sendToCompressor(outgoing));notify('清理后的图片已发送');}catch(error){message('md-error',error.message);}finally{transferring=false;if(!disposed)update();}}
+  async function transfer(kind){const file=current()?.output;if(!file||busy||transferring)return;transferring=true;update();try{const outgoing=new File([file],filename(current()),{type:file.type});await(kind==='ocr'?sendToOCR(outgoing):sendToCompressor(outgoing));notify('清理后的图片已发送');}catch(error){message('md-error',error.message);}finally{transferring=false;if(!disposed)update();}}
   $('md-file').addEventListener('change',e=>{load(e.target.files);e.target.value='';});
   for(const type of ['dragenter','dragover'])$('md-drop').addEventListener(type,e=>{e.preventDefault();if(!busy)$('md-drop').classList.add('drag-over');});for(const type of ['dragleave','drop'])$('md-drop').addEventListener(type,e=>{e.preventDefault();$('md-drop').classList.remove('drag-over');if(type==='drop')load(e.dataTransfer.files);});
   $('md-run').addEventListener('click',()=>{invalidateZip();clean();});$('md-stop').addEventListener('click',()=>{controller?.abort();update();});$('md-clear').addEventListener('click',clear);$('md-zip').addEventListener('click',zip);$('md-neutral').addEventListener('change',()=>{invalidateZip();update();});
   $('md-sample').addEventListener('click',async()=>{if(busy)return;try{const {sampleMetadataFile}=await import('./metadata-sample.js');load([await sampleMetadataFile()]);}catch(error){message('md-error',error.message);}});
+  $('md-png-sample').addEventListener('click',async()=>{if(busy)return;try{const {sampleMetadataPNGFile}=await import('./metadata-sample.js');load([await sampleMetadataPNGFile()]);}catch(error){message('md-error',error.message);}});
   $('md-download').addEventListener('click',e=>{if($('md-download').getAttribute('aria-disabled')==='true')e.preventDefault();});$('md-compress').addEventListener('click',()=>transfer('compress'));$('md-ocr').addEventListener('click',()=>transfer('ocr'));
-  for(const id of ['md-original','md-cleaned'])$(id).addEventListener('error',()=>{if(current()?.info)message('md-item-error','浏览器无法预览该 JPEG。请保留原件，并在本机图片软件检查副本。');});
+  for(const id of ['md-original','md-cleaned'])$(id).addEventListener('error',()=>{if(current()?.info)message('md-item-error','浏览器无法预览该图片。请保留原件，并在本机图片软件检查副本。');});
   window.addEventListener('pagehide',event=>{controller?.abort();if(!event.persisted){disposed=true;clear();}});window.addEventListener('pageshow',event=>{if(event.persisted)update();});update();
 }

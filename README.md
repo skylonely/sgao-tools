@@ -19,7 +19,7 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 | 图片裁剪 & 尺寸调整 | 自由/固定比例、八向控制点、数值与键盘微调、旋转翻转、精确宽高、透明/实色背景、PNG/JPG/WebP 导出，直接继续压缩 | `/image-cropper/` |
 | 图片取色 & 配色板 | 原图像素与放大镜、HEX/RGB/HSL/Alpha、5–8 代表色、CSS 变量、JSON 与 PNG 色卡 | `/image-color-picker/` |
 | 图片水印 & 批量加水印 | 中文文字/Logo、九宫格/拖动定位、相对大小、透明度和旋转、错行平铺、PNG/JPG/WebP、ZIP 与继续压缩 | `/image-watermark/` |
-| 图片元数据 & 隐私清理 | JPG/JPEG EXIF 查看、批量清理、方向与色彩保留、前后对照、单张 / ZIP、中性文件名 | `/image-metadata/` |
+| 图片元数据 & 隐私清理 | PNG/JPG/JPEG 文本与 EXIF 查看、批量清理、方向与色彩保留、前后对照、单张 / ZIP、中性文件名 | `/image-metadata/` |
 | 图片文字识别（OCR） | 简体中文 / 英文 / 混合、上传 / 粘贴 / 拖入、旋转与预处理、文字框对照、编辑 / 复制 / TXT、可停止 | `/image-to-text/` |
 | PDF 水印 & 页码 | 中文文字 / Logo 水印、位置 / 透明度 / 旋转 / 平铺、连续页码、指定范围、跳过封面、实际输出预览 | `/pdf-watermark/` |
 | PDF 合并 & 拆分 | 多文档合并、按范围提取/拆分、每页单独导出、拖动与键盘排序、旋转删除、实际结果预览与 ZIP | `/pdf-merge-split/` |
@@ -100,6 +100,8 @@ sgao-tools/
 │   ├── pdf-tools.css       # PDF 工具共用的页面布局
 │   ├── metadata-tool.js     # JPEG 元数据查看、批量清理、对照与下载
 │   ├── metadata-worker.js   # 可终止的本地读取与清理线程
+│   ├── png-profile.js       # PNG ICC 流式有界校验
+│   ├── lib/png-metadata.js  # PNG CRC、元数据清理与透明度 / 色彩保留
 │   ├── lib/jpeg-metadata.js # JPEG 多扫描解析、EXIF 白名单与清理后校验
 │   ├── ocr-tool.js          # 图片文字识别、校对、停止与 TXT 下载
 │   ├── ocr-task.js          # 可终止的 Tesseract Worker 协议
@@ -314,10 +316,19 @@ Apple 图标使用 8% 内边距。Maskable 按源图完整矩形的对角线缩�
 
 ## 图片元数据查看 & 隐私清理
 
-- 独立入口 `/image-metadata/`，兼容 `/#metadata`；首页图片分类、搜索、SEO、FAQ、关联工具和站点地图共用页面目录。首版只支持 8 位普通 / 渐进式单画面 JPEG，20 张 / 批，单张最高 20 MB、源文件合计最高 100 MB、单边 10000 px、总像素 3200 万。
+- 独立入口 `/image-metadata/`，兼容 `/#metadata`；首页图片分类、搜索、SEO、FAQ、关联工具和站点地图共用页面目录。支持静态 PNG 和 8 位普通 / 渐进式单画面 JPEG（PNG 细节见下节），20 张 / 批，单张最高 20 MB、源文件合计最高 100 MB、单边 10000 px、总像素 3200 万。
 - 按实际字节读取 JPEG，常用 TIFF/EXIF 字段包括设备、时间、作者、序列号和 GPS。仅展示常用字段，不等于穷尽全部隐私；其他 EXIF/XMP/IPTC/APP 段以段级列表显示。大小端、偏移、字段数、IFD 深度和循环均检查。
 - 不重编码画面，JPEG 编码段与所有扫描字节保持不变；移除 EXIF 拍摄信息、XMP/IPTC、COM、JFXX、其他 APP 和 EOI 后的附加数据。重建最小 IFD0 Orientation / ExifIFD ColorSpace；JFIF 仅保留 14 字节基本头且缩略图尺寸归零，Adobe APP14 仅保留 12 字节色彩头，ICC APP2 完整分块原样保留。导出后重新解析校验，原文件不改动。
 - 多个 EXIF 段、扫描后的 EXIF / ICC、EXIF 方向 / 色彩冲突、EXIF/XMP 方向冲突或仅有 XMP 方向、损坏 EXIF、Gamma 色彩扩展、无 ICC 的非 sRGB、ICC 缺块/重复、MPF 多画面、HDR gain-map / ISO 21496-1 以及 SPIFF 会阻止生成副本；不静默丢失 HDR 或附图。
 - 查看与清理逐张在可终止 module Worker 中执行，单张 30 秒超时；原图解码失败不进入清理。停止 / 单张失败保留已完成副本；可逐张查看、移除、下载或 ZIP 打包。默认中性下载文件名，导出副本可通过既有一次性同源窗口通道继续压缩或 OCR。输入、元数据、ZIP 与结果均不上传、不持久保存。
 - ICC 内部描述随配置保留，清理不能遮盖画面中的人脸、文字或手动选择保留的文件名，也会移除附加版权 / 内容凭证。页面明确提示这些实际边界，无“完全匿名”承诺。
 - 无新增运行时依赖。格式参考：[Oracle JPEG 元数据说明](https://docs.oracle.com/javase/8/docs/api/javax/imageio/metadata/doc-files/jpeg_metadata.html)、[ExifTool FAQ 色彩标签](https://exiftool.org/faq.html#Q32)、[Adobe TIFF/XMP 定义](https://developer.adobe.com/xmp/docs/xmp-namespaces/tiff/)、[Android Ultra HDR 格式](https://developer.android.com/media/platform/hdr-image-format)。
+
+
+### PNG 元数据支持
+
+- 静态 PNG 按文件签名识别，支持 RGBA / 灰度透明、索引色与 tRNS、1/2/4/8/16 位、Adam7；与 JPEG 混合批量处理，下载保持各自的 MIME 与 .png / .jpg 扩展名。保留现有 20 张 / 20 MB / 每批 100 MB 限制。
+- 校验每个块的 CRC、长度、类型、关键块顺序、调色板 / 透明度约束；拒绝未知关键块和 APNG，不将动画变成静态首帧。eXIf 必须唯一且位于首个 IDAT 前。
+- IHDR、PLTE、IDAT、IEND 和 tRNS、sBIT、iCCP、sRGB、gAMA、cHRM、cICP、mDCV、cLLI、bKGD、pHYs 原样保留。eXIf 使用同一受限 TIFF 读取器，仅重建方向与 ColorSpace；文本 tEXt/zTXt/iTXt、时间 tIME、其他附加块与 IEND 后尾随数据移除，不重新编码像素。
+- 展开未压缩文本（每字段预览最多 1024 字节、最多 200 个文本字段）；压缩文本只显示字段名，不解压。原图画面预览在本地剔除文本等附加块后再解码，保留原始 eXIf 与显示块；不改变原始文件。ICC 流式解压验证最多 4 MB，检查声明长度、签名、颜色类型及标签表范围，防止无界展开；iCCP 名称与配置描述仍随颜色信息保留。
+- 透明 PNG 虚构示例包含 EXIF、GPS、普通 / Unicode 文本和时间，可直接对照清理。格式依据 [W3C PNG 第三版](https://www.w3.org/TR/png-3/)。

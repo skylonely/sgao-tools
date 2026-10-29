@@ -7,8 +7,8 @@ const frameMarkers = new Set([0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0x
 const fields = new Map([[0x010e,'图片描述'],[0x010f,'设备厂商'],[0x0110,'设备型号'],[0x0131,'处理软件'],[0x0132,'修改时间'],[0x013b,'作者'],[0x8298,'版权'],[0x9003,'拍摄时间'],[0x9004,'数字化时间'],[0x9011,'拍摄时区'],[0xa430,'设备所有者'],[0xa431,'机身序列号'],[0xa433,'镜头厂商'],[0xa434,'镜头型号'],[0xa435,'镜头序列号'],[0x829a,'曝光时间'],[0x829d,'光圈'],[0x8827,'ISO'],[0x920a,'焦距']]);
 export const ORIENTATIONS = ['未记录（按正常方向显示）','正常','水平镜像','旋转 180°','垂直镜像','转置','顺时针 90°','横向转置','逆时针 90°'];
 
-function readExif(data) {
-  const t = data.subarray(6), view = new DataView(t.buffer, t.byteOffset, t.byteLength), result = { rows: [], orientation: undefined, colorSpace: undefined, adobeRGB: false, gps: false };
+export function readExifTIFF(t) {
+  const view = new DataView(t.buffer, t.byteOffset, t.byteLength), result = { rows: [], orientation: undefined, colorSpace: undefined, adobeRGB: false, gps: false };
   const range = (offset, size) => { if (!Number.isSafeInteger(offset) || offset < 0 || size < 0 || offset + size > t.length) throw new Error('EXIF 字段越界'); };
   range(0, 8); const little = t[0] === 0x49 && t[1] === 0x49;
   if (!little && !(t[0] === 0x4d && t[1] === 0x4d)) throw new Error('EXIF 字节序无效');
@@ -57,15 +57,16 @@ export function jpegSegment(marker, payload) {
   if (payload.length > 65533) throw new Error('JPEG 数据段过长');
   const out = new Uint8Array(payload.length + 4); out.set([255,marker,(payload.length+2) >> 8,(payload.length+2) & 255]); out.set(payload,4); return out;
 }
-function minimalExif(orientation, colorSpace) {
+export function minimalExifTIFF(orientation, colorSpace) {
   const tags = []; if (orientation !== undefined) tags.push([0x0112,orientation]);
   // ColorSpace belongs to the Exif sub-IFD, not IFD0.
   const mainCount = tags.length + (colorSpace !== undefined ? 1 : 0), sub = 8 + 2 + mainCount*12 + 4;
   const t = new Uint8Array(sub + (colorSpace !== undefined ? 18 : 0)), v = new DataView(t.buffer); t.set([0x49,0x49,42,0,8,0,0,0]); v.setUint16(8,mainCount,true);
   tags.forEach(([tag,value],i) => { const p = 10+i*12; v.setUint16(p,tag,true); v.setUint16(p+2,3,true); v.setUint32(p+4,1,true); v.setUint16(p+8,value,true); });
   if (colorSpace !== undefined) { const p = 10+tags.length*12; v.setUint16(p,0x8769,true); v.setUint16(p+2,4,true); v.setUint32(p+4,1,true); v.setUint32(p+8,sub,true); v.setUint16(sub,1,true); v.setUint16(sub+2,0xa001,true); v.setUint16(sub+4,3,true); v.setUint32(sub+6,1,true); v.setUint16(sub+10,colorSpace,true); }
-  const payload = new Uint8Array(6+t.length); payload.set([69,120,105,102,0,0]); payload.set(t,6); return jpegSegment(0xe1,payload);
+  return t;
 }
+function minimalExif(orientation, colorSpace) { const t = minimalExifTIFF(orientation,colorSpace), payload = new Uint8Array(6+t.length); payload.set([69,120,105,102,0,0]); payload.set(t,6); return jpegSegment(0xe1,payload); }
 
 export function inspectJPEG(bytes) {
   if (!(bytes instanceof Uint8Array) || !bytes.length || bytes.length > METADATA_LIMITS.fileBytes) throw new Error('请选择非空 JPG/JPEG，单张最高 20 MB。');
@@ -92,7 +93,7 @@ export function inspectJPEG(bytes) {
       if (marker === 0xe1 && starts(data,'Exif\0\0')) {
         name = 'EXIF 拍摄信息';
         exifCount++; if (exifCount > 1 || scans) blocked = '检测到多个 EXIF 段或扫描后的 EXIF，浏览器对方向与色彩的解释可能不同。请先另存为普通 JPEG。';
-        try { const exif = readExif(data); rows.push(...exif.rows); if (exif.orientation !== undefined) orientations.add(exif.orientation); if (exif.colorSpace !== undefined) spaces.add(exif.colorSpace); gps ||= exif.gps; adobeRGB ||= exif.adobeRGB; }
+        try { const exif = readExifTIFF(data.subarray(6)); rows.push(...exif.rows); if (exif.orientation !== undefined) orientations.add(exif.orientation); if (exif.colorSpace !== undefined) spaces.add(exif.colorSpace); gps ||= exif.gps; adobeRGB ||= exif.adobeRGB; }
         catch { blocked = 'EXIF 结构异常，无法可靠保留方向与色彩。请先另存为普通 JPEG。'; warnings.push('部分 EXIF 未解析；不会生成清理文件。'); }
       } else if (marker === 0xe0 && starts(data,'JFIF\0')) {
         if (data.length < 14) throw new Error('JFIF 头不完整。');
@@ -143,4 +144,4 @@ export function cleanJPEG(bytes) {
   if (after.blocked || after.rows.length || after.gps || after.orientation !== before.orientation || after.colorSpace !== before.colorSpace || after.width !== before.width || after.height !== before.height) throw new Error('清理结果校验失败，请保留原文件。');
   return {output,before,after};
 }
-export function metadataFilename(name = 'image.jpg') { return `${name.replace(/[\u0000-\u001f\u007f\u202a-\u202e\u2066-\u2069/\\:*?"<>|]/g,'-').replace(/\.[^.]*$/,'').replace(/^[.\s]+/,'').slice(0,120) || 'image'}-clean.jpg`; }
+export function metadataFilename(name = 'image.jpg', mime = 'image/jpeg') { return `${name.replace(/[\u0000-\u001f\u007f\u202a-\u202e\u2066-\u2069/\\:*?"<>|]/g,'-').replace(/\.[^.]*$/,'').replace(/^[.\s]+/,'').slice(0,120) || 'image'}-clean.${mime === 'image/png' ? 'png' : 'jpg'}`; }

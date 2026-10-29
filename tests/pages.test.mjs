@@ -84,7 +84,7 @@ test('directory combines category and normalized search, including format and Ch
   assert.equal(find('').length, 18);
   assert.deepEqual(find('', 'image'), ['ico', 'image', 'svg', 'crop', 'color', 'watermark', 'collage', 'metadata']);
   assert.deepEqual(find('  ＪＳＯＮ  '), ['json']);
-  assert.deepEqual(find('PNG', 'image'), ['ico', 'image', 'svg', 'crop', 'color', 'watermark', 'collage']);
+  assert.deepEqual(find('PNG', 'image'), ['ico', 'image', 'svg', 'crop', 'color', 'watermark', 'collage', 'metadata']);
   assert.deepEqual(find('拼图'), ['collage']);
   assert.deepEqual(find('PDF', 'document'), ['imagepdf', 'pdfimages', 'pdforganizer', 'pdfwatermark']);
   assert.deepEqual(find('扫描件'), ['imagepdf', 'pdfimages', 'ocr']);

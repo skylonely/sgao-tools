@@ -1,4 +1,5 @@
 import { jpegSegment } from './lib/jpeg-metadata.js';
+import { pngChunk } from './lib/png-metadata.js';
 
 // Deliberately fictional metadata, including 0°, 0° GPS; no device or location APIs.
 export function demoExif() {
@@ -20,5 +21,21 @@ export async function sampleMetadataFile() {
     ctx.font='28px "PingFang SC","Microsoft YaHei",sans-serif';ctx.fillText('虚构 EXIF · 测试方向、设备',60,835);ctx.fillText('以及 GPS 信息清理',60,885);
     ctx.font='20px sans-serif';ctx.fillText('SGAO TOOLS / LOCAL METADATA DEMO',60,1080);
     const blob=await new Promise(r=>canvas.toBlob(r,'image/jpeg',.88));if(!blob)throw new Error('示例生成失败。');const bytes=new Uint8Array(await blob.arrayBuffer());return new File([bytes.subarray(0,2),demoExif(),bytes.subarray(2)],'sgao-fictional-exif-demo.jpg',{type:'image/jpeg'});
+  }finally{canvas.width=canvas.height=1;}
+}
+
+export async function sampleMetadataPNGFile() {
+  const canvas=document.createElement('canvas');canvas.width=900;canvas.height=620;
+  try{
+    const ctx=canvas.getContext('2d');if(!ctx)throw new Error('无法创建 PNG 示例。');
+    ['#ec6245','#294f4a','#e6b65c','#293650'].forEach((color,i)=>{ctx.globalAlpha=.35+i*.2;ctx.fillStyle=color;ctx.fillRect(65+i*185,60,150,245);});ctx.globalAlpha=1;
+    ctx.fillStyle='#25262c';ctx.font='bold 45px "PingFang SC","Microsoft YaHei",sans-serif';ctx.fillText('透明保留，附加信息做减法。',65,420);
+    ctx.font='27px "PingFang SC","Microsoft YaHei",sans-serif';ctx.fillText('PNG · 虚构 EXIF 与文本信息',65,485);ctx.font='20px sans-serif';ctx.fillText('SGAO TOOLS / TRANSPARENT PNG DEMO',65,560);
+    const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob)throw new Error('PNG 示例生成失败。');
+    const bytes=new Uint8Array(await blob.arrayBuffer()),tiff=demoExif().slice(10),view=new DataView(tiff.buffer),count=view.getUint16(8,true);
+    for(let i=0;i<count;i++){const at=10+i*12;if(view.getUint16(at,true)===0x0112)view.setUint16(at+8,1,true);}
+    const utf8=new TextEncoder(),metadata=[pngChunk('eXIf',tiff),pngChunk('tEXt',utf8.encode('Author\0SGAO Fictional PNG Author')),pngChunk('iTXt',utf8.encode('Description\0\0\0\0\0这是一段用于测试隐私清理的虚构说明。')),pngChunk('tIME',Uint8Array.from([7,234,10,29,10,30,0]))];
+    // IHDR stays first; all source display chunks and IDAT remain unchanged.
+    return new File([bytes.subarray(0,33),...metadata,bytes.subarray(33)],'sgao-fictional-transparent-demo.png',{type:'image/png'});
   }finally{canvas.width=canvas.height=1;}
 }
