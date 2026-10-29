@@ -1,6 +1,6 @@
 import {DEFAULT_CLEANUP,TEXT_LIMITS,validateText,validateCleanup,textStats,readTextFile,cleanupFilename,textBlob} from './lib/text-cleanup.js';
 import {runTextCleanup} from './text-cleanup-task.js';
-import {receiveTextTransfer,sendTextToDiff} from './text-transfer.js';
+import {receiveTextTransfer,sendTextToDiff,sendTextToMarkdown} from './text-transfer.js';
 
 export function initTextCleanup({notify}) {
   const $=id=>document.getElementById(id);let result=null,revision=0,operation=0,busy=false,controller,disposed=false,name='text.txt',downloadURL,downloadTimer,statsTimer,transferring=false,transferController,transferVersion=0;
@@ -15,6 +15,7 @@ export function initTextCleanup({notify}) {
     const hasOutput=output().length>0;$('tc-run').disabled=busy||!input().length;$('tc-run').textContent=busy?'正在处理…':result?'重新整理并替换结果':'开始整理';
     $('tc-stop').hidden=!busy;$('tc-stop').disabled=!!controller?.signal.aborted;$('tc-settings').disabled=$('tc-file').disabled=$('tc-sample').disabled=busy;$('tc-input').readOnly=$('tc-output').readOnly=busy;
     $('tc-copy').disabled=busy||!result;$('tc-download').setAttribute('aria-disabled',String(busy||!result));$('tc-download').tabIndex=busy||!result?-1:0;$('tc-restore').disabled=busy||!input().length;$('tc-to-diff').disabled=busy||transferring||!result||stale()||!result.input.length&&!hasOutput;
+    $('tc-to-markdown').disabled=busy||transferring||!result||stale()||!hasOutput;
     $('tc-add-rule').disabled=busy||$('tc-rules').children.length>=TEXT_LIMITS.rules;$('tc-rules-count').textContent=`${$('tc-rules').children.length} / ${TEXT_LIMITS.rules}`;
     $('tc-output-state').textContent=!result?'等待整理':stale()?'结果待更新':result.manual?'已手动编辑':'整理完成';
     message('tc-stale',stale()?'输入或规则已变化，当前保留上次结果。重新整理后可继续对比；复制和下载以右侧当前文本为准。':'');
@@ -54,6 +55,7 @@ export function initTextCleanup({notify}) {
   $('tc-download').addEventListener('click',event=>{if(busy||!refreshDownload())event.preventDefault();});
   $('tc-restore').addEventListener('click',()=>{if(busy)return;$('tc-output').value=input();result={input:input(),name,revision,manual:true};renderSummary();refreshStats();refreshDownload();$('tc-status').textContent='右侧已恢复为当前原文，左侧原始输入未修改。';update();});
   $('tc-to-diff').addEventListener('click',async()=>{if(!result||busy||stale()||transferring)return;const ticket=++transferVersion,abort=new AbortController();transferController=abort;transferring=true;update();try{await sendTextToDiff(result.input,output(),{signal:abort.signal});if(!disposed&&ticket===transferVersion)notify('原文与结果已送至文本对比');}catch(error){if(!disposed&&ticket===transferVersion&&error.name!=='AbortError')message('tc-error',error.message);}finally{if(!disposed&&ticket===transferVersion){transferring=false;transferController=null;update();}}});
+  $('tc-to-markdown').addEventListener('click',async()=>{if(!result||busy||stale()||transferring||!output().length)return;const ticket=++transferVersion,abort=new AbortController();transferController=abort;transferring=true;update();try{await sendTextToMarkdown(output(),result.name,{signal:abort.signal});if(!disposed&&ticket===transferVersion)notify('当前结果已送至 Markdown 编辑器');}catch(error){if(!disposed&&ticket===transferVersion&&error.name!=='AbortError')message('tc-error',error.message);}finally{if(!disposed&&ticket===transferVersion){transferring=false;transferController=null;update();}}});
   $('tc-file').addEventListener('change',event=>{load(event.target.files[0]);event.target.value='';});
   $('view-cleanup').addEventListener('dragover',event=>{if(event.dataTransfer?.types.includes('Files'))event.preventDefault();});$('view-cleanup').addEventListener('drop',event=>{if(!event.dataTransfer?.files.length)return;event.preventDefault();if(event.dataTransfer.files.length!==1)message('tc-error','请一次导入一份 UTF-8 TXT。');else load(event.dataTransfer.files[0]);});
   $('tc-sample').addEventListener('click',()=>{if(busy)return;$('tc-input').value='  SGAO  Tools  \n\n  文本清理示例  \n同一条内容\n同一条内容\n\nOCR 识别后的文字，\n可以继续整理。\n\nHello   world! 😀\n旧名称：SGAO Tools\n';name='sample.txt';defaults();$('tc-spaces').checked=$('tc-dedupe').checked=true;$('tc-rules').replaceChildren();ruleRow({enabled:true,find:'SGAO Tools',replace:'SGAO 工具箱'});changed();refreshStats();$('tc-status').textContent='示例已放入，点击「开始整理」预览实际变化。';});

@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {sendTextToCleanup,sendTextToDiff,receiveTextTransfer} from '../src/text-transfer.js';
+import {sendTextToCleanup,sendTextToDiff,sendTextToMarkdown,receiveTextTransfer} from '../src/text-transfer.js';
 function setup(){const old={window:globalThis.window,location:globalThis.location,history:globalThis.history},listeners=new Map();const window={opener:null,addEventListener(type,fn){if(!listeners.has(type))listeners.set(type,new Set());listeners.get(type).add(fn);},removeEventListener(type,fn){listeners.get(type)?.delete(fn);}};globalThis.window=window;globalThis.location={origin:'https://tools.sgao.cc',pathname:'/text-cleaner/',search:'?from=ocr',hash:''};globalThis.history={replaceState(){}};return {window,listeners,emit(event){for(const fn of [...(listeners.get('message')||[])])fn(event);},hide(){for(const fn of [...(listeners.get('pagehide')||[])])fn({});},restore(){for(const [key,value] of Object.entries(old)){if(value===undefined)delete globalThis[key];else globalThis[key]=value;}}};}
 test('OCR text sends only over a verified same-origin one-use channel with no text in its URL',async()=>{
  const env=setup(),messages=[],popup={postMessage(data,origin){messages.push({data,origin});}};let path;env.window.open=url=>{path=url;return popup;};
@@ -20,4 +20,11 @@ test('blocked/throwing popup and sender page exit do not leave listeners or unre
 test('clearing a pending transfer aborts delivery and ignores queued ready messages',async()=>{
  const env=setup(),abort=new AbortController(),messages=[],popup={postMessage(data){messages.push(data);}};let path;window.open=url=>{path=url;return popup;};
  try{const pending=sendTextToDiff('private before','private after',{signal:abort.signal}),receive=[...env.listeners.get('message')][0],token=path.split('=')[1];abort.abort();await assert.rejects(pending,{name:'AbortError'});receive({origin:location.origin,source:popup,data:{type:'sgao-text-transfer:ready',token}});assert.equal(messages.length,0);assert.equal(env.listeners.get('message').size,0);assert.equal(env.listeners.get('pagehide').size,0);const early=new AbortController();early.abort();window.open=()=>assert.fail('must not open');await assert.rejects(sendTextToCleanup('private','x.txt',{signal:early.signal}),{name:'AbortError'});}finally{env.restore();}
+});
+test('Markdown transfer uses the fixed route, preserves current text, and validates target-specific limits before opening',async()=>{
+ const env=setup(),messages=[],popup={postMessage(data){messages.push(data);}};let path;env.window.open=url=>{path=url;return popup;};
+ try{const text='# 校对后的文字 😀\n\n$& \\n',pending=sendTextToMarkdown(text,'文章.txt'),token=path.split('=')[1];assert.ok(path.startsWith('/markdown-editor/#text-transfer='));assert.ok(!path.includes('校对'));env.emit({origin:location.origin,source:popup,data:{type:'sgao-text-transfer:ready',token}});assert.equal(messages[0].payload.target,'markdown');assert.equal(messages[0].payload.text,text);env.emit({origin:location.origin,source:popup,data:{type:'sgao-text-transfer:received',token}});await pending;
+ path='';for(const value of ['x'.repeat(200001),'a\n'.repeat(10000),'a\0b'])await assert.rejects(sendTextToMarkdown(value));assert.equal(path,'');
+ const sender={postMessage(){}},received=[];env.window.opener=sender;location.hash=`#text-transfer=${token}`;receiveTextTransfer('markdown',payload=>received.push(payload.text),error=>assert.fail(error));env.emit({origin:location.origin,source:sender,data:{type:'sgao-text-transfer:payload',token,payload:{target:'markdown',text,name:'文章.txt'}}});assert.deepEqual(received,[text]);assert.equal(window.opener,null);
+ }finally{env.restore();}
 });

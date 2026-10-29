@@ -1,0 +1,5 @@
+export function runMarkdown(text,options,{signal,workerFactory=url=>new Worker(url,{type:'module'}),timeout=5000}={}) {
+  return new Promise((resolve,reject)=>{let worker,timer,done=false;const finish=(error,result)=>{if(done)return;done=true;clearTimeout(timer);signal?.removeEventListener('abort',stop);worker?.terminate();error?reject(error):resolve(result);};const stop=()=>finish(new DOMException('预览已停止','AbortError'));if(signal?.aborted){stop();return;}
+    try{worker=workerFactory(new URL('./markdown-worker.js',import.meta.url));signal?.addEventListener('abort',stop,{once:true});worker.onmessage=({data})=>{if(done)return;if(data.error)finish(new Error(data.error));else if(data.result)finish(null,data.result);};worker.onerror=event=>{event.preventDefault?.();finish(new Error('Markdown 线程加载失败，请刷新页面重试。'));};worker.onmessageerror=()=>finish(new Error('预览结果读取失败，请重试。'));timer=setTimeout(()=>finish(new Error('解析超过 5 秒，原文和旧预览保留。请缩小文档后重试。')),timeout);worker.postMessage({text,options});}catch(error){finish(error);}
+  });
+}

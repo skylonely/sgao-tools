@@ -2,7 +2,7 @@ export const SITE_URL = 'https://tools.sgao.cc';
 export const HOME = {
   key: 'home', path: '/', name: '工具导航',
   title: 'SGAO 工具箱 · 免费在线图片与开发工具',
-  description: '免费的在线图片与开发工具箱：图片元数据查看与 EXIF 隐私清理、图片文字识别 OCR、图片与 PDF 双向转换、PDF 合并拆分、PDF 水印与页码、图片拼接与拼图、批量加水印、图片取色、图片裁剪、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码、文本清理与批量替换、文本对比。无需登录，内容在浏览器本地处理。',
+  description: '免费的在线图片与开发工具箱：图片元数据查看与 EXIF 隐私清理、图片文字识别 OCR、图片与 PDF 双向转换、PDF 合并拆分、PDF 水印与页码、图片拼接与拼图、批量加水印、图片取色、图片裁剪、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码、文本清理与批量替换、Markdown 编辑预览、文本对比。无需登录，内容在浏览器本地处理。',
 };
 
 // Shared by the static build, local server and legacy-link compatibility.
@@ -214,10 +214,23 @@ export const TOOLS = [
     intro:'整理 OCR 识别结果、复制来的段落或普通文本。每项整理都可选择，原文保留供校对；替换按规则顺序执行，内容不上传、不写入浏览器存储。',
     steps:['粘贴原文、导入或拖入一份 UTF-8 TXT，也可从 OCR 结果直接继续整理。','选择空白、空行、非空行去重与段内合并方式；按需添加多条普通文本替换规则，区分大小写。','开始整理，前后校对并编辑结果，复制或下载 TXT；可恢复原文，或将本次原文与当前结果送至文本对比。'],
     faqs:[['替换规则如何执行，支持正则表达式吗？','首版使用普通文本精确匹配，区分大小写、不解析正则。规则从上到下依次执行，后一条会处理前一条生成的结果；同一条不会反复扫描自己刚生成的内容。查找内容不能为空（完全空白的规则忽略），替换内容可为空以删除匹配。$&、\\n 等按字面处理，实际换行请直接粘贴。'],['合并断行会把段落混在一起吗？','默认不合并。开启后先按空行划分段落，再将段内分行用空格或直接连接；之后才执行空行整理。不会自动判断词义、去除连字符或修正 OCR 错字。去重只处理非空行、保留第一次出现，默认不启用。CRLF / CR 统一为 LF，不自动做 Unicode 归一化、大小写或不可见字符清理。'],['支持多大的文本，停止或出错会丢内容吗？','每侧最高 100 万 UTF-16 单元、10 万行；最多 20 条规则，每个查找或替换字段最高 1 万单元。UTF-8 TXT 最高 4 MB，拒绝无效 UTF-8 或含 NUL 的文件。每一步都限制中间结果大小，处理最长 10 秒且可停止，失败或停止保留原文和已有结果；空结果也算成功，可下载带 BOM 的 UTF-8 TXT。文本对比两侧合计最多 20,000 行。字符统计按 Unicode 码点计，组合 Emoji 可能计多个字符。']],
-    related:['ocr','diff','json'],
+    related:['markdown','ocr','diff'],
   },
+
+  {
+    key:'markdown',path:'/markdown-editor/',name:'Markdown 编辑 & 实时预览',icon:'file',category:'dev',
+    title:'Markdown 在线编辑器 · 实时预览、目录与 HTML 导出 - SGAO 工具箱',
+    tagline:'从一个想法，到一份清楚的文档。',
+    description:'免费在线 Markdown 编辑与实时预览，支持表格、任务列表、代码块、快捷排版、字数统计与标题目录。导入 UTF-8 MD / TXT，复制 HTML 片段或下载 Markdown、带样式的独立 HTML；文档在浏览器本地处理，不上传、不自动保存。',
+    card:'一边写作，一边预览；快捷排版、文档目录，导出 Markdown 或带样式的 HTML。',tags:['实时预览','MD / HTML'],keywords:'Markdown md 编辑 编辑器 实时 预览 排版 文档 博客 README HTML 转换 导出 表格 editor preview GFM',
+    intro:'用 Markdown 编写 README、博客草稿与产品说明。可从文本整理结果继续排版，切换编辑或预览视图，在标题目录中定位内容，下载后自行保存。',
+    steps:['粘贴 Markdown，导入或拖入 UTF-8 MD / TXT，也可从文本整理结果继续排版。','使用快捷按钮或 ⌘ / Ctrl + B、I、K 插入粗体、斜体与链接；查看实时排版、字符统计和标题目录。','复制 Markdown 或 HTML 片段；下载 .md 或包含固定浅色样式的独立 HTML，关闭页面前请自行保存。'],
+    faqs:[['支持哪些 Markdown 语法？','支持标准 Markdown，以及常用 GFM 表格、任务列表和删除线。包含标题、列表、引用、链接、行内代码和代码块；代码按原文显示。可选择单换行是否生成换行。不支持公式、Mermaid 图、脚注或执行原始 HTML；原始 HTML 按文字显示。'],['图片、链接和导出的 HTML 如何处理？','图片只显示替代文字占位，不自动加载远程资源，也不会嵌入导出的 HTML。链接仅保留 HTTP、HTTPS、mailto 和文档标题锚点；相对地址及其他协议仅保留文字。外链点击时打开新标签页。复制 HTML 是排版片段，下载 HTML 包含固定浅色样式和禁止脚本、自动资源请求的策略，可独立打开。'],['文档会自动保存吗，支持多大？','文档、预览和导出只留在当前页面内存，不上传、不自动持久保存；关闭或刷新前请下载。UTF-8 MD / TXT 最高 1 MB、20 万 UTF-16 单元、10,000 行；无效 UTF-8 和 NUL 字符会提示。结构或预览过大也会停止，解析最长 5 秒。失败、暂停或停止保留原文与旧预览；源文变化后，需要更新成功才能导出 HTML。字符数按 Unicode 码点计，包含 Markdown 符号、空格和换行。']],
+    related:['cleanup','ocr','diff'],
+  },
+
 ];
-export const HOME_ORDER = ['image', 'crop', 'metadata', 'ocr', 'cleanup', 'collage', 'imagepdf', 'pdforganizer', 'pdfwatermark', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
+export const HOME_ORDER = ['image', 'crop', 'metadata', 'ocr', 'cleanup', 'markdown', 'collage', 'imagepdf', 'pdforganizer', 'pdfwatermark', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
 export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'document', name: '文档与 PDF' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }];
 export function toolByKey(key) { return TOOLS.find(tool => tool.key === key); }
 export function pageForPath(pathname) {

@@ -3,6 +3,16 @@
 These libraries are served from this site, without a CDN or third-party requests.
 The application still builds and runs without an npm install.
 
+## Markdown editor
+
+- `markdown/marked-18.1.2.esm.js`: unchanged official Marked **18.1.2** ESM, MIT.
+- `markdown/purify-3.4.15.es.mjs`: unchanged official DOMPurify **3.4.15** ESM,
+  Apache-2.0 OR MPL-2.0. Both upstream licenses are included.
+- Retrieved 2026-10-29 from the official npm registry. Exact archive SHA-512,
+  selected-file SHA-256, source maps and licenses are recorded in
+  `markdown/manifest.json`. The parser loads in Markdown workers, the sanitizer
+  only on the Markdown page. There are no CDN requests or new build dependencies.
+
 - `qrcodegen.js`: Project Nayuki's compiled QR Code generator, retrieved 2026-10-23 from
   <https://www.nayuki.io/res/qr-code-generator-library/qrcodegen.js>.
   MIT license is preserved in its header. The only local change is an appended ESM export.

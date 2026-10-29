@@ -1,8 +1,10 @@
 import {validateText} from './lib/text-cleanup.js';
+import {validateMarkdown} from './lib/markdown.js';
 const PREFIX='sgao-text-transfer',validToken=token=>typeof token==='string'&&/^[a-f0-9-]{36}$/.test(token);
 function validatePayload(payload,target){
   if(!payload||typeof payload!=='object'||payload.target!==target)throw new Error('收到的文本类型无效。');
   if(target==='cleanup'){validateText(payload.text);if(typeof payload.name!=='string'||payload.name.length>256)throw new Error('文本名称无效。');}
+  else if(target==='markdown'){validateMarkdown(payload.text);if(typeof payload.name!=='string'||payload.name.length>256)throw new Error('文档名称无效。');}
   else if(target==='diff'){validateText(payload.before);validateText(payload.after);if(!payload.before.length&&!payload.after.length)throw new Error('没有可对比的文本。');const lines=text=>text?text.replace(/\r\n?/g,'\n').split('\n').length:0;if(lines(payload.before)+lines(payload.after)>20_000)throw new Error('文本对比两侧合计最高 20,000 行，请缩小范围后继续。');}
   else throw new Error('文本目标无效。');return payload;
 }
@@ -16,6 +18,7 @@ function send(payload,path,{signal}={}){
 }
 export const sendTextToCleanup=(text,name='ocr-result.txt',options)=>send({target:'cleanup',text,name},'/text-cleaner/',options);
 export const sendTextToDiff=(before,after,options)=>send({target:'diff',before,after},'/text-diff/',options);
+export const sendTextToMarkdown=(text,name='未命名文档',options)=>send({target:'markdown',text,name},'/markdown-editor/',options);
 export function receiveTextTransfer(target,onPayload,onError){
   if(!location.hash.startsWith('#text-transfer='))return;
   const token=location.hash.slice('#text-transfer='.length),sender=window.opener;history.replaceState(null,'',`${location.pathname}${location.search}`);
