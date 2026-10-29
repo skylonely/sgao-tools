@@ -6,7 +6,7 @@
   <text x="83" y="204" fill="#777970" font-size="14" letter-spacing="3">SMALL TOOLS. EVERYDAY FLOW.</text>
   <g font-family="PingFang SC, Microsoft YaHei, sans-serif" font-weight="600" font-size="68" fill="#25262c"><text x="78" y="299">日常开发，</text><text x="78" y="389">顺手一点<tspan fill="#ec6245">.</tspan></text></g>
   <text x="84" y="457" font-family="PingFang SC, sans-serif" font-size="20" fill="#777970">图片优化 · 网站图标 · 二维码 · 开发工具</text>
-  <path d="M84 520h1033" stroke="#e2e0d9"/><text x="84" y="566" font-size="18" fill="#777970">tools.sgao.cc</text><text x="866" y="566" font-size="13" fill="#427c60" letter-spacing="1">17 TOOLS / ALL LOCAL</text>
+  <path d="M84 520h1033" stroke="#e2e0d9"/><text x="84" y="566" font-size="18" fill="#777970">tools.sgao.cc</text><text x="866" y="566" font-size="13" fill="#427c60" letter-spacing="1">18 TOOLS / ALL LOCAL</text>
   <rect x="714" y="137" width="405" height="336" rx="22" fill="#eeece6" stroke="#e2e0d9"/><rect x="714" y="137" width="405" height="336" rx="22" fill="url(#grid)"/>
   <g transform="translate(775 209) rotate(-9 69 74)"><rect width="141" height="149" rx="22" fill="#ec6245"/><path d="m35 40 30 30m0-24v24H41m65 42L76 82m0 24V82h24" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><text x="27" y="128" fill="#fff" font-size="13" letter-spacing="2">LESS KB</text></g>
   <g transform="translate(932 181) rotate(9 68 68)"><rect width="136" height="136" rx="22" fill="#1c1e24"/><text x="18" y="82" fill="#f5f3ee" font-size="48">{</text><text x="46" y="74" fill="#ff967a" font-size="17">JSON</text><text x="107" y="82" fill="#f5f3ee" font-size="48">}</text></g>

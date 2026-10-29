@@ -19,6 +19,7 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 | 图片裁剪 & 尺寸调整 | 自由/固定比例、八向控制点、数值与键盘微调、旋转翻转、精确宽高、透明/实色背景、PNG/JPG/WebP 导出，直接继续压缩 | `/image-cropper/` |
 | 图片取色 & 配色板 | 原图像素与放大镜、HEX/RGB/HSL/Alpha、5–8 代表色、CSS 变量、JSON 与 PNG 色卡 | `/image-color-picker/` |
 | 图片水印 & 批量加水印 | 中文文字/Logo、九宫格/拖动定位、相对大小、透明度和旋转、错行平铺、PNG/JPG/WebP、ZIP 与继续压缩 | `/image-watermark/` |
+| 图片元数据 & 隐私清理 | JPG/JPEG EXIF 查看、批量清理、方向与色彩保留、前后对照、单张 / ZIP、中性文件名 | `/image-metadata/` |
 | 图片文字识别（OCR） | 简体中文 / 英文 / 混合、上传 / 粘贴 / 拖入、旋转与预处理、文字框对照、编辑 / 复制 / TXT、可停止 | `/image-to-text/` |
 | PDF 水印 & 页码 | 中文文字 / Logo 水印、位置 / 透明度 / 旋转 / 平铺、连续页码、指定范围、跳过封面、实际输出预览 | `/pdf-watermark/` |
 | PDF 合并 & 拆分 | 多文档合并、按范围提取/拆分、每页单独导出、拖动与键盘排序、旋转删除、实际结果预览与 ZIP | `/pdf-merge-split/` |
@@ -32,11 +33,11 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 
 根目录 `/` 是工具导航首页，按「图片与图标 / 文档与 PDF / 开发与文本 / 分享与连接」分类，可组合关键词搜索，支持空结果重置与键盘操作。搜索内容只用于本页筛选，不发送请求。
 
-构建时为首页和 17 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
+构建时为首页和 18 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
 
-旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg`、`/#crop`、`/#color`、`/#watermark`、`/#collage`、`/#imagepdf`、`/#pdfimages`、`/#pdforganizer`、`/#pdfwatermark`、`/#ocr` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
+旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg`、`/#crop`、`/#color`、`/#watermark`、`/#collage`、`/#imagepdf`、`/#pdfimages`、`/#pdforganizer`、`/#pdfwatermark`、`/#ocr`、`/#metadata` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
 
-`/sitemap.xml` 由同一份页面目录生成，包含 18 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
+`/sitemap.xml` 由同一份页面目录生成，包含 19 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
 
 新增工具时，在 `src/lib/pages.js` 中填写目录、页面文案、步骤、FAQ 与关联工具，在 `src/index.html` 增加对应 `view-*` 区块，并在 `src/app.js` 注册初始化逻辑。构建会同步生成导航、独立页面与站点地图。
 
@@ -97,6 +98,9 @@ sgao-tools/
 │   ├── pdf-watermark-engine.js # 保留原页面并追加水印图层
 │   ├── pdf-watermark-worker.js # 后台写入与逐页图层协议
 │   ├── pdf-tools.css       # PDF 工具共用的页面布局
+│   ├── metadata-tool.js     # JPEG 元数据查看、批量清理、对照与下载
+│   ├── metadata-worker.js   # 可终止的本地读取与清理线程
+│   ├── lib/jpeg-metadata.js # JPEG 多扫描解析、EXIF 白名单与清理后校验
 │   ├── ocr-tool.js          # 图片文字识别、校对、停止与 TXT 下载
 │   ├── ocr-task.js          # 可终止的 Tesseract Worker 协议
 │   ├── ocr-engine.js        # 受限尺寸、旋转、灰度与二值预处理
@@ -306,3 +310,14 @@ Apple 图标使用 8% 内边距。Maskable 按源图完整矩形的对角线缩�
 - 使用固定版本 Worker 协议，启动即拥有 Worker，模型加载期间也可立即停止；最长三分钟。语言缓存显式设为 none，不使用 IndexedDB 保存模型或输入；公开版本化资源可由 HTTP 缓存复用。主页面保留禁止数据请求的 CSP，仅 OCR Worker 可获取同源模型与引擎。图片以本地 PNG 字节传入，绝不作为网络 URL 发送。
 - 原始识别文本与图片文字框可对照，点选识别行定位对应文本；最多显示 1000 行文字框，完整文字不截断。结果可编辑、复制与下载带 BOM 的 UTF-8 TXT，最高 100 万字符。模型评分仅反映原始 OCR 输出，不代表正确率；不还原复杂表格排版。
 - 图片或设置变化会标记旧文本，保留手动校对内容。仅在重新识别成功且有文字时替换文本；停止、失败或空结果保留已有内容。清空全部、刷新或关闭页面后释放当前私有内容，不提供账户、历史或服务器存储。
+
+
+## 图片元数据查看 & 隐私清理
+
+- 独立入口 `/image-metadata/`，兼容 `/#metadata`；首页图片分类、搜索、SEO、FAQ、关联工具和站点地图共用页面目录。首版只支持 8 位普通 / 渐进式单画面 JPEG，20 张 / 批，单张最高 20 MB、源文件合计最高 100 MB、单边 10000 px、总像素 3200 万。
+- 按实际字节读取 JPEG，常用 TIFF/EXIF 字段包括设备、时间、作者、序列号和 GPS。仅展示常用字段，不等于穷尽全部隐私；其他 EXIF/XMP/IPTC/APP 段以段级列表显示。大小端、偏移、字段数、IFD 深度和循环均检查。
+- 不重编码画面，JPEG 编码段与所有扫描字节保持不变；移除 EXIF 拍摄信息、XMP/IPTC、COM、JFXX、其他 APP 和 EOI 后的附加数据。重建最小 IFD0 Orientation / ExifIFD ColorSpace；JFIF 仅保留 14 字节基本头且缩略图尺寸归零，Adobe APP14 仅保留 12 字节色彩头，ICC APP2 完整分块原样保留。导出后重新解析校验，原文件不改动。
+- 多个 EXIF 段、扫描后的 EXIF / ICC、EXIF 方向 / 色彩冲突、EXIF/XMP 方向冲突或仅有 XMP 方向、损坏 EXIF、Gamma 色彩扩展、无 ICC 的非 sRGB、ICC 缺块/重复、MPF 多画面、HDR gain-map / ISO 21496-1 以及 SPIFF 会阻止生成副本；不静默丢失 HDR 或附图。
+- 查看与清理逐张在可终止 module Worker 中执行，单张 30 秒超时；原图解码失败不进入清理。停止 / 单张失败保留已完成副本；可逐张查看、移除、下载或 ZIP 打包。默认中性下载文件名，导出副本可通过既有一次性同源窗口通道继续压缩或 OCR。输入、元数据、ZIP 与结果均不上传、不持久保存。
+- ICC 内部描述随配置保留，清理不能遮盖画面中的人脸、文字或手动选择保留的文件名，也会移除附加版权 / 内容凭证。页面明确提示这些实际边界，无“完全匿名”承诺。
+- 无新增运行时依赖。格式参考：[Oracle JPEG 元数据说明](https://docs.oracle.com/javase/8/docs/api/javax/imageio/metadata/doc-files/jpeg_metadata.html)、[ExifTool FAQ 色彩标签](https://exiftool.org/faq.html#Q32)、[Adobe TIFF/XMP 定义](https://developer.adobe.com/xmp/docs/xmp-namespaces/tiff/)、[Android Ultra HDR 格式](https://developer.android.com/media/platform/hdr-image-format)。

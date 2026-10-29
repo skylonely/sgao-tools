@@ -2,7 +2,7 @@ export const SITE_URL = 'https://tools.sgao.cc';
 export const HOME = {
   key: 'home', path: '/', name: '工具导航',
   title: 'SGAO 工具箱 · 免费在线图片与开发工具',
-  description: '免费的在线图片与开发工具箱：图片文字识别 OCR、图片与 PDF 双向转换、PDF 合并拆分、PDF 水印与页码、图片拼接与拼图、批量加水印、图片取色与配色板、图片裁剪与尺寸调整、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
+  description: '免费的在线图片与开发工具箱：图片元数据查看与 EXIF 隐私清理、图片文字识别 OCR、图片与 PDF 双向转换、PDF 合并拆分、PDF 水印与页码、图片拼接与拼图、批量加水印、图片取色、图片裁剪、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码与文本对比。无需登录，内容在浏览器本地处理。',
 };
 
 // Shared by the static build, local server and legacy-link compatibility.
@@ -194,8 +194,19 @@ export const TOOLS = [
     faqs: [['图片和模型会上传或保存吗？', '图片、识别文字和手动修改只留在当前页面内存，不上传、不写入浏览器存储。识别引擎与语言模型从本站按需加载，中英混合首次约 8–9 MB；公开静态资源可由浏览器缓存。'], ['支持多大图片，识别不准怎么办？', '静态 PNG/JPG/WebP 单张最高 20 MB，源图最高 3200 万像素、单边 10000 px；识别用图等比限制到 800 万像素、单边 4096 px。小字建议先裁剪需要区域，调整方向、语言和预处理。清晰印刷体较适合，手写、模糊、倾斜、复杂表格和排版的效果需人工核对。'], ['可以直接识别 PDF，或保留原来的表格排版吗？', '首版输入为图片，PDF 可先用「PDF 转图片」导出需要的页面再识别，裁剪工具和 PDF 转图片支持直接继续 OCR。输出是可编辑纯文本，不还原复杂表格或文档版式；最多 100 万字符，文字框最多显示 1000 行。']],
     related: ['crop', 'pdfimages', 'diff'],
   },
+  {
+    key: 'metadata', path: '/image-metadata/', name: '图片元数据 & 隐私清理', icon: 'shield', category: 'image',
+    title: '图片元数据查看与 EXIF 隐私清理 · JPG 照片信息移除 - SGAO 工具箱',
+    tagline: '看清照片附带的信息，再决定如何分享。',
+    description: '免费在线查看 JPG/JPEG 的 EXIF 拍摄设备、时间和 GPS，批量清理附加信息，保留方向与色彩配置，不重新压缩画面。支持清理前后对照、单张下载和 ZIP 打包，图片在浏览器本地处理，不上传。',
+    card: '查看照片设备、拍摄时间与 GPS，批量清理附加信息，保留画面与方向。', tags: ['EXIF 查看', '批量清理'], keywords: '图片 照片 元数据 隐私 清理 删除 拍摄 时间 设备 GPS EXIF IPTC XMP metadata jpeg jpg location privacy',
+    intro: '在分享照片前检查常用 EXIF 和附加信息段。直接处理 JPEG 元数据，不重新压缩画面；清理后重新扫描，并提供原图与副本对照。只保留方向、色彩配置与必要格式数据。',
+    steps: ['选择或拖入普通 JPG/JPEG，每批最多 20 张，单张最高 20 MB、源文件合计最高 100 MB；可先试试虚构 EXIF 示例。', '选择照片查看设备、时间、GPS（存在时显示）及附加段；无法可靠处理的文件会显示原因。', '点击批量清理，对照画面和信息变化，单张下载或打包 ZIP；默认使用中性文件名，也可继续压缩或识别文字。'],
+    faqs: [['会压缩画面、改变方向或修改原文件吗？', '清理不重新编码画面，JPEG 压缩图像数据保持不变，原文件不修改。重建最小 EXIF 方向与色彩空间，保留 ICC 和必要 JPEG 色彩标记。请对照实际副本检查；多 EXIF 段、扫描后的 EXIF/ICC、方向冲突、损坏、多画面、HDR、Gamma 扩展或无法可靠保留色彩的文件不生成副本。'], ['清理后是否完全没有隐私信息？', '会移除拍摄 EXIF、XMP、IPTC、注释、嵌入缩略图、其他附加段与文件尾随数据，仅保留方向、色彩配置和必要格式信息。ICC 配置内部可能带描述信息；画面中的人脸、文字和文件名也可能包含隐私，需要自行检查。未列出某个字段不代表原图没有该类信息；清理也会移除附加版权和内容凭证，请保留原件。'], ['支持 PNG、WebP、HEIC 和所有 JPEG 吗？', '首版只处理 8 位普通或渐进式单画面 JPEG，单边最高 10000 px、总像素最高 3200 万。不支持 PNG/WebP/HEIC、RAW、多画面和 HDR 扩展。只展开常用 EXIF 字段，其他信息以数据段显示；全部处理在浏览器本地完成，不上传、不持久保存。']],
+    related: ['crop', 'image', 'ocr'],
+  },
 ];
-export const HOME_ORDER = ['image', 'crop', 'ocr', 'collage', 'imagepdf', 'pdforganizer', 'pdfwatermark', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
+export const HOME_ORDER = ['image', 'crop', 'metadata', 'ocr', 'collage', 'imagepdf', 'pdforganizer', 'pdfwatermark', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'timestamp', 'url', 'diff'];
 export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'document', name: '文档与 PDF' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }];
 export function toolByKey(key) { return TOOLS.find(tool => tool.key === key); }
 export function pageForPath(pathname) {
