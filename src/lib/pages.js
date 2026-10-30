@@ -2,7 +2,7 @@ export const SITE_URL = 'https://tools.sgao.cc';
 export const HOME = {
   key: 'home', path: '/', name: '工具导航',
   title: 'SGAO 工具箱 · 免费在线图片与开发工具',
-  description: '免费的在线图片与开发工具箱：图片元数据查看与 EXIF 隐私清理、图片文字识别 OCR、图片与 PDF 双向转换、PDF 合并拆分、PDF 水印与页码、图片拼接与拼图、批量加水印、图片取色、图片裁剪、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码、文本清理与批量替换、Markdown 编辑预览、CSV 与 JSON 互转、文本对比。无需登录，内容在浏览器本地处理。',
+  description: '免费的在线图片与开发工具箱：图片元数据查看与 EXIF 隐私清理、图片文字识别 OCR、图片与 PDF 双向转换、PDF 合并拆分、PDF 水印与页码、图片拼接与拼图、批量加水印、图片取色、图片裁剪、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码、文本清理与批量替换、Markdown 编辑预览、CSV 与 JSON 互转、正则表达式测试与文本提取、文本对比。无需登录，内容在浏览器本地处理。',
 };
 
 // Shared by the static build, local server and legacy-link compatibility.
@@ -49,7 +49,7 @@ export const TOOLS = [
     intro: '适合检查配置修改、接口响应变化和文本版本差异。工具按行比较，并统一 Windows 与 Unix 换行符，避免只因换行方式不同产生差异。',
     steps: ['把旧版和新版文本分别放入两侧输入框。', '按需启用「忽略空白字符」或「忽略大小写」，点击「开始对比」。', '查看新增与删除行，或选择「仅看差异」集中检查修改处。'],
     faqs: [['对比的是字符还是整行？', '当前按行标记新增和删除，并显示对应行号。被修改的一行通常表现为删除旧行、添加新行。'], ['支持多长的文本？', '两侧合计最多 200 万 UTF-16 单元、20,000 行。复杂的大规模差异可能采用近似结果，并在界面提示，以限制处理时间。'], ['忽略空白会忽略哪些内容？', '启用后，对比时忽略行内空白字符；原始文本仍用于展示。结果中的换行符统一为 LF。']],
-    related: ['cleanup', 'json', 'url'],
+    related: ['cleanup', 'regex', 'json'],
   },
   {
     key: 'ico', path: '/favicon-generator/', name: '网站图标整包生成', icon: 'image', category: 'image',
@@ -214,7 +214,7 @@ export const TOOLS = [
     intro:'整理 OCR 识别结果、复制来的段落或普通文本。每项整理都可选择，原文保留供校对；替换按规则顺序执行，内容不上传、不写入浏览器存储。',
     steps:['粘贴原文、导入或拖入一份 UTF-8 TXT，也可从 OCR 结果直接继续整理。','选择空白、空行、非空行去重与段内合并方式；按需添加多条普通文本替换规则，区分大小写。','开始整理，前后校对并编辑结果，复制或下载 TXT；可恢复原文，或将本次原文与当前结果送至文本对比。'],
     faqs:[['替换规则如何执行，支持正则表达式吗？','首版使用普通文本精确匹配，区分大小写、不解析正则。规则从上到下依次执行，后一条会处理前一条生成的结果；同一条不会反复扫描自己刚生成的内容。查找内容不能为空（完全空白的规则忽略），替换内容可为空以删除匹配。$&、\\n 等按字面处理，实际换行请直接粘贴。'],['合并断行会把段落混在一起吗？','默认不合并。开启后先按空行划分段落，再将段内分行用空格或直接连接；之后才执行空行整理。不会自动判断词义、去除连字符或修正 OCR 错字。去重只处理非空行、保留第一次出现，默认不启用。CRLF / CR 统一为 LF，不自动做 Unicode 归一化、大小写或不可见字符清理。'],['支持多大的文本，停止或出错会丢内容吗？','每侧最高 100 万 UTF-16 单元、10 万行；最多 20 条规则，每个查找或替换字段最高 1 万单元。UTF-8 TXT 最高 4 MB，拒绝无效 UTF-8 或含 NUL 的文件。每一步都限制中间结果大小，处理最长 10 秒且可停止，失败或停止保留原文和已有结果；空结果也算成功，可下载带 BOM 的 UTF-8 TXT。文本对比两侧合计最多 20,000 行。字符统计按 Unicode 码点计，组合 Emoji 可能计多个字符。']],
-    related:['markdown','ocr','diff'],
+    related:['regex','markdown','diff'],
   },
 
   {
@@ -239,11 +239,23 @@ export const TOOLS = [
     intro:'将平面 JSON 接口数据转成 CSV，或把 CSV / TSV 整理为 JSON 对象数组。按需选择与排列字段，在分页表格中检查数据，再下载或继续 Markdown 排版。',
     steps:['粘贴数据，导入 UTF-8 CSV / TSV / JSON，或从 JSON 格式化结果继续；选择输入格式、分隔符和表头方式。','点击「转换并预览」，检查提示；勾选导出字段、用箭头调整顺序，选择 CSV 分隔符、是否包含表头与公式文本保护。','切换 JSON、CSV / TSV 或 Markdown 结果，复制或下载完整内容；也可直接继续 Markdown 排版。'],
     faqs:[['支持哪些 CSV / TSV，自动识别失败怎么办？','支持逗号、Tab、分号和竖线，兼容 CRLF、LF 与 CR 记录换行，双引号字段可包含分隔符和换行，内部双引号用两个双引号转义。裸引号、闭引号后的额外字符、列数不齐、重复或空白表头会提示。自动识别存在多个合理分隔符时需手动选择。默认不跳过物理空行；无表头时生成 column_1 等字段名，带引号的空值行会保留。'],['数字、空值和嵌套 JSON 会怎样处理？','首版只支持由平面对象组成的 JSON 数组，字段值为字符串、数值、布尔值或 null，不自动展开嵌套对象和数组。JSON 数值不经过 JavaScript Number，保留大整数、小数、指数和负零的原始词元；缺字段与 null 在 CSV 中成为空单元格。CSV 转 JSON 全部按字符串处理，保留前导零，不推断数字和布尔值。导出 CSV 后，表格软件仍可能自行解释数字，使用时请检查导入类型。'],['会修改公式或保存数据吗，有什么限制？','数据只留在本页内存，不上传、不自动保存。CSV / TSV 默认为可能被当作公式的字符串和表头添加前置单引号，界面显示修改数量；可关闭以按原文导出。此设置只影响 CSV / TSV，不能保证所有表格软件和二次保存行为一致。UTF-8 文件最高 4 MB、输入 100 万 UTF-16 单元、10,000 条数据、100 列、20 万单元格（CSV 含表头），单字段 10 万单元，CSV / JSON 输出各最高 200 万单元。解析和导出最长 10 秒，可停止；失败或停止保留旧结果，但设置不匹配时不能导出。Markdown 最高 20 万单元，换行 / Tab 用可见标记替代、边缘空白可能按 Markdown 语法折叠，适合文档展示。预览每页 20 行、每格最多 500 字符，完整输出不截断。']],
-    related:['json','markdown','cleanup'],
+    related:['regex','json','markdown'],
+  },
+
+  {
+    key:'regex',path:'/regex-tester/',name:'正则表达式测试 & 文本提取',icon:'search',category:'dev',
+    title:'正则表达式在线测试 · 匹配高亮、分组提取与替换 - SGAO 工具箱',
+    tagline:'从一段文本里，找出你需要的内容。',
+    description:'免费在线 JavaScript 正则表达式测试，实时高亮匹配、查看捕获分组与命名分组、批量提取文本、预览替换，导出 TXT、CSV、JSON 并继续表格预览。内置邮箱、网址、日志与日期示例，文本在浏览器本地处理，不上传。',
+    card:'实时测试正则，提取完整匹配与分组，预览替换，导出文本和结构化数据。',tags:['高亮 / 分组','提取 / 替换'],keywords:'正则 表达式 regex regexp 匹配 高亮 提取 替换 分组 邮箱 网址 日志 文本 JavaScript tester',
+    intro:'在文本、日志或接口内容中按规则查找需要的信息。使用当前浏览器的 JavaScript 正则语法，查看匹配与分组、重排替换内容，再把提取结果下载或送往表格工具。',
+    steps:['输入表达式本体与标记，粘贴原文或导入 UTF-8 文件；也可载入示例。实时模式在停止输入后测试，空表达式可手动运行。','检查高亮与匹配详情，选择完整匹配、单个分组或全部分组；切换「替换预览」可输入替换模板。','选择 TXT、CSV 或 JSON，复制或下载完整结果；也可把当前提取字段送往表格工具继续转换。'],
+    faqs:[['支持哪些正则语法和标记？','使用当前浏览器的 JavaScript RegExp，不是 PCRE、Python 或 Java 正则。只填表达式本体，不加两侧斜杠。支持 d/g/i/m/s/u/v/y，u 与 v 互斥；高级语法能否使用取决于浏览器。g 控制全部匹配，未开启只匹配第一处；y 保留从当前位置黏连匹配语义。默认 gu，空表达式与空匹配均支持。'],['分组、空匹配和位置怎样表示？','位置为从 0 开始的 UTF-16 索引，结束位置不包含在范围内；行列从 1 开始，列也按 UTF-16 计数。空匹配高亮为竖线，g 模式会推进位置，u/v 下按 Unicode 码点推进。未参与匹配的捕获组在 JSON 为 null，与空字符串不同；CSV / TXT 以空值表示。d 标记可查看捕获组索引。关闭 u/v 后可能切开 Emoji；JSON 保留转义，TXT/CSV 会拒绝损坏的导出。'],['替换、导出和容量有什么规则？','替换支持 JavaScript 的 $$、$&、$1…$99、$<name>、匹配前后文本引用；$0 为字面文本，\\n 不自动转成换行，需要换行请直接粘贴。CSV 默认对可能的公式文本加前置单引号，可关闭；JSON 不修改值。JSON 无 BOM，TXT/CSV 带 UTF-8 BOM。原文最高 50 万 UTF-16 单元，文件 2 MB，表达式 2,000 单元，替换模板 10,000 单元；最多 5,000 匹配、40 分组、合计 10 万值 / 200 万单元，每种输出最高 200 万单元。3 秒超时会终止任务并关闭实时测试，失败或停止保留旧结果；输入变化后旧导出不可用。高亮每次最多 20,000 单元，详情每页 20 条、每个值最多显示 500 单元，完整导出不截断。']],
+    related:['cleanup','csvjson','diff'],
   },
 
 ];
-export const HOME_ORDER = ['image', 'crop', 'metadata', 'ocr', 'cleanup', 'markdown', 'collage', 'imagepdf', 'pdforganizer', 'pdfwatermark', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'csvjson', 'timestamp', 'url', 'diff'];
+export const HOME_ORDER = ['image', 'crop', 'metadata', 'ocr', 'cleanup', 'regex', 'markdown', 'collage', 'imagepdf', 'pdforganizer', 'pdfwatermark', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'csvjson', 'timestamp', 'url', 'diff'];
 export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'document', name: '文档与 PDF' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }];
 export function toolByKey(key) { return TOOLS.find(tool => tool.key === key); }
 export function pageForPath(pathname) {

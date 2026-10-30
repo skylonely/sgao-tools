@@ -20,6 +20,7 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 | 图片取色 & 配色板 | 原图像素与放大镜、HEX/RGB/HSL/Alpha、5–8 代表色、CSS 变量、JSON 与 PNG 色卡 | `/image-color-picker/` |
 | 图片水印 & 批量加水印 | 中文文字/Logo、九宫格/拖动定位、相对大小、透明度和旋转、错行平铺、PNG/JPG/WebP、ZIP 与继续压缩 | `/image-watermark/` |
 | 图片元数据 & 隐私清理 | PNG/JPG/JPEG 文本与 EXIF 查看、批量清理、方向与色彩保留、前后对照、单张 / ZIP、中性文件名 | `/image-metadata/` |
+| 正则表达式测试 & 文本提取 | 实时高亮、捕获 / 命名分组、替换预览、TXT / CSV / JSON、常用示例、可停止与表格接续 | `/regex-tester/` |
 | CSV / JSON 互转 & 表格预览 | CSV / TSV 与平面 JSON 对象数组、分隔符 / 表头、字段选择排序、分页预览、完整下载、Markdown 表格与工具接续 | `/csv-json-converter/` |
 | Markdown 编辑 & 实时预览 | GFM 表格 / 任务 / 代码、快捷排版、字数与目录、MD / TXT 导入、MD / HTML 导出、本地实时预览 | `/markdown-editor/` |
 | 文本清理 & 批量替换 | 空白整理、非空行去重、段内断行合并、多规则字面替换、原文对照 / 恢复、UTF-8 TXT、OCR / 对比接续 | `/text-cleaner/` |
@@ -36,11 +37,11 @@ SGAO 的独立开发工具站：[tools.sgao.cc](https://tools.sgao.cc)。输入�
 
 根目录 `/` 是工具导航首页，按「图片与图标 / 文档与 PDF / 开发与文本 / 分享与连接」分类，可组合关键词搜索，支持空结果重置与键盘操作。搜索内容只用于本页筛选，不发送请求。
 
-构建时为首页和 21 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
+构建时为首页和 22 个工具分别输出完整 HTML：独立的标题、描述、canonical、Open Graph、Twitter Card，以及 WebSite / WebPage / CollectionPage / BreadcrumbList / ItemList 中对应的 JSON-LD。工具页仅包含当前工具的操作界面，并附有实际能力对应的操作步骤、限制、常见问题和相关工具链接。分享预览图为本地的 1200 × 630 PNG，矢量源文件也在 `public/`。
 
-旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg`、`/#crop`、`/#color`、`/#watermark`、`/#collage`、`/#imagepdf`、`/#pdfimages`、`/#pdforganizer`、`/#pdfwatermark`、`/#ocr`、`/#metadata`、`/#cleanup`、`/#markdown`、`/#csvjson` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
+旧 `/#json`、`/#timestamp`、`/#url`、`/#diff`、`/#ico`、`/#image`、`/#qrcode`、`/#svg`、`/#crop`、`/#color`、`/#watermark`、`/#collage`、`/#imagepdf`、`/#pdfimages`、`/#pdforganizer`、`/#pdfwatermark`、`/#ocr`、`/#metadata`、`/#cleanup`、`/#markdown`、`/#csvjson`、`/#regex` 地址由浏览器自动替换为独立页面地址，并保留查询参数。普通站内链接为可直接访问的路径；目录入口与说明在未运行 JavaScript 时仍可阅读，工具计算需要 JavaScript。
 
-`/sitemap.xml` 由同一份页面目录生成，包含 22 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
+`/sitemap.xml` 由同一份页面目录生成，包含 23 个规范网址；`robots.txt` 声明站点地图位置。Cloudflare 使用 `force-trailing-slash` 统一 HTML 地址；未知页面返回带 `noindex` 的真实 404。新页面上线后，可在域名所属的 Google Search Console / Bing Webmaster Tools 中提交 `https://tools.sgao.cc/sitemap.xml`；本站不自动操作站长账号。
 
 新增工具时，在 `src/lib/pages.js` 中填写目录、页面文案、步骤、FAQ 与关联工具，在 `src/index.html` 增加对应 `view-*` 区块，并在 `src/app.js` 注册初始化逻辑。构建会同步生成导航、独立页面与站点地图。
 
@@ -364,7 +365,7 @@ Apple 图标使用 8% 内边距。Maskable 按源图完整矩形的对角线缩�
 
 ## CSV / JSON 互转 & 表格预览
 
-- 独立入口 `/csv-json-converter/`，兼容 `/#csvjson`；21 个工具、22 个规范页面。首页分类、搜索、SEO、FAQ、站点地图与分享图同步更新。原生 ESM，无新增依赖或外部服务。
+- 独立入口 `/csv-json-converter/`，兼容 `/#csvjson`；22 个工具、23 个规范页面。首页分类、搜索、SEO、FAQ、站点地图与分享图同步更新。原生 ESM，无新增依赖或外部服务。
 - 支持选择、拖入 UTF-8 CSV / TSV / JSON / TXT，自动或手动判断格式；输入分隔符支持逗号、Tab、分号和竖线。严格四态 CSV 解析，双引号以两个双引号转义，支持 CRLF / LF / CR 记录换行及引号内换行，保留字段空格和尾部空字段。最后换行不新增记录；物理空行默认保留，可主动跳过，带引号的空记录仍保留。
 - 自动分隔符按完整逻辑记录检查，多个合理候选时报歧义；列数不齐或超限的多列输入不会退化为单列兜底。重复 / 空白 CSV 表头拒绝，取消首行表头时生成 column_1 等名称。
 - JSON 仅接受平面对象数组，数值保存原始词元，不经 Number；保留超大整数、1e400、-0、高精度小数和1.2300等原文。按解码后的键拒绝重复，Map 保证 __proto__ 等字段安全。嵌套对象 / 数组、无效转义、NUL 和孤立代理字符会提示。列按首次出现顺序并集，缺字段与 null 区分存储；导出 CSV 时两者均为空值。CSV 转 JSON 默认全部字符串，保留前导零，不推断数字或布尔值。
@@ -375,3 +376,14 @@ Apple 图标使用 8% 内边距。Maskable 按源图完整矩形的对角线缩�
 - JSON 格式化结果可在新标签页继续转表格；表格可直接继续 Markdown 编辑。复用固定同源、随机一次 token、精确 origin/source 校验与 ACK 的通道，不把内容写入 URL 或浏览器存储。修改输入 / 选项 / 字段、换文件、清空或离开时取消等待中的旧内容交接。
 - 输入最高4MB / 100万 UTF-16 单元、10,000条数据、100列、20万单元格（CSV包含表头）、单字段10万单元；CSV / JSON各最高200万单元。解析及字段重导出在可终止Worker中执行，最长10秒；错误 / 停止保留原文与旧结果，修订与导出签名不匹配时禁用复制下载。文件、输入、结果和Blob仅在当前页面内存，不自动保存。
 - 格式参考：[RFC 4180](https://www.rfc-editor.org/rfc/rfc4180)、[RFC 8259](https://www.rfc-editor.org/rfc/rfc8259)、[GFM 表格](https://github.github.com/gfm/#tables-extension-)；公式处理参考 [OWASP CSV Injection](https://owasp.org/www-community/attacks/CSV_Injection)。
+
+
+## 正则表达式测试与文本提取
+
+- 入口 `/regex-tester/`，兼容 `/#regex`；22 个工具、23 个规范页面。沿用分类、搜索、独立 SEO、相关工具和站点地图，无新增依赖。
+- 当前浏览器 JavaScript RegExp 语法，表达式本体和 flags 分开输入；支持 d/g/i/m/s/u/v/y，默认 gu。实时测试防抖 400 ms，⌘/Ctrl + Enter 手动测试；空表达式需手动触发。动态正则的构造和执行均在独立 Worker，3 秒超时终止并关闭实时模式，支持手动停止与任务替换。
+- 完整匹配、编号捕获组、命名分组及 d 索引；全局空匹配按普通 UTF-16 或 u/v 码点推进，未参与分组使用 null。零基 UTF-16 [start,end) 索引，一基行列；编辑框与导入换行统一为 LF。所有预览使用文本节点，输入中的 HTML 不执行。
+- 选择完整匹配、单组或全部分组，导出 TXT / CSV / 平面 JSON 对象数组；字符串保留前导零。TXT 全部分组以 Tab 分隔，原始换行保留；CSV 转义逗号、双引号和换行，默认公式文本保护可关闭；JSON 无 BOM，TXT / CSV 带 UTF-8 BOM。未参与组在 TXT/CSV 为空，JSON 为 null。匹配切开 Unicode 时 JSON 保留转义，TXT/CSV 及损坏的替换导出被拒绝。
+- 替换使用有上限的 JavaScript GetSubstitution 语义，支持 $$、$&、$1…$99、$<name>、匹配前后文本引用；$0 和 \n 保持字面。替换溢出时保留匹配提取，不生成截断的替换结果。
+- 原文最多 50 万 UTF-16 单元、UTF-8 文件 2 MB；表达式 2,000 单元、模板 10,000 单元；5,000 条匹配、40 个捕获组、合计 10 万值与 200 万捕获单元，输出每格式最高 200 万单元。高亮窗口 20,000 单元，匹配详情每页 20 条、每值最多显示 500 单元，导出完整且不静默截断。
+- 结果只留页面内存，改动即取消旧任务并禁用过期导出；错误、停止和导入失败保留原文与已有结果。提取 JSON 在符合既有表格容量时，可通过一次性同源通道继续表格预览；改动、清空和离页取消待传递内容。
