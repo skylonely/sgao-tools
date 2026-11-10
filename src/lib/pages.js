@@ -2,7 +2,7 @@ export const SITE_URL = 'https://tools.sgao.cc';
 export const HOME = {
   key: 'home', path: '/', name: '工具导航',
   title: 'SGAO 工具箱 · 免费在线图片与开发工具',
-  description: '免费的在线图片与开发工具箱：图片元数据查看与 EXIF 隐私清理、图片文字识别 OCR、图片与 PDF 双向转换、PDF 合并拆分、PDF 水印与页码、图片拼接与拼图、批量加水印、图片取色、图片裁剪、图片压缩、格式转换、网站图标、二维码、SVG 优化、JSON、时间戳、URL 编解码、文本清理与批量替换、Markdown 编辑预览、CSV 与 JSON 互转、正则表达式测试与文本提取、文本对比。无需登录，内容在浏览器本地处理。',
+  description: '免费的在线图片、开发与生活工具箱。支持图片压缩与转换、PDF 处理、二维码、OCR、JSON、时间戳、正则表达式、CSV 与 JSON 互转、文本整理和职工养老金估算。无需登录，内容在浏览器本地处理。',
 };
 
 // Shared by the static build, local server and legacy-link compatibility.
@@ -254,9 +254,25 @@ export const TOOLS = [
     related:['cleanup','csvjson','diff'],
   },
 
+  {
+    key: 'pension', path: '/pension-calculator/', name: '退休工资预测计算', icon: 'clock', category: 'life',
+    title: '退休工资预测计算器 · 职工基本养老金估算 - SGAO 工具箱',
+    tagline: '用现有缴费记录，估算退休后的首月养老金。',
+    description: '在线测算中国大陆企业职工基本养老金。输入缴费年限、计发基数、缴费指数和个人账户余额，预测退休首月金额，查看基础养老金、个人账户养老金和最低缴费年限对照。数据在浏览器本地处理。',
+    card: '从当前缴费记录预测，或按退休时数据直接测算，查看月金额与缴费年限差额。',
+    tags: ['职工养老金', '缴费年限'], keywords: '退休工资 养老金 退休金 社保 预测 计算器 职工 灵活就业 pension retirement',
+    intro: '适合参加中国大陆企业职工基本养老保险的人估算首月养老金。可用现有记录推算退休时的余额和计发基数，也可直接输入退休时的参数。按通用公式测算，具体待遇和退休条件由待遇领取地社保经办机构核定。',
+    steps: ['选择测算方式，填入缴费年限、缴费指数和个人账户余额。计发基数可查待遇领取地公布的数据。', '填入退休年月或年份、个人账户计发月数。预测模式可调整基数增长率和账户利率，设定未来实际缴费月数。', '查看月金额、组成明细和缴费年限对照。适用过渡性养老金时，可填入已知金额后重新测算。'],
+    faqs: [
+      ['计发基数和缴费基数有什么区别？', '计发基数用于计算基础养老金，应按待遇领取地适用口径填写。缴费基数用于估算未来有缴费月份记入个人账户的金额，请填参保缴费记录上的数值。预测默认以未来每个缴费月的缴费基数乘以 8% 计入账户。'],
+      ['如何填写计发月数和对照年份？', '整周岁可查国发〔2005〕38 号附表，非整周岁的数值请向当地社保经办机构核对。最低缴费年限在 2030 年前为 15 年，2030 年起每年增加 6 个月，2039 年起为 20 年。弹性提前退休按所选退休年份对照，弹性延迟按法定退休年份对照。'],
+      ['结果覆盖哪些金额？', '基础养老金和个人账户养老金分别计算，已知的过渡性养老金可手动计入。结果采用退休时的名义人民币，地方特殊修正、企业年金和退休后的年度调整需另行核对。城乡居民和机关事业单位养老保险适用各自规则。'],
+    ],
+    related: ['timestamp', 'csvjson', 'cleanup'],
+  },
 ];
-export const HOME_ORDER = ['image', 'crop', 'metadata', 'ocr', 'cleanup', 'regex', 'markdown', 'collage', 'imagepdf', 'pdforganizer', 'pdfwatermark', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'csvjson', 'timestamp', 'url', 'diff'];
-export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'document', name: '文档与 PDF' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }];
+export const HOME_ORDER = ['image', 'pension', 'crop', 'metadata', 'ocr', 'cleanup', 'regex', 'markdown', 'collage', 'imagepdf', 'pdforganizer', 'pdfwatermark', 'pdfimages', 'watermark', 'color', 'ico', 'qrcode', 'svg', 'json', 'csvjson', 'timestamp', 'url', 'diff'];
+export const CATEGORIES = [{ key: 'all', name: '全部工具' }, { key: 'image', name: '图片与图标' }, { key: 'document', name: '文档与 PDF' }, { key: 'dev', name: '开发与文本' }, { key: 'share', name: '分享与连接' }, { key: 'life', name: '生活计算' }];
 export function toolByKey(key) { return TOOLS.find(tool => tool.key === key); }
 export function pageForPath(pathname) {
   const path = pathname.replace(/\/index\.html$/, '/').replace(/\/?$/, '/');

@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="/markdown-tool.css">
   <link rel="stylesheet" href="/csv-json-tool.css">
   <link rel="stylesheet" href="/regex-tool.css">
+  <link rel="stylesheet" href="/pension-tool.css">
   <script type="module" src="/app.js"></script>
 </head>
 <body>
@@ -474,6 +475,100 @@
             </div>
           </div>
           <div class="privacy-note"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg><span>文件、Logo 与结果不上传、不持久保存。新增水印和页码使用高清透明图层，原文档不栅格化；字体依赖本机。暂不支持加密、交互表单或数字签名 PDF，请保留原件。</span></div>
+        </section>
+        <section id="view-pension" class="tool-view" aria-label="退休工资预测计算" hidden>
+          <p class="pn-scope">适用于中国大陆企业职工基本养老保险，包括参加这一制度的灵活就业人员。金额按退休时的名义人民币估算，待遇以领取地社保经办核定为准。</p>
+          <div class="pn-workspace">
+            <form id="pn-form" class="form-panel pn-form" autocomplete="off">
+              <fieldset class="pn-modes">
+                <legend class="sr-only">选择测算方式</legend>
+                <label><input type="radio" name="mode" value="forecast" checked><span>从现在预测</span></label>
+                <label><input type="radio" name="mode" value="direct"><span>按退休数据测算</span></label>
+              </fieldset>
+              <p id="pn-mode-help" class="pn-hint">用现有缴费记录和未来假设，估算退休时的首月养老金。</p>
+
+              <fieldset id="pn-forecast" class="pn-fields">
+                <legend>当前记录与退休计划</legend>
+                <label>数据截至月份<input id="pn-as-of" name="asOf" type="text" maxlength="7" placeholder="YYYY-MM" pattern="[0-9]{4}-[0-9]{2}" required></label>
+                <label>预计退休年月<input name="retirement" type="text" maxlength="7" placeholder="如 2035-06" pattern="[0-9]{4}-[0-9]{2}" required></label>
+                <label>已累计缴费（整年）<input name="paidYears" type="number" min="0" max="60" step="1" placeholder="如 15" required></label>
+                <label>已累计缴费（余月）<input name="paidExtra" type="number" min="0" max="11" step="1" value="0" required></label>
+                <label>已缴平均缴费指数<input name="averageIndex" type="number" min="0.01" max="10" step="any" placeholder="如 0.8"></label>
+                <label>当前个人账户余额（元）<input name="balance" type="number" min="0" max="100000000" step="any" placeholder="如 60000" required></label>
+                <label>参考养老金计发基数（元/月）<input name="pensionBase" type="number" min="0.01" max="100000000" step="any" placeholder="填写待遇领取地公布的基数" required></label>
+                <label>未来首月缴费基数（元/月）<input name="contributionBase" type="number" min="0.01" max="100000000" step="any" placeholder="如 9600"></label>
+                <label>未来平均缴费指数<input name="futureIndex" type="number" min="0.01" max="10" step="any" placeholder="如 1.2"></label>
+                <label>未来实际缴费月数（选填）<input name="futureMonths" type="number" min="0" max="720" step="1" placeholder="留空则每月缴费"></label>
+                <p class="pn-hint pn-full">余额、已缴年限和参考计发基数应对应数据截至月。默认从次月起缴到退休当月。填写实际缴费月数时，按先连续缴费、之后停缴推算。没有未来缴费可填 0。</p>
+              </fieldset>
+
+              <fieldset id="pn-direct" class="pn-fields" hidden disabled>
+                <legend>退休时的参数</legend>
+                <label>退休年份<input name="retirementYear" type="number" min="2025" max="2199" step="1" placeholder="如 2035" required></label>
+                <label>退休时养老金计发基数（元/月）<input name="pensionBase" type="number" min="0.01" max="100000000" step="any" placeholder="如 8000" required></label>
+                <label>累计缴费（整年）<input name="paidYears" type="number" min="0" max="60" step="1" placeholder="如 25" required></label>
+                <label>累计缴费（余月）<input name="paidExtra" type="number" min="0" max="11" step="1" value="0" required></label>
+                <label>平均缴费指数<input name="averageIndex" type="number" min="0" max="10" step="any" placeholder="如 1.0" required></label>
+                <label>退休时个人账户余额（元）<input name="balance" type="number" min="0" max="100000000" step="any" placeholder="如 139000" required></label>
+              </fieldset>
+
+              <fieldset class="pn-fields">
+                <legend>个人账户计发月数</legend>
+                <label>整周岁查表（可选）<select id="pn-age"><option value="">选择整周岁</option></select></label>
+                <label>计发月数<input id="pn-divisor" name="divisor" type="number" min="1" max="600" step="any" placeholder="如 139" required></label>
+                <p class="pn-hint pn-full">选整周岁可带入国发〔2005〕38 号附表数值。非整周岁请按待遇领取地经办口径填写。</p>
+              </fieldset>
+
+              <details class="pn-options">
+                <summary>增长假设、过渡性养老金与年限对照</summary>
+                <fieldset id="pn-growth" class="pn-fields">
+                  <legend>预测假设</legend>
+                  <label>计发基数年增长率（%）<input name="pensionGrowth" type="number" min="-20" max="20" step="any" value="0"></label>
+                  <label>缴费基数年增长率（%）<input name="contributionGrowth" type="number" min="-20" max="20" step="any" value="0"></label>
+                  <label>个人账户年记账利率（%）<input name="accountInterest" type="number" min="-20" max="20" step="any" value="0"></label>
+                  <p class="pn-hint pn-full">默认按基数不变、不计利息估算。输入的年增长率和利率按月复利换算，属于测算假设。</p>
+                </fieldset>
+                <fieldset class="pn-fields">
+                  <legend>补充参数</legend>
+                  <label>已知过渡性养老金（元/月）<input name="transitional" type="number" min="0" max="100000000" step="any" placeholder="未知可留空"></label>
+                  <label>最低缴费年限对照年份<input name="referenceYear" type="number" min="2025" max="2199" step="1" placeholder="默认采用退休年份"></label>
+                  <p class="pn-hint pn-full">弹性延迟退休按达到法定退休年龄的年份对照。过渡性养老金按当地口径核算后，可将已知金额计入。</p>
+                </fieldset>
+              </details>
+              <div class="pn-actions">
+                <button id="pn-calculate" type="submit" class="button primary" disabled>计算养老金</button>
+                <button id="pn-example" type="button" class="button secondary">载入示例</button>
+                <button id="pn-clear" type="button" class="text-button muted">清空数据</button>
+              </div>
+              <p id="pn-error" class="error-message" role="alert" hidden></p>
+            </form>
+
+            <div class="pn-results form-panel" aria-labelledby="pn-result-title">
+              <div class="form-heading"><span class="step-marker">01</span><h2 id="pn-result-title">测算结果</h2></div>
+              <p id="pn-status" class="pn-hint" role="status" aria-live="polite">填写参数或载入示例后，查看预计月金额和计算明细。</p>
+              <div id="pn-result" hidden>
+                <div class="pn-amount"><span id="pn-amount-label"></span><strong id="pn-amount"></strong><span>元/月</span></div>
+                <p id="pn-coverage" class="pn-hint"></p>
+                <p id="pn-eligibility" class="pn-threshold"></p>
+                <dl id="pn-breakdown" class="pn-breakdown"></dl>
+                <details class="pn-options pn-calculation" open>
+                  <summary>计算参数与公式</summary>
+                  <dl id="pn-inputs" class="pn-breakdown"></dl>
+                  <p id="pn-basis" class="pn-hint"></p>
+                </details>
+              </div>
+              <div class="pn-sources">
+                <h3>政策与数据来源</h3>
+                <ul>
+                  <li><a href="https://fgk.chinatax.gov.cn/zcfgk/c102440/c5193739/content.html" target="_blank" rel="noopener noreferrer">国务院 · 企业职工基本养老保险制度</a></li>
+                  <li><a href="https://zfgb.fujian.gov.cn/6655" target="_blank" rel="noopener noreferrer">政府公报 · 整周岁计发月数表</a></li>
+                  <li><a href="https://www.mot.gov.cn/hudong/xiangguanziliao/202601/t20260114_4197321.html" target="_blank" rel="noopener noreferrer">全国人大常委会 · 渐进式延迟退休决定</a></li>
+                  <li><a href="https://www.mohrss.gov.cn/wap/zc/zcwj/202501/t20250101_533701.html" target="_blank" rel="noopener noreferrer">人社部 · 弹性退休办法</a></li>
+                </ul>
+                <p class="pn-hint">缴费年限按社保核定记录填写，可含已认定的视同缴费年限。测算采用通用公式，计发基数、缴费指数及地方计发修正请核对待遇领取地口径。输入仅在浏览器内用于测算。</p>
+              </div>
+            </div>
+          </div>
         </section>
         <section id="view-regex" class="tool-view" aria-label="正则表达式测试与文本提取" hidden>
           <div class="rx-flow"><a href="/text-cleaner/">整理原始文本</a><span>→</span><strong>匹配、提取与替换</strong><span>→</span><a href="/csv-json-converter/">表格与数据转换</a></div>

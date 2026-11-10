@@ -57,6 +57,7 @@
 .tone-dev { background:var(--surface-2); color:var(--ink); }
 .tone-share { background:var(--green-soft); color:var(--green); }
 .tone-document { background:var(--green-soft); color:var(--green); }
+.tone-life { background:var(--accent-soft); color:var(--accent-dark); }
 .directory-type { font-size:9px; color:var(--muted); }
 .directory-arrow { margin-left:auto; color:var(--muted); font-size:18px; }
 .directory-card:hover .directory-arrow { color:var(--accent); }
